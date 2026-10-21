@@ -1,0 +1,168 @@
+{
+  "id": 1,
+  "name": "Mekong Noodle House",
+  "cuisine": "Vietnamese",
+  "timezone": "America/Chicago",
+  "opened_at": "2025-06-01",
+  "_shape": "Delivery-dominated. Bimodal lunch and dinner service. Low repeat rate, high ticket. Third-party marketplaces carry roughly two thirds of volume and price 15-25% above the counter.",
+
+  "orders_per_month": 8550,
+  "tax_rate_bps": 1025,
+
+  "hour_of_day_weights": [
+    13, 12, 8, 4, 5, 8, 5, 22, 41, 163, 750, 12225,
+    15179, 13546, 11303, 10228, 10926, 16717, 21802, 20017, 11026, 394, 26, 20
+  ],
+
+  "day_of_week_weights": {
+    "Mon": 19584, "Tue": 17959, "Wed": 17556, "Thu": 18433,
+    "Fri": 21294, "Sat": 23669, "Sun": 26740
+  },
+
+  "day_of_week_value_multiplier": {
+    "Mon": 0.98, "Tue": 0.96, "Wed": 0.96, "Thu": 0.97,
+    "Fri": 1.0, "Sat": 1.02, "Sun": 1.06
+  },
+
+  "daypart_value_multiplier": {
+    "early_morning": 0.95,
+    "lunch": 0.91,
+    "afternoon": 0.96,
+    "dinner": 1.09,
+    "late_night": 0.79
+  },
+
+  "channels": {
+    "in_store": {
+      "share": 0.331,
+      "value_multiplier": 0.76,
+      "tips": true,
+      "tip_attach_rate": 0.51,
+      "fulfillment": { "in_store": 0.18, "pickup": 0.82 },
+      "source_raw": ["Point of Sale", null]
+    },
+    "uber_eats": {
+      "share": 0.232,
+      "value_multiplier": 1.15,
+      "tips": false,
+      "fulfillment": { "delivery": 0.94, "pickup": 0.06 },
+      "source_raw": ["Uber Eats", "Uber Eats Pickup", "Uber Eats - Postmates"]
+    },
+    "square_online": {
+      "share": 0.232,
+      "value_multiplier": 1.04,
+      "tips": true,
+      "tip_attach_rate": 0.44,
+      "fulfillment": { "pickup": 0.71, "delivery": 0.29 },
+      "source_raw": ["Square Online", "Square Online Store"]
+    },
+    "doordash": {
+      "share": 0.177,
+      "value_multiplier": 1.04,
+      "tips": false,
+      "fulfillment": { "delivery": 0.9, "pickup": 0.1 },
+      "source_raw": [
+        "DoorDash",
+        "DoorDash Pickup",
+        "DoorDash - Caviar",
+        "DoorDash - Storefront"
+      ]
+    },
+    "grubhub": {
+      "share": 0.0275,
+      "value_multiplier": 1.1,
+      "tips": true,
+      "tip_attach_rate": 0.017,
+      "_note": "Six spellings in production. Reproduced verbatim so that grouping on the raw source gives a different answer than grouping on the normalized channel.",
+      "fulfillment": { "delivery": 0.93, "pickup": 0.07 },
+      "source_raw": [
+        "Grubhub",
+        "GrubHub",
+        "Grubhub Pickup",
+        "GrubHub Pickup",
+        "Grubhub - Seamless",
+        "Grubhub - Yelp"
+      ]
+    },
+    "invoice": {
+      "share": 0.0005,
+      "value_multiplier": 11.3,
+      "tips": true,
+      "tip_attach_rate": 0.16,
+      "basket_size_override": { "p50": 6, "p90": 18, "max": 60 },
+      "fulfillment": { "pickup": 1.0 },
+      "source_raw": ["Invoices"]
+    }
+  },
+
+  "order_value_cents": {
+    "p10": 1370, "p25": 1943, "p50": 2803, "p75": 4082,
+    "p90": 5521, "p99": 9807, "max": 162401
+  },
+
+  "basket_size": { "p25": 1, "p50": 2, "p75": 3, "p90": 4, "p99": 8, "max": 304 },
+
+  "tip_rate_pct": { "p10": 10.9, "p25": 12.0, "p50": 15.0, "p75": 18.0, "p90": 20.0 },
+
+  "discount": {
+    "attach_rate": 0.192,
+    "rate_pct": { "p10": 12.0, "p25": 17.8, "p50": 23.8, "p75": 30.0, "p90": 44.1, "max": 100 }
+  },
+
+  "item_price_cents": {
+    "p10": 300, "p25": 699, "p50": 1299, "p75": 1695, "p90": 1895, "p99": 2150
+  },
+
+  "categories": [
+    { "name": "Noodle Soups",     "line_share": 0.286, "item_count": 8,  "price_cents": { "p25": 1395, "p50": 1595, "p75": 1795 } },
+    { "name": "Sandwiches",       "line_share": 0.205, "item_count": 10, "price_cents": { "p25": 895,  "p50": 1095, "p75": 1295 } },
+    { "name": "Appetizers",       "line_share": 0.176, "item_count": 6,  "price_cents": { "p25": 695,  "p50": 895,  "p75": 1095 } },
+    { "name": "Rice Dishes",      "line_share": 0.111, "item_count": 8,  "price_cents": { "p25": 1295, "p50": 1495, "p75": 1695 } },
+    { "name": "Drinks",           "line_share": 0.084, "item_count": 17, "price_cents": { "p25": 299,  "p50": 399,  "p75": 599 } },
+    { "name": "Specialty Drinks", "line_share": 0.072, "item_count": 18, "price_cents": { "p25": 549,  "p50": 649,  "p75": 749 } },
+    { "name": "Snacks",           "line_share": 0.034, "item_count": 46, "price_cents": { "p25": 250,  "p50": 399,  "p75": 599 } },
+    { "name": "Salads",           "line_share": 0.017, "item_count": 2,  "price_cents": { "p25": 995,  "p50": 1195, "p75": 1395 } },
+    { "name": "Sides",            "line_share": 0.012, "item_count": 9,  "price_cents": { "p25": 299,  "p50": 449,  "p75": 599 } },
+    { "name": "Catering",         "line_share": 0.001, "item_count": 27, "price_cents": { "p25": 4599, "p50": 6999, "p75": 9999 } },
+    { "name": "Merchandise",      "line_share": 0.001, "item_count": 11, "price_cents": { "p25": 1200, "p50": 2000, "p75": 2800 } },
+    { "name": "Uncategorized",    "line_share": 0.001, "item_count": 13, "price_cents": { "p25": 399,  "p50": 699,  "p75": 1299 } }
+  ],
+
+  "customers": {
+    "identified_order_rate": 0.126,
+    "directory_size": 96359,
+    "has_email_rate": 0.59,
+    "has_phone_rate": 0.62,
+    "email_opt_in_rate": 0.56,
+    "sms_opt_in_rate": 0.02,
+    "sms_implied_consent_rate": 0.6,
+    "unsubscribed_rate": 0.0,
+    "repeat_rate": 0.184,
+    "orders_per_customer": { "p50": 1, "p90": 2, "p99": 7, "max": 59 },
+    "days_between_orders": {
+      "p10": 2, "p25": 12, "p50": 34, "p75": 82, "p90": 158, "p99": 313
+    }
+  },
+
+  "payments": {
+    "refund_rate": 0.00444,
+    "failure_rate": 0.0121,
+    "processing_fee_rate_pct": { "p25": 2.73, "p50": 3.02, "p75": 3.66, "p90": 4.38 },
+    "card_brand_mix": {
+      "VISA": 0.616,
+      "MASTERCARD": 0.197,
+      "AMERICAN_EXPRESS": 0.073,
+      "DISCOVER": 0.036,
+      "SQUARE_GIFT_CARD": 0.001
+    },
+    "entry_method_mix": {
+      "CONTACTLESS": 0.541,
+      "KEYED": 0.373,
+      "EMV": 0.057,
+      "ON_FILE": 0.026,
+      "SWIPED": 0.003
+    }
+  },
+
+  "order_state_mix": { "completed": 0.9457, "draft": 0.0343, "canceled": 0.0144 }
+}

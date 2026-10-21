@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# Real data must never land in this repo. The synthetic dataset is generated
+# from the committed profiles in data/profiles/; anything derived directly from
+# a production export stays out.
+# ---------------------------------------------------------------------------
+cornshake*
+*-crosstabs.json
+*-distributions.json
+*-dump*.zip
+dump-prod/
+dump/
+*.jsonl
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Node / Next
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+
+# Generated API types
+web/src/lib/api-types.ts
+
+# Local data volumes
+pgdata/
+
+# OS / editor
+.DS_Store
+.idea/
+*.swp

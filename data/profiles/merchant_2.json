@@ -1,0 +1,135 @@
+{
+  "id": 2,
+  "name": "Ridgeline Coffee",
+  "cuisine": "Cafe",
+  "timezone": "America/Denver",
+  "opened_at": "2025-06-01",
+  "_shape": "Counter service, almost entirely in person. Single morning peak at 10am, dinner barely exists. High repeat rate with an 8-day median return gap. Low ticket, large rotating catalog. Day of week drives ticket value here rather than channel: weekends run about 22% above midweek.",
+
+  "orders_per_month": 5600,
+  "tax_rate_bps": 880,
+
+  "hour_of_day_weights": [
+    0, 0, 0, 0, 1, 1, 138, 6100, 11136, 14382, 15468, 13359,
+    11343, 9619, 7111, 2633, 643, 566, 726, 707, 514, 239, 21, 0
+  ],
+
+  "day_of_week_weights": {
+    "Mon": 7456, "Tue": 11061, "Wed": 11679, "Thu": 12457,
+    "Fri": 14469, "Sat": 19661, "Sun": 18330
+  },
+
+  "day_of_week_value_multiplier": {
+    "Mon": 0.91, "Tue": 0.84, "Wed": 0.85, "Thu": 0.85,
+    "Fri": 1.03, "Sat": 1.24, "Sun": 1.22
+  },
+
+  "daypart_value_multiplier": {
+    "early_morning": 1.07,
+    "lunch": 0.93,
+    "afternoon": 0.82,
+    "dinner": 1.25,
+    "late_night": 2.02
+  },
+
+  "channels": {
+    "in_store": {
+      "share": 0.9955,
+      "value_multiplier": 1.0,
+      "tips": true,
+      "tip_attach_rate": 0.746,
+      "fulfillment": { "in_store": 0.9, "pickup": 0.1 },
+      "source_raw": [null, "Point of Sale"]
+    },
+    "invoice": {
+      "share": 0.0004,
+      "value_multiplier": 13.2,
+      "tips": true,
+      "tip_attach_rate": 0.24,
+      "basket_size_override": { "p50": 2, "p90": 66, "max": 120 },
+      "fulfillment": { "pickup": 1.0 },
+      "source_raw": ["Invoices"]
+    },
+    "square_online": {
+      "share": 0.0041,
+      "value_multiplier": 2.02,
+      "tips": true,
+      "tip_attach_rate": 0.08,
+      "fulfillment": { "pickup": 1.0 },
+      "source_raw": ["Payment Links", "Payment Link", "giftcard"]
+    }
+  },
+
+  "order_value_cents": {
+    "p10": 655, "p25": 859, "p50": 1237, "p75": 1997,
+    "p90": 2968, "p99": 5804, "max": 350975
+  },
+
+  "basket_size": { "p25": 1, "p50": 2, "p75": 2, "p90": 3, "p99": 6, "max": 235 },
+
+  "tip_rate_pct": { "p10": 11.0, "p25": 16.3, "p50": 19.6, "p75": 21.8, "p90": 21.9 },
+
+  "discount": {
+    "attach_rate": 0.081,
+    "rate_pct": { "p10": 10.0, "p25": 15.0, "p50": 30.0, "p75": 64.5, "p90": 100, "max": 100 }
+  },
+
+  "item_price_cents": {
+    "p10": 475, "p25": 600, "p50": 675, "p75": 750, "p90": 850, "p99": 1600
+  },
+
+  "_catalog_note": "Seasonal Specials is the largest category by SKU count but a small share of units sold: a long tail of rotating drinks that each sell very little. 'Most popular category' therefore has a different answer by item count than by units sold, which is one of the eval cases.",
+
+  "categories": [
+    { "name": "Signature Drinks",  "line_share": 0.271, "item_count": 24,  "price_cents": { "p25": 650, "p50": 700, "p75": 775 } },
+    { "name": "Pastries",          "line_share": 0.257, "item_count": 108, "price_cents": { "p25": 450, "p50": 550, "p75": 650 } },
+    { "name": "House Favorites",   "line_share": 0.121, "item_count": 54,  "price_cents": { "p25": 600, "p50": 675, "p75": 750 } },
+    { "name": "Seasonal Specials", "line_share": 0.091, "item_count": 361, "price_cents": { "p25": 700, "p50": 775, "p75": 875 } },
+    { "name": "Matcha",            "line_share": 0.086, "item_count": 21,  "price_cents": { "p25": 700, "p50": 775, "p75": 850 } },
+    { "name": "Uncategorized",     "line_share": 0.074, "item_count": 282, "price_cents": { "p25": 400, "p50": 600, "p75": 800 } },
+    { "name": "Specialty Drinks",  "line_share": 0.066, "item_count": 118, "price_cents": { "p25": 675, "p50": 775, "p75": 900 } },
+    { "name": "Merchandise",       "line_share": 0.013, "item_count": 48,  "price_cents": { "p25": 1500, "p50": 2400, "p75": 3500 } },
+    { "name": "Cold Case",         "line_share": 0.010, "item_count": 13,  "price_cents": { "p25": 400, "p50": 500, "p75": 650 } },
+    { "name": "Bubble Tea",        "line_share": 0.006, "item_count": 16,  "price_cents": { "p25": 700, "p50": 800, "p75": 900 } },
+    { "name": "Flights",           "line_share": 0.003, "item_count": 9,   "price_cents": { "p25": 1400, "p50": 1600, "p75": 1800 } },
+    { "name": "Catering",          "line_share": 0.002, "item_count": 18,  "price_cents": { "p25": 4000, "p50": 6800, "p75": 10000 } }
+  ],
+
+  "customers": {
+    "identified_order_rate": 0.025,
+    "directory_size": 34239,
+    "has_email_rate": 0.045,
+    "has_phone_rate": 0.233,
+    "email_opt_in_rate": 0.044,
+    "sms_opt_in_rate": 0.01,
+    "sms_implied_consent_rate": 0.23,
+    "unsubscribed_rate": 0.0,
+    "repeat_rate": 0.448,
+    "orders_per_customer": { "p50": 1, "p75": 3, "p90": 9, "p99": 32, "max": 97 },
+    "days_between_orders": {
+      "p10": 1, "p25": 3, "p50": 8, "p75": 23, "p90": 59, "p99": 210
+    }
+  },
+
+  "payments": {
+    "refund_rate": 0.00167,
+    "failure_rate": 0.006,
+    "processing_fee_rate_pct": { "p25": 3.21, "p50": 3.49, "p75": 3.81, "p90": 4.33 },
+    "card_brand_mix": {
+      "VISA": 0.711,
+      "MASTERCARD": 0.178,
+      "AMERICAN_EXPRESS": 0.067,
+      "DISCOVER": 0.037,
+      "SQUARE_GIFT_CARD": 0.007
+    },
+    "entry_method_mix": {
+      "CONTACTLESS": 0.942,
+      "EMV": 0.047,
+      "SWIPED": 0.005,
+      "KEYED": 0.005,
+      "ON_FILE": 0.001
+    }
+  },
+
+  "order_state_mix": { "completed": 0.9952, "canceled": 0.0045, "draft": 0.0003 }
+}
