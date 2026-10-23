@@ -1,7 +1,16 @@
 import Link from "next/link";
 import { AskForm } from "@/components/ask-form";
 import { MerchantPicker } from "@/components/merchant-picker";
-import { statusLine } from "@/components/trace";
+import { StatusBadge, statusLine } from "@/components/trace";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ApiUnreachable, getMerchants, getRecentTraces } from "@/lib/api";
 import { dollars } from "@/lib/format";
 import { currentMerchant } from "@/lib/merchant";
@@ -13,8 +22,8 @@ export const instant = false;
 export default async function AskPage() {
   return (
     <>
-      <h1 className="text-4xl mb-2">Ask the data a question</h1>
-      <p className="max-w-[68ch] text-muted mb-8">
+      <h1 className="mb-2 text-4xl">Ask the data a question</h1>
+      <p className="mb-8 max-w-[68ch] text-muted-foreground">
         The model writes one SQL query at a time. Code checks it before it runs, then the
         model explains the rows. Every step is recorded and shown below, tagged by who did it.
       </p>
@@ -40,22 +49,41 @@ async function Workspace() {
       </div>
       <AskForm merchantName={merchant.name} />
       <section className="mt-14">
-        <h2 className="text-2xl mb-3">Recent questions</h2>
+        <h2 className="mb-3 text-2xl">Recent questions</h2>
         {traces.length === 0 ? (
-          <p className="text-muted">No questions yet for this restaurant. Ask one above.</p>
+          <p className="text-muted-foreground">
+            No questions yet for this restaurant. Ask one above.
+          </p>
         ) : (
-          <ul className="max-w-[68ch] divide-y divide-rule border-y border-rule">
-            {traces.map((t) => (
-              <li key={t.id} className="py-3">
-                <Link href={`/traces/${t.id}`} className="hover:underline underline-offset-4">
-                  {t.question}
-                </Link>
-                <p className="text-sm text-muted">
-                  {statusLine(t)} {dollars(t.cost_usd)}, {t.steps.length} steps.
-                </p>
-              </li>
-            ))}
-          </ul>
+          <Table className="max-w-[80ch]">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Question</TableHead>
+                <TableHead>Outcome</TableHead>
+                <TableHead className="text-right">Cost</TableHead>
+                <TableHead className="text-right">Steps</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {traces.map((t) => (
+                <TableRow key={t.id}>
+                  <TableCell className="whitespace-normal">
+                    <Link href={`/traces/${t.id}`} className="underline-offset-4 hover:underline">
+                      {t.question}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <StatusBadge status={t.status} />
+                    <span className="sr-only">{statusLine(t)}</span>
+                  </TableCell>
+                  <TableCell className="text-right font-sql text-[13px]">
+                    {dollars(t.cost_usd)}
+                  </TableCell>
+                  <TableCell className="text-right">{t.steps.length}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </section>
     </>
@@ -65,10 +93,12 @@ async function Workspace() {
 function Unreachable({ error }: { error: unknown }) {
   const message = error instanceof ApiUnreachable ? error.message : "The API returned an error.";
   return (
-    <p className="max-w-[68ch]">
-      {message} Start it with{" "}
-      <code className="font-sql text-sm">cd api && .venv/bin/uvicorn app.main:app</code> and
-      reload.
-    </p>
+    <Alert variant="destructive" className="max-w-[68ch]">
+      <AlertTitle>{message}</AlertTitle>
+      <AlertDescription>
+        Start it with <code className="font-sql">cd api && .venv/bin/uvicorn app.main:app</code>{" "}
+        and reload.
+      </AlertDescription>
+    </Alert>
   );
 }

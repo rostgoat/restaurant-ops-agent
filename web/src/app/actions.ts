@@ -26,8 +26,7 @@ export async function askAction(_prev: AskState, formData: FormData): Promise<As
   }
 }
 
-export async function switchMerchant(formData: FormData): Promise<void> {
-  const id = Number(formData.get("merchant"));
+export async function switchMerchant(id: number): Promise<void> {
   if (Number.isInteger(id) && id > 0) {
     await setCurrentMerchant(id);
     revalidatePath("/");

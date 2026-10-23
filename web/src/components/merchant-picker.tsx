@@ -1,27 +1,40 @@
+"use client";
+
+import { useTransition } from "react";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { Merchant } from "@/lib/api";
 import { switchMerchant } from "@/app/actions";
 
 export function MerchantPicker({ merchants, current }: { merchants: Merchant[]; current: number }) {
+  const [pending, startTransition] = useTransition();
   return (
-    <form action={switchMerchant} className="flex items-baseline gap-2 text-sm">
-      <label htmlFor="merchant" className="text-muted">
+    <div className="flex items-center gap-2">
+      <Label htmlFor="merchant" className="text-sm text-muted-foreground">
         Viewing as
-      </label>
-      <select
-        id="merchant"
-        name="merchant"
-        defaultValue={current}
-        className="rounded-sm border border-rule bg-paper px-2 py-1 font-display"
+      </Label>
+      <Select
+        defaultValue={String(current)}
+        disabled={pending}
+        onValueChange={(value) => startTransition(() => switchMerchant(Number(value)))}
       >
-        {merchants.map((m) => (
-          <option key={m.id} value={m.id}>
-            {m.name}
-          </option>
-        ))}
-      </select>
-      <button type="submit" className="underline underline-offset-4">
-        Switch
-      </button>
-    </form>
+        <SelectTrigger id="merchant" className="font-heading">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {merchants.map((m) => (
+            <SelectItem key={m.id} value={String(m.id)} className="font-heading">
+              {m.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 }

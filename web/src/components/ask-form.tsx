@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState } from "react";
-import type { Trace } from "@/lib/api";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { TraceLedger } from "./trace";
 import { askAction, type AskState } from "@/app/actions";
 
@@ -18,70 +21,61 @@ export function AskForm({ merchantName }: { merchantName: string }) {
   return (
     <div>
       <form action={formAction} className="max-w-[68ch]">
-        <label htmlFor="question" className="block font-display text-base mb-2">
+        <Label htmlFor="question" className="mb-2 font-heading text-base">
           Ask about {merchantName}
-        </label>
-        <textarea
+        </Label>
+        <Textarea
           id="question"
           name="question"
           required
           rows={3}
           maxLength={2000}
           defaultValue={state.question}
-          className="w-full rounded-sm border border-rule bg-paper px-3 py-2 text-base leading-relaxed"
+          className="text-base leading-relaxed"
           placeholder="How did delivery compare with the counter last week?"
         />
         <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <button
-            type="submit"
-            disabled={pending}
-            className="rounded-sm bg-ink px-4 py-2 font-display text-paper disabled:opacity-60"
-          >
+          <Button type="submit" size="lg" disabled={pending} className="font-heading text-base">
             {pending ? "Asking" : "Ask"}
-          </button>
-          <p className="text-sm text-muted">
+          </Button>
+          <p className="text-sm text-muted-foreground">
             One question costs about a cent and takes a few seconds.
           </p>
         </div>
       </form>
 
-      <ul className="mt-4 flex flex-wrap gap-2 text-sm">
+      <ul className="mt-4 flex flex-wrap gap-2">
         {suggestions.map((s) => (
           <li key={s}>
             <form action={formAction}>
               <input type="hidden" name="question" value={s} />
-              <button
+              <Button
                 type="submit"
+                variant="outline"
+                size="sm"
                 disabled={pending}
-                className="rounded-sm border border-rule px-3 py-1 hover:bg-tint disabled:opacity-60"
+                className="h-auto py-1 text-left font-sans text-sm whitespace-normal"
               >
                 {s}
-              </button>
+              </Button>
             </form>
           </li>
         ))}
       </ul>
 
       {state.error && (
-        <p role="alert" className="mt-6 max-w-[68ch]">
-          {state.error}
-        </p>
+        <Alert variant="destructive" className="mt-6 max-w-[68ch]">
+          <AlertTitle>The question was not sent</AlertTitle>
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
       )}
 
       {state.trace && (
         <div className="mt-10">
-          <Result trace={state.trace} />
+          <h2 className="mb-4 text-2xl">{state.trace.question}</h2>
+          <TraceLedger trace={state.trace} animate />
         </div>
       )}
     </div>
-  );
-}
-
-function Result({ trace }: { trace: Trace }) {
-  return (
-    <>
-      <h2 className="text-2xl mb-4">{trace.question}</h2>
-      <TraceLedger trace={trace} animate />
-    </>
   );
 }

@@ -1,28 +1,42 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Step, Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 const lanes = ["model", "code", "human"] as const;
 type Lane = (typeof lanes)[number];
 
-const laneTitle: Record<Lane, string> = {
-  model: "Model",
-  code: "Code",
-  human: "Human",
+const laneTitle: Record<Lane, string> = { model: "Model", code: "Code", human: "Human" };
+
+const laneText: Record<Lane, string> = {
+  model: "text-model",
+  code: "text-code",
+  human: "text-human",
 };
 
-const laneColor: Record<Lane, string> = {
-  model: "text-model border-model",
-  code: "text-code border-code",
-  human: "text-human border-human",
+const laneEdge: Record<Lane, string> = {
+  model: "border-model",
+  code: "border-code",
+  human: "border-human",
 };
 
 export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?: boolean }) {
   return (
     <section aria-label="Trace">
-      <ol className="border-t border-rule">
-        <li className="hidden md:grid md:grid-cols-3 border-b border-rule font-display text-sm">
+      <ol className="border-t">
+        <li className="hidden border-b font-heading text-sm md:grid md:grid-cols-3">
           {lanes.map((lane) => (
-            <span key={lane} className={`px-3 py-2 ${laneColor[lane].split(" ")[0]}`}>
+            <span key={lane} className={cn("px-3 py-2", laneText[lane])}>
               {laneTitle[lane]}
             </span>
           ))}
@@ -30,17 +44,20 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
         {trace.steps.map((step, i) => (
           <li
             key={step.seq}
-            className={`grid grid-cols-1 md:grid-cols-3 border-b border-rule ${animate ? "step-in" : ""}`}
+            className={cn("grid grid-cols-1 border-b md:grid-cols-3", animate && "step-in")}
             style={animate ? ({ "--i": i } as React.CSSProperties) : undefined}
           >
             {lanes.map((lane) => (
-              <div key={lane} className={`min-w-0 ${lane === step.actor ? "" : "hidden md:block"}`}>
+              <div key={lane} className={cn("min-w-0", lane !== step.actor && "hidden md:block")}>
                 {lane === step.actor && (
-                  <div className={`border-l-4 px-3 py-3 ${laneColor[lane]}`}>
-                    <p className="md:hidden font-display text-sm">{laneTitle[lane]}</p>
-                    <div className="text-ink">
-                      <StepBody step={step} />
-                    </div>
+                  <div className={cn("border-l-4 px-3 py-3", laneEdge[lane])}>
+                    <Badge
+                      variant="outline"
+                      className={cn("mb-1 font-heading md:hidden", laneText[lane])}
+                    >
+                      {laneTitle[lane]}
+                    </Badge>
+                    <StepBody step={step} />
                   </div>
                 )}
               </div>
@@ -54,11 +71,12 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
 }
 
 function Outcome({ trace }: { trace: Trace }) {
+  const tokensIn =
+    trace.usage.input_tokens + trace.usage.cache_read_tokens + trace.usage.cache_write_tokens;
   return (
-    <p className="mt-3 text-sm text-muted">
+    <p className="mt-3 text-sm text-muted-foreground">
       {statusLine(trace)} {dollars(trace.cost_usd)}, {seconds(trace.latency_ms)}
-      {trace.model_ms > 0 && ` (${seconds(trace.model_ms)} in the model)`},{" "}
-      {count(trace.usage.input_tokens + trace.usage.cache_read_tokens + trace.usage.cache_write_tokens)}{" "}
+      {trace.model_ms > 0 && ` (${seconds(trace.model_ms)} in the model)`}, {count(tokensIn)}{" "}
       tokens in, {count(trace.usage.output_tokens)} out
       {trace.retries > 0 && `, ${trace.retries} ${trace.retries === 1 ? "retry" : "retries"}`}.
     </p>
@@ -81,6 +99,22 @@ export function statusLine(trace: Trace): string {
   }
 }
 
+export function StatusBadge({ status }: { status: Trace["status"] }) {
+  const label =
+    status === "answered"
+      ? "Answered"
+      : status === "refused"
+        ? "Declined"
+        : status === "blocked"
+          ? "Blocked"
+          : "Failed";
+  return (
+    <Badge variant={status === "answered" ? "secondary" : "outline"} className="font-heading">
+      {label}
+    </Badge>
+  );
+}
+
 function StepBody({ step }: { step: Step }) {
   const d = step.detail ?? {};
   switch (`${step.name}:${step.outcome}`) {
@@ -88,7 +122,7 @@ function StepBody({ step }: { step: Step }) {
       return (
         <>
           <Title>Proposed a query</Title>
-          {typeof d.purpose === "string" && <p className="text-muted">{d.purpose}</p>}
+          {typeof d.purpose === "string" && <p className="text-muted-foreground">{d.purpose}</p>}
           <Sql sql={String(d.sql ?? "")} />
           <Usage detail={d} />
         </>
@@ -98,6 +132,18 @@ function StepBody({ step }: { step: Step }) {
         <>
           <Title>Guard passed</Title>
           <Checks checks={d.checks} />
+          {typeof d.sql === "string" && (
+            <Collapsible className="mt-2">
+              <CollapsibleTrigger asChild>
+                <Button variant="link" size="sm" className="h-auto p-0 font-sans text-sm">
+                  Show the query as it ran
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <Sql sql={d.sql} />
+              </CollapsibleContent>
+            </Collapsible>
+          )}
         </>
       );
     case "guard:blocked":
@@ -112,8 +158,8 @@ function StepBody({ step }: { step: Step }) {
       return (
         <>
           <Title>
-            Ran it: {count(Number(d.row_count ?? 0))} {Number(d.row_count) === 1 ? "row" : "rows"} in{" "}
-            {seconds(step.latency_ms)}
+            Ran it: {count(Number(d.row_count ?? 0))} {Number(d.row_count) === 1 ? "row" : "rows"}{" "}
+            in {seconds(step.latency_ms)}
           </Title>
           <Rows detail={d} />
         </>
@@ -166,19 +212,23 @@ function StepBody({ step }: { step: Step }) {
           <Title>
             {step.name}: {step.outcome}
           </Title>
-          {step.detail && <pre className="font-sql text-sm whitespace-pre-wrap">{JSON.stringify(step.detail, null, 2)}</pre>}
+          {step.detail && (
+            <pre className="font-sql text-sm whitespace-pre-wrap">
+              {JSON.stringify(step.detail, null, 2)}
+            </pre>
+          )}
         </>
       );
   }
 }
 
 function Title({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-base mb-1">{children}</h3>;
+  return <h3 className="mb-1 text-base">{children}</h3>;
 }
 
 function Sql({ sql }: { sql: string }) {
   return (
-    <pre className="mt-2 overflow-x-auto rounded-sm bg-tint px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
+    <pre className="mt-2 overflow-x-auto rounded-md bg-muted px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
       {sql}
     </pre>
   );
@@ -191,9 +241,9 @@ function Checks({ checks }: { checks: unknown }) {
   return (
     <ul className="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
       {(checks as Check[]).map((c) => (
-        <li key={c.name} className={c.passed ? "" : "font-semibold"}>
+        <li key={c.name} className={cn(!c.passed && "font-semibold")}>
           {c.passed ? "✓" : "✕"} {c.name}
-          {c.detail && <span className="text-muted">, {c.detail}</span>}
+          {c.detail && <span className="text-muted-foreground">, {c.detail}</span>}
         </li>
       ))}
     </ul>
@@ -205,33 +255,34 @@ function Rows({ detail }: { detail: Record<string, unknown> }) {
   const rows = Array.isArray(detail.rows) ? (detail.rows as unknown[][]) : [];
   if (columns.length === 0) return null;
   const shown = rows.slice(0, 8);
+  const hidden = rows.length - shown.length;
   return (
-    <div className="mt-2 overflow-x-auto">
-      <table className="font-sql text-[13px] leading-relaxed">
-        <thead>
-          <tr>
+    <div className="mt-2">
+      <Table className="w-auto font-sql text-[13px]">
+        <TableHeader>
+          <TableRow>
             {columns.map((c) => (
-              <th key={c} className="pr-3 text-left font-normal text-muted whitespace-nowrap">
+              <TableHead key={c} className="h-7 px-2 whitespace-nowrap">
                 {c}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {shown.map((row, i) => (
-            <tr key={i}>
+            <TableRow key={i}>
               {row.map((v, j) => (
-                <td key={j} className="pr-3 align-top whitespace-nowrap">
+                <TableCell key={j} className="px-2 py-1 whitespace-nowrap">
                   {v === null ? "null" : String(v)}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-      {rows.length > shown.length && (
-        <p className="mt-1 text-sm text-muted">
-          and {count(rows.length - shown.length)} more {rows.length - shown.length === 1 ? "row" : "rows"} the model saw
+        </TableBody>
+      </Table>
+      {hidden > 0 && (
+        <p className="mt-1 text-sm text-muted-foreground">
+          and {count(hidden)} more {hidden === 1 ? "row" : "rows"} the model saw
         </p>
       )}
     </div>
@@ -243,8 +294,9 @@ function Usage({ detail }: { detail: Record<string, unknown> }) {
   if (!u) return null;
   const cached = u.cache_read_tokens > 0 ? ` (${count(u.cache_read_tokens)} from cache)` : "";
   return (
-    <p className="mt-2 text-sm text-muted">
-      {count(u.input_tokens + u.cache_read_tokens + u.cache_write_tokens)} tokens in{cached}, {count(u.output_tokens)} out
+    <p className="mt-2 text-sm text-muted-foreground">
+      {count(u.input_tokens + u.cache_read_tokens + u.cache_write_tokens)} tokens in{cached},{" "}
+      {count(u.output_tokens)} out
     </p>
   );
 }

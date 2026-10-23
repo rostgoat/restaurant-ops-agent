@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TraceLedger } from "@/components/trace";
+import { Button } from "@/components/ui/button";
 import { getTrace } from "@/lib/api";
 import { currentMerchant } from "@/lib/merchant";
 
@@ -12,13 +13,11 @@ export default async function TracePage(props: PageProps<"/traces/[id]">) {
   if (!trace) notFound();
   return (
     <>
-      <p className="mb-6 text-sm">
-        <Link href="/" className="underline underline-offset-4">
-          Ask
-        </Link>
-      </p>
-      <h1 className="text-3xl mb-1">{trace.question}</h1>
-      <p className="mb-6 text-sm text-muted">
+      <Button asChild variant="link" className="mb-6 h-auto p-0 font-sans text-sm">
+        <Link href="/">Ask another question</Link>
+      </Button>
+      <h1 className="mb-1 text-3xl">{trace.question}</h1>
+      <p className="mb-6 text-sm text-muted-foreground">
         Asked {new Date(trace.created_at).toLocaleString("en-US")} with {trace.model}.
       </p>
       <TraceLedger trace={trace} />
