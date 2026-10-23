@@ -1,21 +1,21 @@
 {
-  "id": "590730c2-de9a-4f18-a9c6-4c3a94c789df",
+  "id": "bfc82527-687d-4f82-ab57-2004224d74ff",
   "merchant_id": 1,
   "question": "How did delivery compare with the counter last week?",
-  "created_at": "2026-10-23T22:26:53.539292Z",
-  "model": "claude-opus-5-5",
+  "created_at": "2026-10-23T22:30:54.484676Z",
+  "model": "claude-sonnet-5-5",
   "status": "answered",
-  "answer": "Delivery did far better than the counter last week (Monday Oct 12 through Sunday Oct 18, local time, completed orders only).\n\nDelivery had 883 orders and $28,221.43 in gross sales. That's about $31.96 per order, and $30,037.70 once tax and tips are added. In-store orders at the counter came to 102 orders and $2,307.93 in gross sales, about $22.63 per order, with $2,575.10 collected in total. So delivery brought in roughly 12 times the counter's sales, and its average order was about $9 bigger. Discounts were $1,264.85 on delivery and $110.62 at the counter.\n\nTips are hard to compare because most orders don't report them. Only 63 of the 883 delivery orders had tip data, averaging $5.05, and only 47 of the 102 counter orders did, averaging $3.25.\n\nPickup orders aren't included in either number. They were 948 orders and $25,361.12 in gross sales, so they made up a large share of the week too.",
+  "answer": "For last week (Monday Oct 12 to Sunday Oct 18, 2026, restaurant local time), delivery was far bigger than the counter. I counted completed orders only. \"Delivery\" means orders with a delivery fulfillment type, and \"counter\" means in-store orders.\n\n| | Delivery | Counter |\n|---|---|---|\n| Orders | 883 | 102 |\n| Gross sales | $28,221.43 | $2,307.93 |\n| Discounts | $1,264.85 | $110.62 |\n| Total collected | $30,037.70 | $2,575.10 |\n| Average order (gross) | $31.96 | $22.63 |\n| Average tip | $5.05 | $3.25 |\n\nDelivery brought in about 12 times the gross sales of the counter, on roughly 9 times as many orders. Delivery orders were also larger on average. The average tip only covers orders where a tip was recorded, because some channels don't pass tips through.",
   "usage": {
-    "input_tokens": 916,
+    "input_tokens": 835,
     "cache_read_tokens": 1591,
     "cache_write_tokens": 1591,
-    "output_tokens": 857
+    "output_tokens": 802
   },
-  "cost_usd": 0.029077,
-  "latency_ms": 9912,
-  "model_ms": 9872,
-  "tool_ms": 29,
+  "cost_usd": 0.013986,
+  "latency_ms": 7729,
+  "model_ms": 7685,
+  "tool_ms": 37,
   "retries": 0,
   "steps": [
     {
@@ -24,16 +24,16 @@
       "name": "run_sql",
       "outcome": "proposed",
       "detail": {
-        "purpose": "Compare delivery vs in-store (counter) completed orders and sales for last week (Mon Oct 12 \u2013 Sun Oct 18, 2026, local time)",
-        "sql": "SELECT fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross_cents, SUM(discount_cents) AS discount_cents, SUM(total_cents) AS total_cents, ROUND(AVG(gross_sales_cents)) AS avg_gross_cents, ROUND(AVG(tip_cents)) AS avg_tip_cents, COUNT(tip_cents) AS orders_with_tip_data FROM orders WHERE state = 'completed' AND (created_at AT TIME ZONE (SELECT timezone FROM merchants)) >= '2026-10-12' AND (created_at AT TIME ZONE (SELECT timezone FROM merchants)) < '2026-10-19' GROUP BY fulfillment_type ORDER BY fulfillment_type",
+        "purpose": "Compare delivery vs in-store completed orders for Oct 12-18, 2026 (local time)",
+        "sql": "select fulfillment_type, count(*) orders, sum(gross_sales_cents) gross, sum(discount_cents) discounts, sum(total_cents) total, round(avg(gross_sales_cents)) avg_gross, round(avg(tip_cents)) avg_tip from orders where state='completed' and fulfillment_type in ('delivery','in_store') and (created_at at time zone (select timezone from merchants))>='2026-10-12' and (created_at at time zone (select timezone from merchants))<'2026-10-19' group by fulfillment_type",
         "usage": {
           "input_tokens": 104,
           "cache_read_tokens": 0,
           "cache_write_tokens": 1591,
-          "output_tokens": 501
+          "output_tokens": 488
         }
       },
-      "latency_ms": 4824
+      "latency_ms": 4564
     },
     {
       "seq": 2,
@@ -83,9 +83,9 @@
             "detail": "injected 500"
           }
         ],
-        "sql": "SELECT fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross_cents, SUM(discount_cents) AS discount_cents, SUM(total_cents) AS total_cents, ROUND(AVG(gross_sales_cents)) AS avg_gross_cents, ROUND(AVG(tip_cents)) AS avg_tip_cents, COUNT(tip_cents) AS orders_with_tip_data FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE state = 'completed' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) >= '2026-10-12' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) < '2026-10-19' GROUP BY fulfillment_type ORDER BY fulfillment_type LIMIT 500"
+        "sql": "SELECT fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross, SUM(discount_cents) AS discounts, SUM(total_cents) AS total, ROUND(AVG(gross_sales_cents)) AS avg_gross, ROUND(AVG(tip_cents)) AS avg_tip FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE state = 'completed' AND fulfillment_type IN ('delivery', 'in_store') AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) >= '2026-10-12' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) < '2026-10-19' GROUP BY fulfillment_type LIMIT 500"
       },
-      "latency_ms": 9
+      "latency_ms": 7
     },
     {
       "seq": 3,
@@ -96,25 +96,14 @@
         "columns": [
           "fulfillment_type",
           "orders",
-          "gross_cents",
-          "discount_cents",
-          "total_cents",
-          "avg_gross_cents",
-          "avg_tip_cents",
-          "orders_with_tip_data"
+          "gross",
+          "discounts",
+          "total",
+          "avg_gross",
+          "avg_tip"
         ],
-        "row_count": 3,
+        "row_count": 2,
         "rows": [
-          [
-            "pickup",
-            948,
-            2536112,
-            124511,
-            2822297,
-            2675.0,
-            392.0,
-            417
-          ],
           [
             "delivery",
             883,
@@ -122,8 +111,7 @@
             126485,
             3003770,
             3196.0,
-            505.0,
-            63
+            505.0
           ],
           [
             "in_store",
@@ -132,13 +120,12 @@
             11062,
             257510,
             2263.0,
-            325.0,
-            47
+            325.0
           ]
         ],
         "truncated": false
       },
-      "latency_ms": 29
+      "latency_ms": 37
     },
     {
       "seq": 4,
@@ -146,15 +133,15 @@
       "name": "answer",
       "outcome": "answered",
       "detail": {
-        "text": "Delivery did far better than the counter last week (Monday Oct 12 through Sunday Oct 18, local time, completed orders only).\n\nDelivery had 883 orders and $28,221.43 in gross sales. That's about $31.96 per order, and $30,037.70 once tax and tips are added. In-store orders at the counter came to 102 orders and $2,307.93 in gross sales, about $22.63 per order, with $2,575.10 collected in total. So delivery brought in roughly 12 times the counter's sales, and its average order was about $9 bigger. Discounts were $1,264.85 on delivery and $110.62 at the counter.\n\nTips are hard to compare because most orders don't report them. Only 63 of the 883 delivery orders had tip data, averaging $5.05, and only 47 of the 102 counter orders did, averaging $3.25.\n\nPickup orders aren't included in either number. They were 948 orders and $25,361.12 in gross sales, so they made up a large share of the week too.",
+        "text": "For last week (Monday Oct 12 to Sunday Oct 18, 2026, restaurant local time), delivery was far bigger than the counter. I counted completed orders only. \"Delivery\" means orders with a delivery fulfillment type, and \"counter\" means in-store orders.\n\n| | Delivery | Counter |\n|---|---|---|\n| Orders | 883 | 102 |\n| Gross sales | $28,221.43 | $2,307.93 |\n| Discounts | $1,264.85 | $110.62 |\n| Total collected | $30,037.70 | $2,575.10 |\n| Average order (gross) | $31.96 | $22.63 |\n| Average tip | $5.05 | $3.25 |\n\nDelivery brought in about 12 times the gross sales of the counter, on roughly 9 times as many orders. Delivery orders were also larger on average. The average tip only covers orders where a tip was recorded, because some channels don't pass tips through.",
         "usage": {
-          "input_tokens": 812,
+          "input_tokens": 731,
           "cache_read_tokens": 1591,
           "cache_write_tokens": 0,
-          "output_tokens": 356
+          "output_tokens": 314
         }
       },
-      "latency_ms": 5048
+      "latency_ms": 3121
     }
   ]
 }

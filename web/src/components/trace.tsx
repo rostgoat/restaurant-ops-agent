@@ -9,6 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Step, Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -175,7 +177,7 @@ function StepBody({ step }: { step: Step }) {
       return (
         <>
           <Title>Answered</Title>
-          <p className="text-lg leading-relaxed">{String(d.text)}</p>
+          <Prose text={String(d.text)} />
           <Usage detail={d} />
         </>
       );
@@ -183,7 +185,7 @@ function StepBody({ step }: { step: Step }) {
       return (
         <>
           <Title>Declined</Title>
-          <p className="text-lg leading-relaxed">{String(d.reason)}</p>
+          <Prose text={String(d.reason)} />
           <Usage detail={d} />
         </>
       );
@@ -220,6 +222,14 @@ function StepBody({ step }: { step: Step }) {
         </>
       );
   }
+}
+
+function Prose({ text }: { text: string }) {
+  return (
+    <div className="space-y-3 text-lg leading-relaxed [&_li]:ml-5 [&_ol]:list-decimal [&_table]:w-full [&_table]:text-base [&_td]:border-t [&_td]:py-1.5 [&_td]:pr-3 [&_th]:py-1.5 [&_th]:pr-3 [&_th]:text-left [&_th]:font-normal [&_th]:text-muted-foreground [&_ul]:list-disc">
+      <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
+    </div>
+  );
 }
 
 function Title({ children }: { children: React.ReactNode }) {

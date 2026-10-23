@@ -20,7 +20,7 @@ from .trace import Status, Trace
 
 @dataclass(frozen=True)
 class Settings:
-    model: str = "claude-opus-5-5"
+    model: str = "claude-sonnet-5-5"
     effort: str = "medium"
     max_tokens: int = 8000
     max_queries: int = 3

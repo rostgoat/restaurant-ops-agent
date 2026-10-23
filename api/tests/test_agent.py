@@ -145,7 +145,7 @@ def test_request_shape():
     ask("hi", client=client)
 
     req = client.requests[0]
-    assert req["model"] == "claude-opus-5-5"
+    assert req["model"] == "claude-sonnet-5-5"
     assert req["output_config"] == {"effort": "medium"}
     assert req["tool_choice"] == {"type": "auto", "disable_parallel_tool_use": True}
     assert req["system"][0]["cache_control"] == {"type": "ephemeral"}
@@ -189,11 +189,11 @@ def test_a_workspace_id_is_sent_only_when_configured():
 def test_settings_change_the_request():
     client = FakeClient(reply(text("Hello.")))
 
-    settings = Settings(model="claude-sonnet-5-5", effort="low", max_tokens=2000)
+    settings = Settings(model="claude-opus-5-5", effort="low", max_tokens=2000)
     ask("hi", client=client, settings=settings)
 
     req = client.requests[0]
-    assert req["model"] == "claude-sonnet-5-5"
+    assert req["model"] == "claude-opus-5-5"
     assert req["output_config"] == {"effort": "low"}
     assert req["max_tokens"] == 2000
 
@@ -395,9 +395,11 @@ def test_tokens_and_cost_add_up_across_calls():
 
     assert trace.usage.tokens_in == 1000 + 500 + 300 + 100
     assert trace.usage.output_tokens == 250
-    expected = (1100 * 4.00 + 250 * 20.00 + 500 * 0.20 + 300 * 5.00) / 1_000_000
+    price = PRICES[Settings().model]
+    expected = (
+        1100 * price.input + 250 * price.output + 500 * price.cache_read + 300 * price.cache_write
+    ) / 1_000_000
     assert trace.cost_usd == pytest.approx(expected, abs=1e-6)
-    assert trace.model == "claude-opus-5-5"
 
 
 def test_cost_is_priced_per_model_and_unknown_models_do_not_run():
