@@ -24,7 +24,7 @@ export function MerchantPicker({ merchants, current }: { merchants: Merchant[]; 
         disabled={pending}
         onValueChange={(value) => startTransition(() => switchMerchant(Number(value)))}
       >
-        <SelectTrigger id="merchant" className="font-heading">
+        <SelectTrigger id="merchant" className="bg-card font-heading">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

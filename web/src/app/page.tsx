@@ -43,25 +43,26 @@ async function Workspace() {
   const merchant = merchants.find((m) => m.id === merchantId) ?? merchants[0];
   const traces = await getRecentTraces(merchant.id);
   return (
-    <>
-      <div className="mb-6">
-        <MerchantPicker merchants={merchants} current={merchant.id} />
+    <div className="grid gap-12 md:grid-cols-2">
+      <div>
+        <div className="mb-6">
+          <MerchantPicker merchants={merchants} current={merchant.id} />
+        </div>
+        <AskForm merchantName={merchant.name} />
       </div>
-      <AskForm merchantName={merchant.name} />
-      <section className="mt-14">
+      <section>
         <h2 className="mb-3 text-2xl">Recent questions</h2>
         {traces.length === 0 ? (
           <p className="text-muted-foreground">
-            No questions yet for this restaurant. Ask one above.
+            No questions yet for this restaurant. Ask the first one.
           </p>
         ) : (
-          <Table className="max-w-[80ch]">
+          <Table className="bg-card">
             <TableHeader>
               <TableRow>
                 <TableHead>Question</TableHead>
                 <TableHead>Outcome</TableHead>
                 <TableHead className="text-right">Cost</TableHead>
-                <TableHead className="text-right">Steps</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -79,14 +80,13 @@ async function Workspace() {
                   <TableCell className="text-right font-sql text-[13px]">
                     {dollars(t.cost_usd)}
                   </TableCell>
-                  <TableCell className="text-right">{t.steps.length}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         )}
       </section>
-    </>
+    </div>
   );
 }
 

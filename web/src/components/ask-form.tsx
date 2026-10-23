@@ -31,7 +31,7 @@ export function AskForm({ merchantName }: { merchantName: string }) {
           rows={3}
           maxLength={2000}
           defaultValue={state.question}
-          className="text-base leading-relaxed"
+          className="bg-card text-base leading-relaxed"
           placeholder="How did delivery compare with the counter last week?"
         />
         <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">

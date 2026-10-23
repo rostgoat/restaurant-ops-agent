@@ -33,15 +33,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={cn("h-full", bricolage.variable, sourceSerif.variable)}>
       <body className="min-h-full flex flex-col">
-        <header className="border-b">
-          <nav className="mx-auto flex max-w-[1120px] flex-wrap items-baseline justify-between gap-x-6 gap-y-2 px-6 py-4">
+        <header className="bg-sidebar text-sidebar-foreground">
+          <nav className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-between gap-x-6 gap-y-2 px-6 py-5 sm:px-10">
             <Link href="/" className="font-heading text-lg font-semibold">
               Restaurant ops agent
             </Link>
             <ul className="flex gap-2">
               {pages.map((p) => (
                 <li key={p.href}>
-                  <Button asChild variant="link" className="font-heading text-base">
+                  <Button asChild variant="link" className="font-heading text-base text-sidebar-foreground">
                     <Link href={p.href}>{p.label}</Link>
                   </Button>
                 </li>
@@ -49,9 +49,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </ul>
           </nav>
         </header>
-        <main className="mx-auto w-full max-w-[1120px] flex-1 px-6 py-10">{children}</main>
+        <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12 sm:px-10">{children}</main>
         <footer className="border-t">
-          <p className="mx-auto max-w-[1120px] px-6 py-6 text-sm text-muted-foreground">
+          <p className="mx-auto max-w-5xl px-6 py-6 text-sm text-muted-foreground sm:px-10">
             Synthetic data for two fictional restaurants. Nothing here is real sales.
           </p>
         </footer>

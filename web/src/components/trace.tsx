@@ -24,17 +24,17 @@ const laneText: Record<Lane, string> = {
   human: "text-human",
 };
 
-const laneEdge: Record<Lane, string> = {
-  model: "border-model",
-  code: "border-code",
-  human: "border-human",
+const laneCell: Record<Lane, string> = {
+  model: "border-model bg-model/5",
+  code: "border-code bg-code/5",
+  human: "border-human bg-human/5",
 };
 
 export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?: boolean }) {
   return (
     <section aria-label="Trace">
-      <ol className="border-t">
-        <li className="hidden border-b font-heading text-sm md:grid md:grid-cols-3">
+      <ol className="border-t bg-card">
+        <li className="hidden border-b font-heading text-sm md:grid md:grid-cols-[5fr_6fr_3fr]">
           {lanes.map((lane) => (
             <span key={lane} className={cn("px-3 py-2", laneText[lane])}>
               {laneTitle[lane]}
@@ -44,13 +44,13 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
         {trace.steps.map((step, i) => (
           <li
             key={step.seq}
-            className={cn("grid grid-cols-1 border-b md:grid-cols-3", animate && "step-in")}
+            className={cn("grid grid-cols-1 border-b md:grid-cols-[5fr_6fr_3fr]", animate && "step-in")}
             style={animate ? ({ "--i": i } as React.CSSProperties) : undefined}
           >
             {lanes.map((lane) => (
               <div key={lane} className={cn("min-w-0", lane !== step.actor && "hidden md:block")}>
                 {lane === step.actor && (
-                  <div className={cn("border-l-4 px-3 py-3", laneEdge[lane])}>
+                  <div className={cn("h-full border-l-4 px-3 py-3", laneCell[lane])}>
                     <Badge
                       variant="outline"
                       className={cn("mb-1 font-heading md:hidden", laneText[lane])}
@@ -228,7 +228,7 @@ function Title({ children }: { children: React.ReactNode }) {
 
 function Sql({ sql }: { sql: string }) {
   return (
-    <pre className="mt-2 overflow-x-auto rounded-md bg-muted px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
+    <pre className="mt-2 overflow-x-auto rounded-md bg-background px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
       {sql}
     </pre>
   );
