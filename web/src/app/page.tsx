@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AskForm } from "@/components/ask-form";
+import { CapturedRun } from "@/components/captured-run";
 import { MerchantPicker } from "@/components/merchant-picker";
 import { StatusBadge, statusLine } from "@/components/trace";
 import { Button } from "@/components/ui/button";
@@ -106,6 +107,8 @@ export default async function AskPage() {
           </div>
         ))}
       </section>
+
+      <CapturedRun />
 
       <section className="mt-32">
         <h2 className="mb-4 text-3xl">Try it</h2>

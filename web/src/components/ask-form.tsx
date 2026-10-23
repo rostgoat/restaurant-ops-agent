@@ -39,7 +39,7 @@ export function AskForm({ merchantName }: { merchantName: string }) {
             {pending ? "Asking" : "Ask"}
           </Button>
           <p className="text-sm text-muted-foreground">
-            One question costs about a cent and takes a few seconds.
+            One question costs a few cents and takes ten seconds or so.
           </p>
         </div>
       </form>
