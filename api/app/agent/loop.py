@@ -69,30 +69,32 @@ def answer(
         trace.model_ms += model_ms
         trace.usage.add(reply.usage)
         trace.model = reply.model
+        usage = _usage(reply.usage)
 
         if reply.stop_reason == "refusal":
-            detail = reply.stop_details.model_dump() if reply.stop_details else None
-            trace.step("model", "respond", "refusal", detail, latency_ms=model_ms)
+            detail = reply.stop_details.model_dump() if reply.stop_details else {}
+            trace.step("model", "respond", "refusal", detail | usage, latency_ms=model_ms)
             return finish("refused")
         if reply.stop_reason == "max_tokens":
-            trace.step("model", "respond", "max_tokens", None, latency_ms=model_ms)
+            trace.step("model", "respond", "max_tokens", usage, latency_ms=model_ms)
             return finish("error")
 
         text = "".join(b.text for b in reply.content if b.type == "text").strip()
         call = next((b for b in reply.content if b.type == "tool_use"), None)
 
         if call is None:
-            trace.step("model", "answer", "answered", {"text": text}, latency_ms=model_ms)
+            trace.step("model", "answer", "answered", {"text": text} | usage, latency_ms=model_ms)
             # Text after a block, with nothing executed, is the model talking
             # around the guard. The guard decided this request, not the model.
             return finish("blocked" if blocked and not executed else "answered", text)
 
         if call.name == "decline":
             reason = str(call.input.get("reason", "")).strip()
-            trace.step("model", "decline", "declined", {"reason": reason}, latency_ms=model_ms)
+            detail = {"reason": reason} | usage
+            trace.step("model", "decline", "declined", detail, latency_ms=model_ms)
             return finish("refused", reason)
 
-        trace.step("model", call.name, "proposed", dict(call.input), latency_ms=model_ms)
+        trace.step("model", call.name, "proposed", dict(call.input) | usage, latency_ms=model_ms)
         queries += 1
         if queries > settings.max_queries:
             trace.step("code", "query_limit", "reached", {"limit": settings.max_queries})
@@ -167,6 +169,17 @@ def _run_sql(
     payload = rows.to_payload(settings.rows_to_model)
     trace.step("code", "execute", "ok", payload, latency_ms=elapsed)
     return _tool_result(call.id, json.dumps(payload)), "ok"
+
+
+def _usage(reply_usage: Any) -> dict[str, Any]:
+    return {
+        "usage": {
+            "input_tokens": reply_usage.input_tokens,
+            "cache_read_tokens": reply_usage.cache_read_input_tokens or 0,
+            "cache_write_tokens": reply_usage.cache_creation_input_tokens or 0,
+            "output_tokens": reply_usage.output_tokens,
+        }
+    }
 
 
 def _tool_result(tool_use_id: str, content: str, *, error: bool = False) -> dict[str, Any]:
