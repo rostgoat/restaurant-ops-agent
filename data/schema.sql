@@ -1,11 +1,12 @@
--- Schema for the synthetic point-of-sale dataset and the application's own
--- tables.
+-- Tables for the fake restaurant data, plus the tables this app writes itself.
 --
--- Applied identically to two databases:
---   ops_demo   rolling window, a day of orders appended nightly
---   ops_eval   frozen snapshot, regenerated only when the seed changes
+-- Two databases are built from this file:
+--   ops_demo   What the live site reads. A new day of orders is added every
+--              night so the data never looks abandoned.
+--   ops_eval   What the tests read. It only changes when the seed changes, so
+--              a score from today can be compared with one from last month.
 --
--- Money is integer cents throughout. Times are timestamptz.
+-- All money is whole cents. All times are timestamptz.
 
 BEGIN;
 
@@ -44,9 +45,8 @@ CREATE TABLE customers (
     has_email            boolean     NOT NULL DEFAULT false,
     has_phone            boolean     NOT NULL DEFAULT false,
     email_opt_in         boolean     NOT NULL DEFAULT false,
-    -- Verified opt-in and implied transactional consent are not the same
-    -- permission. Either makes a guest reachable, but only the first survives
-    -- a challenge, so the enforcement layer has to tell them apart.
+    -- Two different permissions. Either one makes a guest reachable, but only
+    -- a verified opt-in survives being challenged.
     sms_opt_in           boolean     NOT NULL DEFAULT false,
     sms_implied_consent  boolean     NOT NULL DEFAULT false,
     unsubscribed_at      timestamptz

@@ -1,23 +1,26 @@
 """
-The enforcement layer.
+Checks the SQL the model wrote before any of it reaches the database.
 
-The model decides what to ask the database. This module decides what is allowed
-to run. Everything here is deterministic: no model call, no network, no
-configuration that can be reached from a prompt.
+Three rules:
 
-Validation is structural, over sqlglot's AST, not textual. A string check for
-"DROP" is defeated by a comment, a CTE, or different casing; a parse tree is
-not.
+1. Read the query as a parse tree, not as text. Searching the text for "DROP"
+   is easy to slip past with a comment or odd capitalisation. Reading the
+   structure is not.
 
-Tenant scoping is done by rewriting, not by checking. Each tenant-scoped table
-reference becomes a subquery already filtered to the caller's merchant:
+2. Reading only. Anything that writes, deletes, or changes the database is
+   refused, including when it is buried inside a larger query.
 
-    FROM orders              ->  FROM (SELECT * FROM orders
-                                       WHERE merchant_id = 1) AS orders
+3. Add the restaurant filter here rather than trusting the query to have one.
+   Every table the query reads is swapped for a version already narrowed to
+   one restaurant:
 
-That holds for joins, subqueries, CTEs and set operations alike, because every
-reference is rewritten wherever it appears. Appending to the top-level WHERE
-clause would not: a join or a correlated subquery escapes it.
+       FROM orders  ->  FROM (SELECT * FROM orders WHERE merchant_id = 1) orders
+
+   Doing it by swapping means a query cannot escape through a join or a
+   nested query, which is what happens if you only bolt a filter onto the end.
+
+Nothing here calls the model or the network, so the same query always gets the
+same verdict.
 """
 from __future__ import annotations
 
@@ -43,10 +46,8 @@ TENANT_COLUMN: dict[str, str] = {
 # from TENANT_COLUMN and therefore rejected by the allowlist.
 ALLOWED_TABLES = frozenset(TENANT_COLUMN)
 
-# Statement types that must not appear anywhere in the tree, including nested
-# in a CTE or a subquery. Resolved by name because sqlglot has renamed some of
-# these across versions (Truncate -> TruncateTable); a missing name means that
-# version cannot parse the construct at all, so nothing is lost by skipping it.
+# Resolved by name because sqlglot renames these between versions. A name it
+# does not have is a construct it cannot parse, so nothing is lost by skipping.
 FORBIDDEN_NODE_NAMES = (
     "Insert", "Update", "Delete", "Drop", "Create", "Alter",
     "TruncateTable", "Truncate", "Grant", "Merge", "Command",

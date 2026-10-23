@@ -182,10 +182,8 @@ def test_cte_alias_is_not_treated_as_a_table():
 
 
 def test_a_query_naming_another_merchant_still_only_sees_its_own():
-    # The model asks for merchant 2 while the caller is merchant 1. The
-    # rewrite scopes the table regardless, so the added predicate conflicts
-    # with the model's and the query returns nothing rather than the wrong
-    # tenant's rows.
+    # Caller is merchant 1, query asks for merchant 2. The rewrite adds its own
+    # filter anyway, so this returns nothing rather than the wrong rows.
     r = run(f"SELECT count(*) FROM orders WHERE merchant_id = {OTHER}")
     assert r.ok, r.reason
     sql = norm(r.sql)
