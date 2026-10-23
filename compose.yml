@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ops
+      POSTGRES_PASSWORD: ops
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./data/schema.sql:/data/schema.sql:ro
+      - ./data/out:/data/out:ro
+      - ./infra/postgres/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ops -d ops_eval"]
+      interval: 2s
+      timeout: 2s
+      retries: 60
+
+volumes:
+  pgdata:
