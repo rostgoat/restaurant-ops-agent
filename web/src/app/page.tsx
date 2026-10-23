@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AskForm } from "@/components/ask-form";
 import { MerchantPicker } from "@/components/merchant-picker";
 import { StatusBadge, statusLine } from "@/components/trace";
+import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
@@ -40,16 +41,59 @@ const actors = [
   },
 ];
 
+const evidence = [
+  {
+    figure: "8",
+    label: "checks that run without the model, before any query touches the database",
+    href: "/architecture",
+  },
+  {
+    figure: "Next",
+    label: "eval cases passing. The evaluation lab is the next thing built, and its numbers go here, good or bad",
+    href: null,
+  },
+  {
+    figure: "Next",
+    label: "cost per merchant per month, priced from every traced request",
+    href: null,
+  },
+];
+
 export default async function AskPage() {
   return (
     <>
       <section className="mx-auto max-w-[56ch] text-center">
-        <h1 className="mx-auto max-w-[16ch] text-5xl sm:text-6xl">Ask your restaurant a question.</h1>
+        <h1 className="mx-auto max-w-[18ch] text-5xl sm:text-6xl">
+          An agent that shows its work and cannot act alone.
+        </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
-          An agent that answers a restaurant owner&apos;s questions about their own sales, writes
-          the SQL itself, and shows every step it took. Code decides what is allowed to run, so a
-          wrong answer can never become a wrong action.
+          A restaurant owner asks about their sales in plain words. The model writes the SQL,
+          code decides whether it may run, and a person approves anything that would change
+          something. Every step is recorded, priced, and shown.
         </p>
+        <p className="mt-6 text-base text-muted-foreground">
+          A case study by Rost M in making an AI agent reliable.{" "}
+          <Button asChild variant="link" className="h-auto p-0 font-sans text-base">
+            <a href="https://github.com/rostgoat/restaurant-ops-agent">View the code</a>
+          </Button>
+        </p>
+      </section>
+
+      <section className="mx-auto mt-20 grid max-w-4xl gap-8 sm:grid-cols-3">
+        {evidence.map((e) => (
+          <div key={e.label} className="border-t pt-4">
+            <p className="font-heading text-3xl">{e.figure}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {e.href ? (
+                <Link href={e.href} className="underline-offset-4 hover:underline">
+                  {e.label}
+                </Link>
+              ) : (
+                e.label
+              )}
+            </p>
+          </div>
+        ))}
       </section>
 
       <section className="mt-28 grid gap-12 sm:grid-cols-3 sm:gap-10">
