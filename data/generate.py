@@ -255,11 +255,7 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
                     1,
                     int(from_percentiles(rng, ch["basket_size_override"], 1)[0]),
                 )
-            # Daypart and weekday move ticket value, not basket size: the
-            # weekend guest buys the larger drink rather than one more item.
-            # Adding a whole item instead overshoots badly on a low-ticket
-            # merchant, where one more $6 drink is a 50% jump against a target
-            # of 24%.
+            # Moves ticket value, not basket size.
             occasion = dp_mult.get(dp, 1.0) * dow_mult.get(dname, 1.0)
 
             oid = ids.take("order")

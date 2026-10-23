@@ -41,15 +41,6 @@
       "fulfillment": { "in_store": 0.9, "pickup": 0.1 },
       "source_raw": [null, "Point of Sale"]
     },
-    "invoice": {
-      "share": 0.0004,
-      "value_multiplier": 13.2,
-      "tips": true,
-      "tip_attach_rate": 0.24,
-      "basket_size_override": { "p50": 2, "p90": 66, "max": 120 },
-      "fulfillment": { "pickup": 1.0 },
-      "source_raw": ["Invoices"]
-    },
     "square_online": {
       "share": 0.0041,
       "value_multiplier": 2.02,

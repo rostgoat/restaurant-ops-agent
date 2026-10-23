@@ -73,7 +73,7 @@
       "value_multiplier": 1.1,
       "tips": true,
       "tip_attach_rate": 0.017,
-      "_note": "Six spellings in production. Reproduced verbatim so that grouping on the raw source gives a different answer than grouping on the normalized channel.",
+      "_note": "Six spellings of one channel, so that grouping on the raw label gives a different answer than grouping on the normalized channel.",
       "fulfillment": { "delivery": 0.93, "pickup": 0.07 },
       "source_raw": [
         "Grubhub",
@@ -83,15 +83,6 @@
         "Grubhub - Seamless",
         "Grubhub - Yelp"
       ]
-    },
-    "invoice": {
-      "share": 0.0005,
-      "value_multiplier": 11.3,
-      "tips": true,
-      "tip_attach_rate": 0.16,
-      "basket_size_override": { "p50": 6, "p90": 18, "max": 60 },
-      "fulfillment": { "pickup": 1.0 },
-      "source_raw": ["Invoices"]
     }
   },
 

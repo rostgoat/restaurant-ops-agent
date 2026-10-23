@@ -1,8 +1,4 @@
-# ---------------------------------------------------------------------------
-# Real data must never land in this repo. The synthetic dataset is generated
-# from the committed profiles in data/profiles/; anything derived directly from
-# a production export stays out.
-# ---------------------------------------------------------------------------
+# The dataset is generated from data/profiles/. Nothing else belongs here.
 cornshake*
 *-crosstabs.json
 *-distributions.json
