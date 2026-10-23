@@ -31,7 +31,6 @@ from sqlglot import exp
 
 DIALECT = "postgres"
 
-# Tables the agent may read, mapped to the column carrying the tenant id.
 TENANT_COLUMN: dict[str, str] = {
     "merchants": "id",
     "categories": "merchant_id",
@@ -42,8 +41,8 @@ TENANT_COLUMN: dict[str, str] = {
     "payments": "merchant_id",
 }
 
-# The application's own tables. The agent never reads these, so they are absent
-# from TENANT_COLUMN and therefore rejected by the allowlist.
+# Derived, so a table cannot be readable without also being scoped. The
+# application's own tables are left out on purpose.
 ALLOWED_TABLES = frozenset(TENANT_COLUMN)
 
 # Resolved by name because sqlglot renames these between versions. A name it
@@ -58,7 +57,8 @@ FORBIDDEN_NODES = tuple(
     if isinstance(node, type) and issubclass(node, exp.Expression)
 )
 
-# Functions that read the filesystem, reach the network, or escalate.
+# What puts a function here: it reads files, reaches the network, stalls or
+# kills a session, or changes settings.
 FORBIDDEN_FUNCTIONS = frozenset(
     {
         "pg_read_file", "pg_read_binary_file", "pg_ls_dir", "pg_stat_file",
@@ -129,9 +129,6 @@ def guard(
         return GuardResult(ok=False, reason=b.reason, checks=checks)
 
     return GuardResult(ok=True, sql=tree.sql(dialect=DIALECT), checks=checks)
-
-
-# --------------------------------------------------------------------- checks
 
 
 def _parse_single(sql: str, ok) -> exp.Expression:
@@ -214,7 +211,6 @@ def _collect_tables(tree: exp.Expression, allowed: frozenset[str], ok) -> set[st
 
 
 def _scope_to_tenant(tree: exp.Expression, merchant_id: int, ok) -> exp.Expression:
-    """Replace each tenant-scoped table with a pre-filtered subquery."""
     if not isinstance(merchant_id, int) or merchant_id <= 0:
         raise _Blocked("tenant scope", "merchant id must be a positive integer")
 
