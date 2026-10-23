@@ -48,14 +48,33 @@ def daypart_of(hour: int) -> str:
 
 
 def from_percentiles(rng: np.random.Generator, p: dict, n: int) -> np.ndarray:
-    """Sample by interpolating the profile's percentile curve."""
+    """
+    Sample by interpolating the profile's percentile curve.
+
+    The tail beyond the highest percentile is deliberately not linear. A
+    profile like {p99: 8, max: 304} describes a distribution where almost
+    everything sits near 8 and a handful of catering orders reach 304.
+    Interpolating straight from p99 to max puts a full 1% of samples in that
+    range, which lifted the mean basket from 2.35 to 3.93 the first time this
+    ran. Instead the last decade of probability is split geometrically, so max
+    is reachable but rare.
+    """
     keys = sorted((k for k in p if k.startswith("p")), key=lambda k: int(k[1:]))
-    xs = np.array([int(k[1:]) / 100 for k in keys])
-    ys = np.array([float(p[k]) for k in keys])
-    if "max" in p:
-        xs = np.append(xs, 1.0)
-        ys = np.append(ys, float(p["max"]))
-    return np.interp(rng.random(n), xs, ys)
+    xs = [int(k[1:]) / 100 for k in keys]
+    ys = [float(p[k]) for k in keys]
+
+    if "max" in p and ys:
+        top_x, top_y = xs[-1], ys[-1]
+        hi = float(p["max"])
+        if hi > top_y:
+            gap = 1.0 - top_x
+            for frac, scale in ((0.1, 1.5), (0.01, 3.0)):
+                xs.append(1.0 - gap * frac)
+                ys.append(min(hi, top_y * scale))
+            xs.append(1.0)
+            ys.append(hi)
+
+    return np.interp(rng.random(n), np.array(xs), np.array(ys))
 
 
 def pick(rng: np.random.Generator, mapping: dict[str, float], n: int) -> np.ndarray:
@@ -236,11 +255,12 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
                     1,
                     int(from_percentiles(rng, ch["basket_size_override"], 1)[0]),
                 )
-            # Daypart and weekday move value without moving basket size much:
-            # a dinner order picks up one extra item more often than a lunch one.
-            bump = dp_mult.get(dp, 1.0) * dow_mult.get(dname, 1.0) - 1.0
-            if bump > 0 and rng.random() < min(0.6, bump * 2):
-                size += 1
+            # Daypart and weekday move ticket value, not basket size: the
+            # weekend guest buys the larger drink rather than one more item.
+            # Adding a whole item instead overshoots badly on a low-ticket
+            # merchant, where one more $6 drink is a 50% jump against a target
+            # of 24%.
+            occasion = dp_mult.get(dp, 1.0) * dow_mult.get(dname, 1.0)
 
             oid = ids.take("order")
             gross = 0
@@ -252,7 +272,7 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
                 qty = 1 if rng.random() > 0.08 else 2
                 # The markup lives on unit price, which is how marketplaces
                 # actually price, so basket size stays flat across channels.
-                unit = int(round(prices[j] * ch["value_multiplier"]))
+                unit = int(round(prices[j] * ch["value_multiplier"] * occasion))
                 lines.append((int(item_ids[j]), qty, unit, unit * qty))
                 gross += unit * qty
 
