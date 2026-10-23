@@ -83,6 +83,7 @@ CREATE TABLE orders (
 
 CREATE TABLE order_items (
     id               integer PRIMARY KEY,
+    merchant_id      integer NOT NULL REFERENCES merchants(id),
     order_id         integer NOT NULL REFERENCES orders(id),
     item_id          integer NOT NULL REFERENCES items(id),
     quantity         integer NOT NULL CHECK (quantity > 0),
@@ -111,6 +112,7 @@ CREATE INDEX orders_merchant_channel   ON orders (merchant_id, channel);
 CREATE INDEX orders_customer           ON orders (customer_id) WHERE customer_id IS NOT NULL;
 CREATE INDEX order_items_order         ON order_items (order_id);
 CREATE INDEX order_items_item          ON order_items (item_id);
+CREATE INDEX order_items_merchant      ON order_items (merchant_id);
 CREATE INDEX payments_merchant_created ON payments (merchant_id, created_at);
 CREATE INDEX items_merchant_category   ON items (merchant_id, category_id);
 CREATE INDEX customers_merchant        ON customers (merchant_id);

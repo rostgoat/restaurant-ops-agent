@@ -12,9 +12,7 @@ generator rather than a dump.
 Two things it models that independent sampling would get wrong:
 
   Channel markup. Delivery marketplaces list the same items at a markup, so
-  basket size stays flat (~2.3 items) while ticket value runs 15-25% higher.
-  The multiplier is applied to unit price, not to the order total, because
-  that is the actual mechanism.
+  basket size stays flat while ticket value runs higher.
 
   Missing tips. Marketplaces do not pass tips to the POS, so tip_cents is
   NULL for those channels rather than 0.
@@ -55,9 +53,8 @@ def from_percentiles(rng: np.random.Generator, p: dict, n: int) -> np.ndarray:
     profile like {p99: 8, max: 304} describes a distribution where almost
     everything sits near 8 and a handful of catering orders reach 304.
     Interpolating straight from p99 to max puts a full 1% of samples in that
-    range, which lifted the mean basket from 2.35 to 3.93 the first time this
-    ran. Instead the last decade of probability is split geometrically, so max
-    is reachable but rare.
+    range and inflates the mean. Instead the last decade of probability is
+    split geometrically, so max is reachable but rare.
     """
     keys = sorted((k for k in p if k.startswith("p")), key=lambda k: int(k[1:]))
     xs = [int(k[1:]) / 100 for k in keys]
@@ -210,7 +207,7 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
     )
     oiw = w.table(
         "order_items",
-        ["id", "order_id", "item_id", "quantity", "unit_price_cents", "total_cents"],
+        ["id", "merchant_id", "order_id", "item_id", "quantity", "unit_price_cents", "total_cents"],
     )
     pw = w.table(
         "payments",
@@ -227,7 +224,7 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
 
     for day in days:
         dname = DOW[day.weekday()]
-        # Expected volume for this weekday, scaled to the configured monthly rate.
+        # orders_per_month spread over 52 weeks, then split by weekday weight.
         share = dow_w[dname] / dow_total
         expected = per_month * 12 * share / 52.0
         n = int(rng.poisson(max(0.1, expected)))
@@ -303,7 +300,7 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
             )
             for item_id, qty, unit, line_total in lines:
                 oiw.writerow(
-                    [ids.take("order_item"), oid, item_id, qty, unit, line_total]
+                    [ids.take("order_item"), mid, oid, item_id, qty, unit, line_total]
                 )
 
             if state == "completed":
@@ -352,7 +349,7 @@ def main() -> None:
     w = Writer(args.out, append=append)
     ids = Ids()
     if append:
-        # Offset ids past the backfill so an appended day never collides.
+        # 10,000 ids per day, counted from 2025-01-01, clears the backfill's ids.
         day = date.fromisoformat(args.append_day)
         offset = (day - date(2025, 1, 1)).days * 10_000
         for f in ("order", "order_item", "payment", "customer", "item", "category"):
