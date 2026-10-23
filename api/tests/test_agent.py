@@ -176,6 +176,16 @@ def test_the_prompt_describes_every_readable_table_and_no_other():
         assert table not in SYSTEM
 
 
+def test_a_workspace_id_is_sent_only_when_configured():
+    client = FakeClient(reply(text("Hello.")), reply(text("Hello.")))
+
+    ask("hi", client=client)
+    ask("hi", client=client, settings=Settings(workspace_id="wrkspc_123"))
+
+    assert "workspace_id" not in client.requests[0]
+    assert client.requests[1]["workspace_id"] == "wrkspc_123"
+
+
 def test_settings_change_the_request():
     client = FakeClient(reply(text("Hello.")))
 

@@ -23,5 +23,6 @@ def load() -> Config:
         settings=Settings(
             model=os.environ.get("MODEL", DEFAULT.model),
             effort=os.environ.get("EFFORT", DEFAULT.effort),
+            workspace_id=os.environ.get("ANTHROPIC_WORKSPACE_ID") or None,
         ),
     )

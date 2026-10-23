@@ -26,6 +26,7 @@ class Settings:
     max_queries: int = 3
     rows_to_model: int = 100
     row_limit: int = DEFAULT_ROW_LIMIT
+    workspace_id: str | None = None
 
 
 DEFAULT = Settings()
@@ -116,7 +117,7 @@ def answer(
 def request(settings: Settings, messages: list[dict[str, Any]]) -> dict[str, Any]:
     # No thinking parameter: on this model thinking is always on, and asking to
     # disable it is rejected. output_config.effort is the only depth control.
-    return {
+    params: dict[str, Any] = {
         "model": settings.model,
         "max_tokens": settings.max_tokens,
         "system": [{"type": "text", "text": SYSTEM, "cache_control": {"type": "ephemeral"}}],
@@ -125,6 +126,10 @@ def request(settings: Settings, messages: list[dict[str, Any]]) -> dict[str, Any
         "output_config": {"effort": settings.effort},
         "messages": messages,
     }
+    # An organisation-level key is refused without this; a workspace key ignores it.
+    if settings.workspace_id:
+        params["workspace_id"] = settings.workspace_id
+    return params
 
 
 def _run_sql(
