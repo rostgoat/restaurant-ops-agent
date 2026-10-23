@@ -228,7 +228,7 @@ function Title({ children }: { children: React.ReactNode }) {
 
 function Sql({ sql }: { sql: string }) {
   return (
-    <pre className="mt-2 overflow-x-auto rounded-md bg-background px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
+    <pre className="mt-2 overflow-x-auto rounded-md bg-muted px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
       {sql}
     </pre>
   );

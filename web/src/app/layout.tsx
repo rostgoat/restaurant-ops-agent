@@ -33,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={cn("h-full", bricolage.variable, sourceSerif.variable)}>
       <body className="min-h-full flex flex-col">
-        <header className="bg-sidebar text-sidebar-foreground">
+        <header className="border-b">
           <nav className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-between gap-x-6 gap-y-2 px-6 py-5 sm:px-10">
             <Link href="/" className="font-heading text-lg font-semibold">
               Restaurant ops agent
@@ -41,7 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ul className="flex gap-2">
               {pages.map((p) => (
                 <li key={p.href}>
-                  <Button asChild variant="link" className="font-heading text-base text-sidebar-foreground">
+                  <Button asChild variant="link" className="font-heading text-base text-foreground">
                     <Link href={p.href}>{p.label}</Link>
                   </Button>
                 </li>
