@@ -21,7 +21,7 @@ export function AskForm({ merchantName }: { merchantName: string }) {
   return (
     <div>
       <form action={formAction} className="max-w-[68ch]">
-        <Label htmlFor="question" className="mb-2 font-heading text-base">
+        <Label htmlFor="question" className="mb-3 font-heading text-base">
           Ask about {merchantName}
         </Label>
         <Textarea
@@ -31,11 +31,11 @@ export function AskForm({ merchantName }: { merchantName: string }) {
           rows={3}
           maxLength={2000}
           defaultValue={state.question}
-          className="bg-card text-base leading-relaxed"
+          className="bg-card px-4 py-3 text-base leading-relaxed"
           placeholder="How did delivery compare with the counter last week?"
         />
-        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Button type="submit" size="lg" disabled={pending} className="font-heading text-base">
+        <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+          <Button type="submit" size="lg" disabled={pending} className="h-11 px-6 font-heading text-base">
             {pending ? "Asking" : "Ask"}
           </Button>
           <p className="text-sm text-muted-foreground">
@@ -44,7 +44,7 @@ export function AskForm({ merchantName }: { merchantName: string }) {
         </div>
       </form>
 
-      <ul className="mt-4 flex flex-wrap gap-2">
+      <ul className="mt-8 flex flex-wrap gap-3">
         {suggestions.map((s) => (
           <li key={s}>
             <form action={formAction}>
@@ -54,7 +54,7 @@ export function AskForm({ merchantName }: { merchantName: string }) {
                 variant="outline"
                 size="sm"
                 disabled={pending}
-                className="h-auto py-1 text-left font-sans text-sm whitespace-normal"
+                className="h-auto px-4 py-2 text-left font-sans text-sm whitespace-normal"
               >
                 {s}
               </Button>
@@ -71,8 +71,8 @@ export function AskForm({ merchantName }: { merchantName: string }) {
       )}
 
       {state.trace && (
-        <div className="mt-10">
-          <h2 className="mb-4 text-2xl">{state.trace.question}</h2>
+        <div className="mt-20">
+          <h3 className="mb-6 text-3xl">{state.trace.question}</h3>
           <TraceLedger trace={state.trace} animate />
         </div>
       )}

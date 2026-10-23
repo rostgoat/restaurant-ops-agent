@@ -2,15 +2,15 @@ import { Separator } from "@/components/ui/separator";
 
 export default function ArchitecturePage() {
   return (
-    <article className="max-w-[68ch]">
-      <h1 className="text-4xl mb-6">How a question becomes an answer</h1>
+    <article className="mx-auto max-w-[68ch] text-lg leading-relaxed">
+      <h1 className="mb-10 text-5xl">How a question becomes an answer</h1>
       <p>
         Every request passes through the same four steps, and the trace shows which of them the
         model did and which were done by ordinary code. The point of the split is that a wrong
         answer from the model cannot become a wrong action: code decides what is allowed to run.
       </p>
 
-      <Separator className="my-10" />
+      <Separator className="my-14" />
       <h2 className="mb-3 text-2xl">The model proposes</h2>
       <p>
         The model sees a description of the seven tables it may read and the owner&apos;s question.
@@ -21,7 +21,7 @@ export default function ArchitecturePage() {
         at all.
       </p>
 
-      <Separator className="my-10" />
+      <Separator className="my-14" />
       <h2 className="mb-3 text-2xl">Code checks the query</h2>
       <p>
         The guard reads the proposed SQL as a parse tree, not as text, and runs eight checks in
@@ -38,7 +38,7 @@ export default function ArchitecturePage() {
         <em> blocked</em> whatever the model says afterwards.
       </p>
 
-      <Separator className="my-10" />
+      <Separator className="my-14" />
       <h2 className="mb-3 text-2xl">Code runs it</h2>
       <p>
         The rewritten query runs in a read-only transaction with a statement timeout, so even a
@@ -46,7 +46,7 @@ export default function ArchitecturePage() {
         to the model, capped at a hundred, and the trace keeps exactly what the model saw.
       </p>
 
-      <Separator className="my-10" />
+      <Separator className="my-14" />
       <h2 className="mb-3 text-2xl">The model answers</h2>
       <p>
         The model turns the rows into a few sentences. Each model turn records its own token
@@ -54,7 +54,7 @@ export default function ArchitecturePage() {
         request from the published rates. That is where the cost per question comes from.
       </p>
 
-      <Separator className="my-10" />
+      <Separator className="my-14" />
       <h2 className="mb-3 text-2xl">What is not built yet</h2>
       <p>
         The third lane, <em>Human</em>, is for the approval step: a proposal the model drafts, a

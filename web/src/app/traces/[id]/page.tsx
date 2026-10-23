@@ -13,11 +13,11 @@ export default async function TracePage(props: PageProps<"/traces/[id]">) {
   if (!trace) notFound();
   return (
     <>
-      <Button asChild variant="link" className="mb-6 h-auto p-0 font-sans text-sm">
+      <Button asChild variant="link" className="mb-10 h-auto p-0 font-sans text-sm">
         <Link href="/">Ask another question</Link>
       </Button>
-      <h1 className="mb-1 text-3xl">{trace.question}</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
+      <h1 className="mb-3 text-4xl">{trace.question}</h1>
+      <p className="mb-12 text-sm text-muted-foreground">
         Asked {new Date(trace.created_at).toLocaleString("en-US")} with {trace.model}.
       </p>
       <TraceLedger trace={trace} />

@@ -36,7 +36,7 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
       <ol className="border-t bg-card">
         <li className="hidden border-b font-heading text-sm md:grid md:grid-cols-[5fr_6fr_3fr]">
           {lanes.map((lane) => (
-            <span key={lane} className={cn("px-3 py-2", laneText[lane])}>
+            <span key={lane} className={cn("px-5 py-3", laneText[lane])}>
               {laneTitle[lane]}
             </span>
           ))}
@@ -50,7 +50,7 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
             {lanes.map((lane) => (
               <div key={lane} className={cn("min-w-0", lane !== step.actor && "hidden md:block")}>
                 {lane === step.actor && (
-                  <div className={cn("h-full border-l-4 px-3 py-3", laneCell[lane])}>
+                  <div className={cn("h-full border-l-4 px-5 py-5", laneCell[lane])}>
                     <Badge
                       variant="outline"
                       className={cn("mb-1 font-heading md:hidden", laneText[lane])}
@@ -74,7 +74,7 @@ function Outcome({ trace }: { trace: Trace }) {
   const tokensIn =
     trace.usage.input_tokens + trace.usage.cache_read_tokens + trace.usage.cache_write_tokens;
   return (
-    <p className="mt-3 text-sm text-muted-foreground">
+    <p className="mt-5 text-sm text-muted-foreground">
       {statusLine(trace)} {dollars(trace.cost_usd)}, {seconds(trace.latency_ms)}
       {trace.model_ms > 0 && ` (${seconds(trace.model_ms)} in the model)`}, {count(tokensIn)}{" "}
       tokens in, {count(trace.usage.output_tokens)} out
