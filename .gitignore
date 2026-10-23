@@ -33,8 +33,6 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
-# Generated API types
-web/src/lib/api-types.ts
 
 # Local data volumes
 pgdata/

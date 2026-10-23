@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #ffffff;
+  --color-ink: #1f2a24;
+  --color-muted: #5e6b64;
+  --color-rule: #cfd4d0;
+  --color-tint: #f3f5f4;
+  --color-model: #2b4ed8;
+  --color-code: #1e7a4c;
+  --color-human: #c62841;
+  --font-sql: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@theme inline {
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-source-serif);
+}
+
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+}
+
+@keyframes step-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.step-in {
+  animation: step-in 320ms ease-out both;
+  animation-delay: calc(var(--i) * 110ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-in { animation: none; }
+}
