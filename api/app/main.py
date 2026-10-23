@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 
 import anthropic
@@ -19,7 +20,9 @@ async def lifespan(app: FastAPI):
     app.state.store = Store(cfg.database_url)
     app.state.store.open()
     app.state.runner = PostgresRunner(cfg.database_url)
-    app.state.model = anthropic.Anthropic()
+    # A missing key must not stop the site: pages still render, and an ask
+    # ends as an error trace that names the 401 instead.
+    app.state.model = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY") or "unset")
     yield
     app.state.store.close()
     app.state.runner.close()
