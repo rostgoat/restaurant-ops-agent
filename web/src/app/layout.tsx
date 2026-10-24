@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
 import { PageNav } from "@/components/page-nav";
+import { ThemeProvider, ThemeToggle } from "@/components/theme";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -33,14 +34,19 @@ const pages = [
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={cn("h-full", bricolage.variable, sourceSerif.variable)}>
+    <html
+      lang="en"
+      className={cn("h-full", bricolage.variable, sourceSerif.variable)}
+      suppressHydrationWarning
+    >
       <body className="min-h-full flex flex-col">
+        <ThemeProvider>
         <header className="border-b">
           <nav className="mx-auto flex max-w-5xl flex-wrap items-baseline justify-between gap-x-8 gap-y-2 px-8 py-6 sm:px-16">
             <Link href="/" className="font-heading text-lg font-semibold">
               Restaurant ops agent
             </Link>
-            <ul className="flex gap-4">
+            <ul className="flex items-center gap-4">
               {pages.map((p) => (
                 <li key={p.href}>
                   <Button asChild variant="link" className="font-heading text-base text-foreground">
@@ -48,6 +54,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                   </Button>
                 </li>
               ))}
+              <li>
+                <ThemeToggle />
+              </li>
             </ul>
           </nav>
         </header>
@@ -65,6 +74,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             . Synthetic data for two fictional restaurants; nothing here is real sales.
           </p>
         </footer>
+        </ThemeProvider>
       </body>
     </html>
   );

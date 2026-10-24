@@ -27,9 +27,9 @@ const laneText: Record<Lane, string> = {
 };
 
 const laneCell: Record<Lane, string> = {
-  model: "border-model bg-model/5",
-  code: "border-code bg-code/5",
-  human: "border-human bg-human/5",
+  model: "border-model bg-model/8",
+  code: "border-code bg-code/8",
+  human: "border-human bg-human/8",
 };
 
 const laneStart: Record<Lane, string> = {

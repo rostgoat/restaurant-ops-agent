@@ -5,13 +5,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --color-model: #6d28d9;
-  --color-code: #0e7490;
-  --color-human: #be123c;
   --font-sql: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 
 @theme inline {
+  --color-model: var(--model);
+  --color-code: var(--code);
+  --color-human: var(--human);
   --font-sans: var(--font-source-serif);
   --font-heading: var(--font-bricolage);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -55,6 +55,9 @@
 }
 
 :root {
+  --model: #6d28d9;
+  --code: #0e7490;
+  --human: #be123c;
   --background: #ffffff;
   --foreground: #1a1a1a;
   --card: #ffffff;
@@ -87,6 +90,44 @@
   --sidebar-accent-foreground: #1a1a1a;
   --sidebar-border: #e0e0e0;
   --sidebar-ring: #006aff;
+}
+
+.dark {
+  --model: #b197fc;
+  --code: #4fd1c5;
+  --human: #ff8097;
+  --background: #1c1c1e;
+  --foreground: #f2f2f4;
+  --card: #232326;
+  --card-foreground: #f2f2f4;
+  --popover: #232326;
+  --popover-foreground: #f2f2f4;
+  --primary: #3d8bff;
+  --primary-foreground: #0b0b0c;
+  --secondary: #2a2a2d;
+  --secondary-foreground: #f2f2f4;
+  --muted: #262629;
+  --muted-foreground: #9c9ca3;
+  --accent: #2a2a2d;
+  --accent-foreground: #f2f2f4;
+  --destructive: #ff6b7f;
+  --border: #343438;
+  --input: #3a3a3e;
+  --ring: #3d8bff;
+  --chart-1: #b197fc;
+  --chart-2: #4fd1c5;
+  --chart-3: #ff8097;
+  --chart-4: #9c9ca3;
+  --chart-5: #343438;
+  --sidebar: #1c1c1e;
+  --sidebar-foreground: #f2f2f4;
+  --sidebar-primary: #3d8bff;
+  --sidebar-primary-foreground: #0b0b0c;
+  --sidebar-accent: #2a2a2d;
+  --sidebar-accent-foreground: #f2f2f4;
+  --sidebar-border: #343438;
+  --sidebar-ring: #3d8bff;
+  color-scheme: dark;
 }
 
 @layer base {

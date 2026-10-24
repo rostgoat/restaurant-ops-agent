@@ -24,8 +24,7 @@ export default function HomePage() {
           decides what may run, keeps each restaurant to its own data and its
           own rules, and records every step with what it cost. A{" "}
           <span className="font-semibold text-human">person</span> approves
-          anything that would change something. The two restaurants are
-          synthetic; the pipeline, the checks, and the failures are not.
+          anything that would change something.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
