@@ -3,8 +3,8 @@
     "slug": "missing-item-dispute",
     "title": "A marketplace dispute, where the policy decides",
     "merchant_id": 1,
-    "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
-    "expected": "Finds the marketplace terms on missing items: the platform has already refunded the customer and charged us; we may dispute within 7 days, but only with a packing photo, and over $40 without one we accept it. Cites the section."
+    "question": "A DoorDash customer says an item was missing from order 100660 on Tuesday. What do I do?",
+    "expected": "Looks the order up: Tuesday 3:59pm, $61.40, four items. Finds the marketplace terms on missing items: DoorDash has already refunded the customer and charged us; we may dispute within 7 days of the order, but only with a packing photo, and since the order is over $40 we should have one. Checks whether the customer is a flagged repeat disputer. Cites the sections."
   },
   {
     "slug": "delivery-vs-counter",
@@ -17,8 +17,8 @@
     "slug": "no-marketplace",
     "title": "The same question at the coffee counter",
     "merchant_id": 2,
-    "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
-    "expected": "Ridgeline is not on any delivery marketplace. The answer says so instead of borrowing the noodle house's rule or inventing one."
+    "question": "A DoorDash customer says an item was missing from order 100660 on Tuesday. What do I do?",
+    "expected": "Ridgeline has no order 100660 and is not on any delivery marketplace. The answer says both, instead of borrowing the noodle house's rule or inventing one."
   },
   {
     "slug": "comp-limit",
