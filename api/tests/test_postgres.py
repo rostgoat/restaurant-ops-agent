@@ -131,6 +131,30 @@ def test_a_trace_survives_the_round_trip(store):
             conn.execute("DELETE FROM request_traces WHERE id = %s", (trace.id,))
 
 
+# ------------------------------------------------------------ policy search
+
+
+def test_policy_search_is_scoped_to_the_merchant_before_similarity():
+    from pathlib import Path
+
+    from app.policies import FakeEmbedder, PostgresPolicySearch
+    from app.policies.index import index
+
+    policies = Path(__file__).resolve().parents[2] / "data" / "policies"
+    index(policies, [DSN], FakeEmbedder())
+    search = PostgresPolicySearch(DSN, FakeEmbedder())
+    try:
+        query = "missing items on a DoorDash order, dispute window and packing photo"
+        noodle = search.search(1, query, limit=3)
+        coffee = search.search(2, query, limit=3)
+        assert noodle[0].label.startswith("marketplace:")
+        assert all(not h.label.startswith("marketplace:") for h in coffee)
+        assert noodle[0].score > coffee[0].score
+        assert all(0.0 <= h.score <= 1.0 for h in noodle + coffee)
+    finally:
+        search.close()
+
+
 # ------------------------------------------------------------ the loop, for real
 
 

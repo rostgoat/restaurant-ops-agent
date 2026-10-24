@@ -10,6 +10,8 @@
 
 BEGIN;
 
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- ===========================================================================
 -- Point-of-sale data (what the agent queries)
 -- ===========================================================================
@@ -107,6 +109,19 @@ CREATE TABLE payments (
     status                payment_status NOT NULL DEFAULT 'completed'
 );
 
+-- Policy documents, one section per row, embedded for retrieval. Scoped by
+-- merchant_id before any similarity is computed, the same way the guard
+-- scopes a query. The agent never reads this table through SQL.
+CREATE TABLE policy_chunks (
+    id          serial       PRIMARY KEY,
+    merchant_id integer      NOT NULL REFERENCES merchants(id),
+    document    text         NOT NULL,
+    section     text         NOT NULL,
+    body        text         NOT NULL,
+    embedding   vector(1536) NOT NULL,
+    UNIQUE (merchant_id, document, section)
+);
+
 CREATE INDEX orders_merchant_created   ON orders (merchant_id, created_at);
 CREATE INDEX orders_merchant_channel   ON orders (merchant_id, channel);
 CREATE INDEX orders_customer           ON orders (customer_id) WHERE customer_id IS NOT NULL;
@@ -116,6 +131,7 @@ CREATE INDEX order_items_merchant      ON order_items (merchant_id);
 CREATE INDEX payments_merchant_created ON payments (merchant_id, created_at);
 CREATE INDEX items_merchant_category   ON items (merchant_id, category_id);
 CREATE INDEX customers_merchant        ON customers (merchant_id);
+CREATE INDEX policy_chunks_merchant    ON policy_chunks (merchant_id);
 
 -- ===========================================================================
 -- Application tables (what the agent writes)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -9,6 +10,7 @@ from uuid import uuid4
 
 import anthropic
 
+from app.policies.search import Hit, PolicySearch, hits_payload
 from app.sql.execute import QueryError, QueryRunner
 from app.sql.guard import DEFAULT_ROW_LIMIT, guard
 
@@ -26,10 +28,14 @@ class Settings:
     max_queries: int = 3
     rows_to_model: int = 100
     row_limit: int = DEFAULT_ROW_LIMIT
+    retrieval_limit: int = 4
+    retrieval_threshold: float = 0.30
     workspace_id: str | None = None
 
 
 DEFAULT = Settings()
+
+_CITATION = re.compile(r"\[([a-z-]+: [^\]]+)\]")
 
 
 def answer(
@@ -38,6 +44,7 @@ def answer(
     *,
     client: anthropic.Anthropic,
     runner: QueryRunner,
+    policies: PolicySearch | None = None,
     settings: Settings = DEFAULT,
     now: datetime | None = None,
 ) -> Trace:
@@ -51,9 +58,10 @@ def answer(
         model=settings.model,
     )
     messages: list[dict[str, Any]] = [{"role": "user", "content": user_turn(question, now)}]
-    queries = 0
+    calls = 0
     executed = False
     blocked = False
+    retrieved: set[str] | None = None
 
     def finish(status: Status, text: str | None = None) -> Trace:
         trace.cost_usd = cost_usd(settings.model, trace.usage)
@@ -85,6 +93,8 @@ def answer(
 
         if call is None:
             trace.step("model", "answer", "answered", {"text": text} | usage, latency_ms=model_ms)
+            if retrieved is not None:
+                _check_citations(trace, text, retrieved)
             # Text after a block, with nothing executed, is the model talking
             # around the guard. The guard decided this request, not the model.
             return finish("blocked" if blocked and not executed else "answered", text)
@@ -96,17 +106,20 @@ def answer(
             return finish("refused", reason)
 
         trace.step("model", call.name, "proposed", dict(call.input) | usage, latency_ms=model_ms)
-        queries += 1
-        if queries > settings.max_queries:
+        calls += 1
+        if calls > settings.max_queries:
             trace.step("code", "query_limit", "reached", {"limit": settings.max_queries})
             return finish("blocked" if blocked and not executed else "error")
 
-        if call.name != "run_sql":
-            result = _tool_result(call.id, f"There is no tool named {call.name}.", error=True)
-        else:
+        if call.name == "run_sql":
             result, outcome = _run_sql(call, trace, merchant_id, runner, settings)
             executed = executed or outcome == "ok"
             blocked = blocked or outcome == "blocked"
+        elif call.name == "search_policy":
+            result, labels = _search_policy(call, trace, merchant_id, policies, settings)
+            retrieved = (retrieved or set()) | labels
+        else:
+            result = _tool_result(call.id, f"There is no tool named {call.name}.", error=True)
         if result.get("is_error"):
             trace.retries += 1
 
@@ -174,6 +187,52 @@ def _run_sql(
     payload = rows.to_payload(settings.rows_to_model)
     trace.step("code", "execute", "ok", payload, latency_ms=elapsed)
     return _tool_result(call.id, json.dumps(payload)), "ok"
+
+
+def _search_policy(
+    call: Any,
+    trace: Trace,
+    merchant_id: int,
+    policies: PolicySearch | None,
+    settings: Settings,
+) -> tuple[dict[str, Any], set[str]]:
+    query = str(call.input.get("query", "")).strip()
+    if policies is None:
+        trace.step("code", "retrieve", "unavailable", {"query": query})
+        return _tool_result(call.id, "Policy search is not available.", error=True), set()
+
+    t0 = time.perf_counter()
+    hits: list[Hit] = policies.search(merchant_id, query, limit=settings.retrieval_limit)
+    elapsed = _ms(t0)
+    trace.tool_ms += elapsed
+    used = [h for h in hits if h.score >= settings.retrieval_threshold]
+    detail = {"query": query, "merchant_id": merchant_id} | hits_payload(
+        hits, settings.retrieval_threshold
+    )
+    if not used:
+        trace.step("code", "retrieve", "nothing above threshold", detail, latency_ms=elapsed)
+        message = "No section of this restaurant's policies matches closely enough."
+        return _tool_result(call.id, message), set()
+    trace.step(
+        "code", "retrieve", f"{len(used)} {'section' if len(used) == 1 else 'sections'}",
+        detail, latency_ms=elapsed,
+    )
+    payload = {"sections": [{"label": h.label, "text": h.body} for h in used]}
+    return _tool_result(call.id, json.dumps(payload)), {h.label for h in used}
+
+
+def _check_citations(trace: Trace, text: str, retrieved: set[str]) -> None:
+    cited = set(_CITATION.findall(text))
+    missing = sorted(cited - retrieved)
+    detail = {"cited": sorted(cited), "retrieved": sorted(retrieved), "not_retrieved": missing}
+    if not cited:
+        reason = "policy was used but nothing was cited"
+        trace.step("code", "citations", "failed", detail | {"reason": reason})
+    elif missing:
+        reason = "cited a section that was not retrieved"
+        trace.step("code", "citations", "failed", detail | {"reason": reason})
+    else:
+        trace.step("code", "citations", "passed", detail)
 
 
 def _usage(reply_usage: Any) -> dict[str, Any]:

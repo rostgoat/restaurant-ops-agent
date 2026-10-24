@@ -110,7 +110,7 @@ def test_unknown_table_is_blocked():
 
 
 def test_application_tables_are_not_in_the_allowlist():
-    for table in ("request_traces", "trace_steps", "proposals"):
+    for table in ("request_traces", "trace_steps", "proposals", "policy_chunks"):
         assert table not in ALLOWED_TABLES
 
 

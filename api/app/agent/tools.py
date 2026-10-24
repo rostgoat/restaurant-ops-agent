@@ -45,4 +45,28 @@ DECLINE = {
     },
 }
 
-TOOLS = [RUN_SQL, DECLINE]
+SEARCH_POLICY = {
+    "name": "search_policy",
+    "description": (
+        "Find the sections of this restaurant's own written policies that bear on a "
+        "question: house rules on comps, refunds, discounts, and catering; marketplace "
+        "terms on disputes, commissions, and cancellations; messaging rules on consent, "
+        "quiet hours, and offers. Call it for any question about what is allowed, who "
+        "must approve, or what a deadline or limit is. A question about a specific order "
+        "or customer often needs run_sql first and then this."
+    ),
+    "strict": True,
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "What to look for, in plain words, as a rule would be phrased.",
+            },
+        },
+        "required": ["query"],
+        "additionalProperties": False,
+    },
+}
+
+TOOLS = [RUN_SQL, SEARCH_POLICY, DECLINE]

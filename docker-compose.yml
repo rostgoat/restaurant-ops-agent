@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:17
+    image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: ops
       POSTGRES_PASSWORD: ops
@@ -23,6 +23,7 @@ services:
       DATABASE_URL: postgresql://ops:ops@db:5432/ops_demo
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       WEB_ORIGIN: http://localhost:3000
     ports:
       - "8000:8000"

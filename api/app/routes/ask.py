@@ -21,6 +21,7 @@ def ask(body: AskIn, merchant_id: Merchant, request: Request) -> TraceOut:
         merchant_id,
         client=deps.model,
         runner=deps.runner,
+        policies=deps.policies,
         settings=deps.settings,
     )
     deps.store.save_trace(trace)

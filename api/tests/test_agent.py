@@ -154,7 +154,7 @@ def test_request_shape():
     for tool in req["tools"]:
         assert tool["strict"] is True
         assert tool["input_schema"]["additionalProperties"] is False
-    assert {t["name"] for t in req["tools"]} == {"run_sql", "decline"}
+    assert {t["name"] for t in req["tools"]} == {"run_sql", "search_policy", "decline"}
 
 
 def test_the_question_is_passed_verbatim_with_the_date():
