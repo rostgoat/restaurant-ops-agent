@@ -3,7 +3,11 @@
   "title": "The same question at the coffee counter",
   "merchant_id": 2,
   "question": "A DoorDash customer says an item was missing from order 100660 on Tuesday. What do I do?",
-  "expected": "Ridgeline has no order 100660 and is not on any delivery marketplace. The answer says both, instead of borrowing the noodle house's rule or inventing one.",
+  "expected": [
+    "Finds no order 100660 in Ridgeline's data.",
+    "Finds nothing in Ridgeline's policies about marketplace disputes, because it is not on any marketplace.",
+    "Says both, and does not borrow the noodle house's rule or invent one."
+  ],
   "trace": {
     "id": "e3d584af-739c-43f6-a328-34753c42f68a",
     "merchant_id": 2,

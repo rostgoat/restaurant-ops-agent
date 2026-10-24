@@ -3,7 +3,11 @@
   "title": "A customer the data flags, where SQL and policy meet",
   "merchant_id": 1,
   "question": "Customer 1500 is claiming another missing item on a delivery order. How should I handle it?",
-  "expected": "Counts their refunded marketplace orders in the last 90 days with SQL, finds they cross the flag threshold of three, and applies the repeat-disputes rule: dispute every claim regardless of value and tell the owner.",
+  "expected": [
+    "Counts customer 1500's refunded marketplace orders in the last 90 days with SQL.",
+    "Finds they cross the flag threshold of three.",
+    "Applies the repeat-disputes rule: dispute every claim regardless of value, and tell the owner. Cites it."
+  ],
   "trace": {
     "id": "2761ef60-8068-4138-befb-1dbe65059497",
     "merchant_id": 1,

@@ -3,7 +3,10 @@
   "title": "A plain data question",
   "merchant_id": 1,
   "question": "How did delivery compare with the counter last week?",
-  "expected": "One SQL query, completed orders only, in the restaurant's local time, and an answer that says which week it covers.",
+  "expected": [
+    "One SQL query, completed orders only, in the restaurant's local time.",
+    "Says which week the figures cover and how it defined delivery and counter."
+  ],
   "trace": {
     "id": "2f85186c-6f49-48a0-aafe-f91446c674aa",
     "merchant_id": 1,

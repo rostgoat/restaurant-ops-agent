@@ -3,7 +3,13 @@
   "title": "A marketplace dispute, where the policy decides",
   "merchant_id": 1,
   "question": "A DoorDash customer says an item was missing from order 100660 on Tuesday. What do I do?",
-  "expected": "Looks the order up: Tuesday 3:59pm, $61.40, four items. Finds the marketplace terms on missing items: DoorDash has already refunded the customer and charged us; we may dispute within 7 days of the order, but only with a packing photo, and since the order is over $40 we should have one. Checks whether the customer is a flagged repeat disputer. Cites the sections.",
+  "expected": [
+    "Looks the order up: Tuesday 3:59pm, $61.40, four lines.",
+    "Finds the marketplace clause on missing items and cites it.",
+    "Says DoorDash has already refunded the customer and charged us back.",
+    "Says we may dispute within 7 days of the order, with a packing photo, which an order over $40 should have.",
+    "Checks whether the customer is a flagged repeat disputer."
+  ],
   "trace": {
     "id": "a6783981-64bd-43aa-9e00-054043e9266b",
     "merchant_id": 1,

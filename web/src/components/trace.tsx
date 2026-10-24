@@ -9,8 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { Answer } from "@/components/answer";
 import { Clock, Coins, ListOrdered, RotateCcw } from "lucide-react";
 import type { Step, Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
@@ -73,7 +72,7 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
               <Badge variant="outline" className={cn("mb-2 font-heading", laneText[lane])}>
                 {laneTitle[lane]}
               </Badge>
-              <StepBody step={step} />
+              <StepBody step={step} merchantId={trace.merchant_id} />
             </li>
           );
         })}
@@ -165,7 +164,7 @@ export function StatusBadge({ status }: { status: Trace["status"] }) {
   );
 }
 
-function StepBody({ step }: { step: Step }) {
+function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
   const d = step.detail ?? {};
   switch (`${step.name}:${step.outcome}`) {
     case "run_sql:proposed":
@@ -225,7 +224,7 @@ function StepBody({ step }: { step: Step }) {
       return (
         <>
           <Title>Answered</Title>
-          <Prose text={String(d.text)} />
+          <Answer text={String(d.text)} merchantId={merchantId} className="text-lg" />
           <Usage detail={d} />
         </>
       );
@@ -233,7 +232,7 @@ function StepBody({ step }: { step: Step }) {
       return (
         <>
           <Title>Declined</Title>
-          <Prose text={String(d.reason)} />
+          <Answer text={String(d.reason)} merchantId={merchantId} className="text-lg" />
           <Usage detail={d} />
         </>
       );
@@ -304,14 +303,6 @@ function StepBody({ step }: { step: Step }) {
         </>
       );
   }
-}
-
-function Prose({ text }: { text: string }) {
-  return (
-    <div className="space-y-3 text-lg leading-relaxed [&_li]:ml-5 [&_ol]:list-decimal [&_table]:w-full [&_table]:text-base [&_td]:border-t [&_td]:py-1.5 [&_td]:pr-3 [&_th]:py-1.5 [&_th]:pr-3 [&_th]:text-left [&_th]:font-normal [&_th]:text-muted-foreground [&_ul]:list-disc">
-      <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
-    </div>
-  );
 }
 
 type RetrievedHit = { label: string; score: number; used: boolean };

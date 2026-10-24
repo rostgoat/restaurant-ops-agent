@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "gen:types": "(cd ../api && .venv/bin/python -m app.openapi > ../web/.openapi.json) && openapi-typescript .openapi.json -o src/lib/api-types.ts && rm .openapi.json"
+    "gen:types": "(cd ../api && .venv/bin/python -m app.openapi > ../web/.openapi.json) && openapi-typescript .openapi.json -o src/lib/api-types.ts && rm .openapi.json",
+    "gen:policies": "node scripts/policies.mjs"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

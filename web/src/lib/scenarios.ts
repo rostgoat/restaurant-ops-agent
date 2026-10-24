@@ -5,7 +5,7 @@ export type Scenario = {
   title: string;
   merchant_id: number;
   question: string;
-  expected: string;
+  expected: string[];
   trace: Trace;
 };
 

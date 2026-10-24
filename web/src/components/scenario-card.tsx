@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Markdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { Answer } from "@/components/answer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -38,22 +37,23 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <div>
           <h3 className="mb-2 text-base">What should happen</h3>
-          <p className="text-muted-foreground">{scenario.expected}</p>
+          <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
+            {scenario.expected.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
         </div>
         <div>
           <h3 className="mb-2 text-base">What happened</h3>
           <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="text-sm text-muted-foreground">Used</span>
             {toolsUsed(scenario).map((u) => (
               <Badge key={u} variant="outline">
                 {u}
               </Badge>
             ))}
           </div>
-          {t.answer && (
-            <div className="space-y-3 leading-relaxed [&_li]:ml-5 [&_ol]:list-decimal [&_table]:w-full [&_td]:border-t [&_td]:py-1 [&_td]:pr-3 [&_th]:py-1 [&_th]:pr-3 [&_th]:text-left [&_th]:font-normal [&_th]:text-muted-foreground [&_ul]:list-disc">
-              <Markdown remarkPlugins={[remarkGfm]}>{t.answer}</Markdown>
-            </div>
-          )}
+          {t.answer && <Answer text={t.answer} merchantId={scenario.merchant_id} />}
         </div>
       </div>
 

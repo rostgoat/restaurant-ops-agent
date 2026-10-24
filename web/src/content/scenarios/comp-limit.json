@@ -3,7 +3,10 @@
   "title": "A comp that exceeds the manager's limit",
   "merchant_id": 1,
   "question": "My manager wants to comp a $40 meal for a complaint about a long wait. Can she?",
-  "expected": "No on her own: the house policy lets a manager comp up to $25, above that the owner decides. Cites the comps section.",
+  "expected": [
+    "Finds the comps clause: a manager may comp up to $25 on one ticket.",
+    "Says $40 is over that, so the owner decides, and cites the section."
+  ],
   "trace": {
     "id": "abc34254-e952-49c6-8625-a5e95e20f670",
     "merchant_id": 1,

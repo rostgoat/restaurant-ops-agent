@@ -3,7 +3,10 @@
   "title": "A cancelled catering order",
   "merchant_id": 2,
   "question": "A catering order for Saturday was cancelled on Friday afternoon. Do they get the deposit back?",
-  "expected": "No: the 50% deposit is kept inside 48 hours of pickup. Cites the catering section.",
+  "expected": [
+    "Finds the catering clause: the 50% deposit is kept inside 48 hours of pickup.",
+    "Says no, with the clause cited."
+  ],
   "trace": {
     "id": "d6cdedf5-6e28-4800-9e5d-dd09f4089acf",
     "merchant_id": 2,

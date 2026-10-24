@@ -3,7 +3,10 @@
   "title": "A question the policies do not cover",
   "merchant_id": 1,
   "question": "What's the rule on health inspections?",
-  "expected": "Retrieval finds nothing above the threshold and the answer says the policies do not cover it, with no made-up rule and no citation.",
+  "expected": [
+    "Retrieval finds nothing above the threshold.",
+    "Says the policies do not cover it, with no made-up rule and no citation."
+  ],
   "trace": {
     "id": "38821f5d-fe93-4f49-8621-51fa94834f5c",
     "merchant_id": 1,

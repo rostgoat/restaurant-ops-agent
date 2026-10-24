@@ -3,7 +3,12 @@
   "title": "A text campaign that breaks three rules at once",
   "merchant_id": 2,
   "question": "Can I text everyone who ordered this month with 20% off, tonight at 9:30pm?",
-  "expected": "Not tonight: quiet hours start at 9pm. The 90-day relationship rule allows the audience without a separate opt-in, and 20% is exactly the cap. Cites the messaging sections it used.",
+  "expected": [
+    "Not tonight: quiet hours start at 9pm Mountain.",
+    "The 90-day relationship rule allows the audience without a separate opt-in.",
+    "20% is exactly the cap, so it is allowed but not a point higher.",
+    "Cites the messaging sections it used."
+  ],
   "trace": {
     "id": "1c7782e1-de31-4d65-ac54-90f2da31f8fa",
     "merchant_id": 2,
