@@ -9,12 +9,12 @@ const order = [
   {
     href: "/scenarios",
     label: "Scenarios",
-    blurb: "Thirteen questions, with the expected behaviour written down first.",
+    blurb: "Seven questions, with the expected behaviour written down first.",
   },
   {
-    href: "/approvals",
-    label: "Approvals",
-    blurb: "Proposed actions, checked by code, waiting for a person.",
+    href: "/evaluation",
+    label: "Evaluation",
+    blurb: "Thirty cases with a written right answer, and every failure named.",
   },
   {
     href: "/architecture",
