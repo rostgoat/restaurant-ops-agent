@@ -2,9 +2,9 @@ import Link from "next/link";
 import { ScenarioCard } from "@/components/scenario-card";
 import { Button } from "@/components/ui/button";
 import type { Scenario } from "@/lib/scenarios";
-import missingItemDispute from "@/content/scenarios/missing-item-dispute.json";
+import fileDispute from "@/content/scenarios/file-dispute.json";
 
-const scenario = missingItemDispute as Scenario;
+const scenario = fileDispute as Scenario;
 
 export default function HomePage() {
   return (
@@ -48,7 +48,7 @@ export default function HomePage() {
       </section>
 
       <section className="mt-28">
-        <ScenarioCard scenario={scenario} kicker="Example scenario, one of thirteen" />
+        <ScenarioCard scenario={scenario} kicker="Example scenario, one of seven. Every actor appears: the owner asks, the model proposes, code checks, the owner approves, code records." />
       </section>
     </>
   );

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Proposal } from "@/lib/api";
@@ -83,9 +82,6 @@ export function ProposalCard({ proposal }: { proposal: Proposal }) {
             </form>
           </>
         )}
-        <Button asChild variant="link" className="h-auto p-0 font-sans text-sm">
-          <Link href={`/traces/${proposal.trace_id}`}>See the trace</Link>
-        </Button>
       </div>
     </article>
   );

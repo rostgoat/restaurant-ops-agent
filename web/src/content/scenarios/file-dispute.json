@@ -1,6 +1,6 @@
 {
   "slug": "file-dispute",
-  "title": "An action, proposed, checked, and approved",
+  "title": "A dispute: looked up, checked, proposed, approved",
   "merchant_id": 1,
   "question": "File the dispute with DoorDash for order 100660.",
   "expected": [

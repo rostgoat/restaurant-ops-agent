@@ -31,16 +31,15 @@ export async function switchMerchant(id: number): Promise<void> {
     await setCurrentMerchant(id);
     revalidatePath("/");
     revalidatePath("/ask");
-    revalidatePath("/approvals");
   }
 }
 
 export async function approveProposal(formData: FormData): Promise<void> {
-  await decideProposal(await currentMerchant(), String(formData.get("id")), "approve");
-  revalidatePath("/approvals");
+  const p = await decideProposal(await currentMerchant(), String(formData.get("id")), "approve");
+  revalidatePath(`/traces/${p.trace_id}`);
 }
 
 export async function rejectProposal(formData: FormData): Promise<void> {
-  await decideProposal(await currentMerchant(), String(formData.get("id")), "reject");
-  revalidatePath("/approvals");
+  const p = await decideProposal(await currentMerchant(), String(formData.get("id")), "reject");
+  revalidatePath(`/traces/${p.trace_id}`);
 }
