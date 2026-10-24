@@ -32,24 +32,11 @@ const laneCell: Record<Lane, string> = {
   human: "border-human bg-human/8",
 };
 
-const laneStart: Record<Lane, string> = {
-  human: "md:col-start-1 md:col-span-3",
-  model: "md:col-start-2 md:col-span-2",
-  code: "md:col-start-3 md:col-span-1",
-};
-
 export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?: boolean }) {
   return (
     <section aria-label="Trace">
-      <div className="hidden border-b font-heading text-sm md:grid md:grid-cols-[3fr_4fr_7fr]">
-        {lanes.map((lane) => (
-          <span key={lane} className={cn("px-5 py-3", laneText[lane])}>
-            {laneTitle[lane]}
-          </span>
-        ))}
-      </div>
-      <ol className="mt-3 grid grid-cols-1 gap-y-3 md:grid-cols-[3fr_4fr_7fr]">
-        <li className={cn("min-w-0 rounded-r-md border-l-4 px-5 py-4", laneCell.human, laneStart.human)}>
+      <ol className="grid grid-cols-1 gap-y-3">
+        <li className={cn("min-w-0 rounded-r-md border-l-4 px-5 py-4", laneCell.human)}>
           <Badge variant="outline" className={cn("mb-2 font-heading", laneText.human)}>
             Human
           </Badge>
@@ -64,7 +51,6 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
               className={cn(
                 "min-w-0 rounded-r-md border-l-4 px-5 py-4",
                 laneCell[lane],
-                laneStart[lane],
                 animate && "step-in"
               )}
               style={animate ? ({ "--i": i + 1 } as React.CSSProperties) : undefined}
