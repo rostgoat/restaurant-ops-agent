@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Source_Serif_4 } from "next/font/google";
 import Link from "next/link";
+import { PageNav } from "@/components/page-nav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -51,6 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           </nav>
         </header>
         <main className="mx-auto w-full max-w-5xl flex-1 px-8 py-20 sm:px-16 sm:py-28">{children}</main>
+        <PageNav />
         <footer className="border-t">
           <p className="mx-auto max-w-5xl px-8 py-10 text-sm text-muted-foreground sm:px-16">
             Built by Rost M.{" "}

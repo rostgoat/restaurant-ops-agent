@@ -22,16 +22,19 @@ function toolsUsed(s: Scenario): string[] {
   return used;
 }
 
-export function ScenarioCard({ scenario }: { scenario: Scenario }) {
+export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?: string }) {
   const [open, setOpen] = useState(false);
   const t = scenario.trace;
   return (
     <article className="border-t pt-8">
+      {kicker && <p className="mb-3 font-heading text-base text-primary">{kicker}</p>}
       <h2 className="text-2xl">{scenario.title}</h2>
       <p className="mt-1 text-sm text-muted-foreground">
         Asked as {merchantName[scenario.merchant_id]}
       </p>
-      <p className="mt-6 font-heading text-lg">{scenario.question}</p>
+      <blockquote className="mt-6 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
+        {scenario.question}
+      </blockquote>
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <div>

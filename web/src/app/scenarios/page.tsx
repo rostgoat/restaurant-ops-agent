@@ -44,8 +44,8 @@ export default function ScenariosPage() {
         </p>
       </section>
       <div className="mt-16 space-y-16">
-        {scenarios.map((s) => (
-          <ScenarioCard key={s.slug} scenario={s} />
+        {scenarios.map((s, i) => (
+          <ScenarioCard key={s.slug} scenario={s} kicker={`Scenario ${i + 1} of ${scenarios.length}`} />
         ))}
       </div>
     </>

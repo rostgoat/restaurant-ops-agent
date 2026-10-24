@@ -15,9 +15,11 @@ export default function HomePage() {
           Building an AI agent a restaurant can trust with its data and its rules.
         </h1>
         <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
-          The model turns a plain question into SQL and reads the restaurant&apos;s own written
-          policies. Code decides what may run, keeps each restaurant to its own data and its own
-          rules, and records every step with what it cost. A person approves anything that would
+          The <span className="font-semibold text-model">model</span> turns a plain question
+          into SQL and reads the restaurant&apos;s own written policies.{" "}
+          <span className="font-semibold text-code">Code</span> decides what may run, keeps each
+          restaurant to its own data and its own rules, and records every step with what it cost.
+          A <span className="font-semibold text-human">person</span> approves anything that would
           change something. The two restaurants are synthetic; the pipeline, the checks, and the
           failures are not.
         </p>
@@ -32,11 +34,10 @@ export default function HomePage() {
       </section>
 
       <section className="mt-28">
-        <p className="mb-8 max-w-[64ch] text-lg text-muted-foreground">
-          One of the ten scenarios, exactly as it ran. The expected behaviour was written before
-          the question was asked.
-        </p>
-        <ScenarioCard scenario={scenario} />
+        <ScenarioCard
+          scenario={scenario}
+          kicker="One of the ten scenarios, exactly as it ran. The expected behaviour was written before the question was asked."
+        />
       </section>
     </>
   );
