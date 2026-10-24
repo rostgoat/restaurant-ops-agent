@@ -291,7 +291,7 @@
         "detail": {
           "kind": "file_dispute",
           "result": "Dispute recorded for order 100660, due by 2026-10-27.",
-          "artifact": "Order is a completed DoorDash order, 4 days old, inside the 7-day window, and over $40 so a packing photo should exist [marketplace: Missing or incorrect items]. I can't see photos in the data, so confirm one exists before approving; if not, accept the chargeback and log a packing miss.",
+          "artifact": null,
           "simulated": "The filing with the marketplace is simulated; this project has no account with one.",
           "proposal_id": "29121069-4b17-4785-982a-2557bc6c6a9d"
         },
@@ -327,7 +327,7 @@
           "order_id": 100660,
           "execution": {
             "result": "Dispute recorded for order 100660, due by 2026-10-27.",
-            "artifact": "Order is a completed DoorDash order, 4 days old, inside the 7-day window, and over $40 so a packing photo should exist [marketplace: Missing or incorrect items]. I can't see photos in the data, so confirm one exists before approving; if not, accept the chargeback and log a packing miss.",
+            "artifact": null,
             "simulated": "The filing with the marketplace is simulated; this project has no account with one."
           },
           "customer_id": 3226,
