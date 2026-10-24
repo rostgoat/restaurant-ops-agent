@@ -244,7 +244,7 @@ export default function EvaluationPage() {
             separately, never as a model failure.
           </p>
           <p>
-            The SQL grader looks for the gold figure, within a small tolerance, among the numbers
+            The SQL grader looks for the expected figure, within a small tolerance, among the numbers
             in the answer. It cannot tell a right answer from a right number arrived at by the
             wrong query, and it cannot tell a wrong answer from a right one phrased without the
             number. The policy grader checks citations and a few phrases, not whether the
@@ -448,7 +448,7 @@ function fmt(v: number | null) {
 function describeExpectation(c: Result["case"] & Record<string, unknown>): string {
   switch (c.suite) {
     case "sql":
-      return "Answered, with the gold figure from the database appearing in the answer.";
+      return "Answered, with the figure the hand-written query returns appearing in the answer.";
     case "policy":
       return c.retrieval_empty
         ? "Answered without citing anything, because no section of this restaurant's policies applies."
