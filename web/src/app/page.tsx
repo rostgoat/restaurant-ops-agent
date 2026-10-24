@@ -17,7 +17,7 @@ export default function HomePage() {
           Building an AI agent a restaurant can trust with its data and its
           rules.
         </h1>
-        <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
           The <span className="font-semibold text-model">model</span> turns a
           plain question into SQL and reads the restaurant&apos;s own written
           policies. <span className="font-semibold text-code">Code</span>{" "}

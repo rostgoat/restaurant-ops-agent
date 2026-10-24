@@ -2,7 +2,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function ArchitecturePage() {
   return (
-    <article className="mx-auto max-w-[68ch] text-lg leading-relaxed">
+    <article className="text-lg leading-relaxed">
       <h1 className="mb-10 text-5xl">How a question becomes an answer</h1>
       <p>
         Every request passes through the same few steps, and the trace shows which of them the

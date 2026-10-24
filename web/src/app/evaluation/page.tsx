@@ -85,7 +85,7 @@ const diagnosis: Record<string, string> = {
   "pol-04":
     "The sentence that says Ridgeline is not on any delivery marketplace sits above the first heading of its document, and the indexer only stores headed sections. The model found nothing, said so, and then suggested checking the DoorDash portal.",
   "sql-19":
-    "A definition, not a mistake. The model took 25% of the menu subtotal and also subtracted discounts, and said so, with the alternative figure. The gold query takes 75% of the subtotal. Both are defensible readings of \"net\".",
+    "A definition, not a mistake. The model took 25% of the menu subtotal and also subtracted discounts, and said so, with the alternative figure. The hand-written query takes 75% of the subtotal. Both are defensible readings of \"net\".",
   "pol-01":
     "A retrieval miss. \"house: Comps\" scored 0.42 and 0.48 on two searches against a threshold of 0.50.",
   "pro-09":
@@ -96,39 +96,45 @@ const diagnosis: Record<string, string> = {
     "The catering section outscored the discounts section, so the model answered about catering deposits and never reached the 20% cap.",
 };
 
+const failures = data.results.filter((r) => r.grade.outcome === "fail");
+const errors = data.results.filter((r) => r.grade.outcome === "error");
+
 export default function EvaluationPage() {
   const s = data.summary;
   const when = new Date(s.ran_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const rate = s.scored ? Math.round((100 * s.passed) / s.scored) : 0;
-  const failures = data.results.filter((r) => r.grade.outcome === "fail");
-  const errors = data.results.filter((r) => r.grade.outcome === "error");
   const perMonth = s.cost_per_answered_median_usd !== null ? s.cost_per_answered_median_usd * QUESTIONS_PER_DAY * 30 : null;
   return (
     <>
       <section>
         <p className="font-heading text-base text-primary">Applied AI case study</p>
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
-          {s.passed} of {s.scored} cases pass. Here is every one that does not.
+          {s.cases} questions, graded by code. {s.passed} pass.
         </h1>
-        <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
-          The five scenarios are stories you can read. This page is the measurement behind
-          them: {s.cases} separate questions, each with a right answer written down in advance,
-          run through the same agent and graded by code, against a frozen copy of the data so
-          the number means the same thing next month. It is how the project knows a change to
-          the prompt, the model, or a policy made things better rather than merely different.
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
+          The scenarios are stories. This is the measurement behind them: {s.cases} questions
+          with the right answer written down in advance, run through the same agent against a
+          frozen copy of the data, and graded by code rather than by another model. It is how
+          the project tells a change that helped from one that only made things different.
+          {failures.length === 1 ? " The one case that fails is shown in full below." : failures.length > 1 ? ` The ${failures.length} cases that fail are shown in full below.` : ""}
         </p>
-        <p className="mt-4 max-w-[76ch] text-lg leading-relaxed text-muted-foreground">
-          Last run {when}. SQL cases are graded against a gold query run on that database;
-          policy cases against the section the author identified; refusals and proposals against
-          what the trace records. No model grades another model.
+        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+          Last run {when}. A SQL answer must contain the figure a hand-written query returns
+          from that database. A policy answer must cite the section the author named and nothing
+          borrowed from the other restaurant. A refusal or a proposal is graded on what the trace
+          records.
         </p>
       </section>
 
-      <section className="mt-16 grid max-w-4xl gap-8 sm:grid-cols-3">
-        <Figure value={`${rate}%`} label={`${s.passed} of ${s.scored} scored cases pass; ${s.errors} ended in an error that is not the model's`} />
-        <Figure value={s.cost_per_answered_median_usd !== null ? dollars(s.cost_per_answered_median_usd) : "n/a"} label={`median cost per answered question on ${s.model}; p90 ${s.cost_per_answered_p90_usd !== null ? dollars(s.cost_per_answered_p90_usd) : "n/a"}`} />
-        <Figure value={perMonth !== null ? `$${perMonth.toFixed(2)}` : "n/a"} label={`per merchant per month at ${QUESTIONS_PER_DAY} questions a day, an assumption, not a measurement`} />
+      <section className="mt-16 grid gap-8 sm:grid-cols-3">
+        <Figure value={`${rate}%`} label={`${s.passed} of ${s.scored} cases pass${s.errors ? `; ${s.errors} ended in an error that is not the model's` : ""}`} />
+        <Figure value={s.cost_per_answered_median_usd !== null ? dollars(s.cost_per_answered_median_usd) : "n/a"} label={`typical cost of an answer on ${s.model}; nine in ten cost under ${s.cost_per_answered_p90_usd !== null ? dollars(s.cost_per_answered_p90_usd) : "n/a"}`} />
+        <Figure value={perMonth !== null ? `$${perMonth.toFixed(2)}` : "n/a"} label={`per restaurant per month at ${QUESTIONS_PER_DAY} questions a day, an assumption, not a measurement`} />
       </section>
+
+      <EveryCase />
+
+      <FailuresSection />
 
       <section className="mt-24">
         <h2 className="mb-6 text-3xl">By suite</h2>
@@ -150,10 +156,11 @@ export default function EvaluationPage() {
             ))}
           </TableBody>
         </Table>
-        <p className="mt-4 max-w-[68ch] text-sm text-muted-foreground">
-          Retrieval, over the policy cases: precision {fmt(s.retrieval.precision)}, recall{" "}
-          {fmt(s.retrieval.recall)} of the sections the author expected, at a similarity threshold
-          of {s.retrieval_threshold}. Median latency {seconds(s.latency_median_ms ?? 0)}, p90{" "}
+        <p className="mt-4 text-sm text-muted-foreground">
+          Retrieval, over the policy cases: {fmt(s.retrieval.precision)} of the sections shown to
+          the model were ones the author expected, and {fmt(s.retrieval.recall)} of the expected
+          sections were shown, at a similarity threshold of {s.retrieval_threshold}. A typical
+          answer takes {seconds(s.latency_median_ms ?? 0)}; nine in ten take under{" "}
           {seconds(s.latency_p90_ms ?? 0)}.
         </p>
       </section>
@@ -161,7 +168,7 @@ export default function EvaluationPage() {
       {compare.runs.length > 1 && (
         <section className="mt-24">
           <h2 className="mb-6 text-3xl">The same cases on other settings</h2>
-          <p className="mb-6 max-w-[68ch] text-lg leading-relaxed text-muted-foreground">
+          <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
             Everything above is the first row. The other rows are the same cases run once each
             with one thing changed: the model, the reasoning effort, or the similarity threshold
             below which a policy section is not shown to the model. The threshold rows cover the
@@ -176,8 +183,8 @@ export default function EvaluationPage() {
                 <TableHead className="text-right">Policy</TableHead>
                 <TableHead className="text-right">Proposals</TableHead>
                 <TableHead className="text-right">Retrieval P / R</TableHead>
-                <TableHead className="text-right">Median cost</TableHead>
-                <TableHead className="text-right">p50</TableHead>
+                <TableHead className="text-right">Typical cost</TableHead>
+                <TableHead className="text-right">Typical time</TableHead>
                 <TableHead className="text-right">Total</TableHead>
               </TableRow>
             </TableHeader>
@@ -204,7 +211,7 @@ export default function EvaluationPage() {
             </TableBody>
           </Table>
           <Differences />
-          <div className="mt-10 max-w-[68ch] space-y-4 text-lg leading-relaxed text-muted-foreground">
+          <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
             <p>
               What this says. Opus did not do better than Sonnet on these cases; it cost two and a
               half times as much and failed four, two of them retrieval misses it had no way to
@@ -228,73 +235,6 @@ export default function EvaluationPage() {
       )}
 
       <section className="mt-24">
-        <h2 className="mb-6 text-3xl">
-          {failures.length === 0 ? "No failures" : failures.length === 1 ? "The one failure" : `The ${failures.length} failures`}
-        </h2>
-        {failures.length === 0 ? (
-          <p className="max-w-[68ch] text-lg text-muted-foreground">
-            Every scored case passed on this run. That is a small set; it says the floor holds,
-            not that the agent is right in general.
-          </p>
-        ) : (
-          <div className="space-y-12">
-            {failures.map((r) => (
-              <FailureCard
-                key={r.case.id}
-                id={r.case.id}
-                suite={suiteTitle[r.case.suite] ?? r.case.suite}
-                tags={r.case.tags ?? []}
-                merchantId={r.case.merchant_id}
-                question={r.case.question}
-                expected={describeExpectation(r.case)}
-                reasons={r.grade.reasons}
-                diagnosis={diagnosis[r.case.id]}
-                trace={r.trace}
-              />
-            ))}
-          </div>
-        )}
-        {errors.length > 0 && (
-          <p className="mt-8 max-w-[68ch] text-sm text-muted-foreground">
-            {errors.length} {errors.length === 1 ? "case" : "cases"} ended in an error from the API
-            or the harness and {errors.length === 1 ? "is" : "are"} left out of the pass rate rather
-            than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
-          </p>
-        )}
-      </section>
-
-      <section className="mt-24">
-        <h2 className="mb-6 text-3xl">Every case</h2>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Case</TableHead>
-              <TableHead>Question</TableHead>
-              <TableHead>Asked as</TableHead>
-              <TableHead>Result</TableHead>
-              <TableHead className="text-right">Cost</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.results.map((r) => (
-              <TableRow key={r.case.id}>
-                <TableCell className="font-sql text-xs">{r.case.id}</TableCell>
-                <TableCell className="whitespace-normal">{r.case.question}</TableCell>
-                <TableCell className="whitespace-nowrap">
-                  <MerchantBadge merchantId={r.case.merchant_id} />
-                </TableCell>
-                <TableCell>
-                  <OutcomeBadge outcome={r.grade.outcome} />{" "}
-                  <StatusBadge status={r.trace.status} />
-                </TableCell>
-                <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </section>
-
-      <section className="mt-24 max-w-[68ch]">
         <h2 className="mb-6 text-3xl">What this does and does not measure</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
@@ -332,6 +272,81 @@ export default function EvaluationPage() {
   );
 }
 
+function EveryCase() {
+  return (
+      <section className="mt-24">
+        <h2 className="mb-6 text-3xl">Every case</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Case</TableHead>
+              <TableHead>Question</TableHead>
+              <TableHead>Asked as</TableHead>
+              <TableHead>Result</TableHead>
+              <TableHead className="text-right">Cost</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.results.map((r) => (
+              <TableRow key={r.case.id}>
+                <TableCell className="font-sql text-xs">{r.case.id}</TableCell>
+                <TableCell className="whitespace-normal">{r.case.question}</TableCell>
+                <TableCell className="whitespace-nowrap">
+                  <MerchantBadge merchantId={r.case.merchant_id} />
+                </TableCell>
+                <TableCell>
+                  <OutcomeBadge outcome={r.grade.outcome} />{" "}
+                  <StatusBadge status={r.trace.status} />
+                </TableCell>
+                <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </section>
+  );
+}
+
+function FailuresSection() {
+  return (
+      <section className="mt-24">
+        <h2 className="mb-6 text-3xl">
+          {failures.length === 0 ? "No failures" : failures.length === 1 ? "The one failure" : `The ${failures.length} failures`}
+        </h2>
+        {failures.length === 0 ? (
+          <p className=" text-lg text-muted-foreground">
+            Every scored case passed on this run. That is a small set; it says the floor holds,
+            not that the agent is right in general.
+          </p>
+        ) : (
+          <div className="space-y-12">
+            {failures.map((r) => (
+              <FailureCard
+                key={r.case.id}
+                id={r.case.id}
+                suite={suiteTitle[r.case.suite] ?? r.case.suite}
+                tags={r.case.tags ?? []}
+                merchantId={r.case.merchant_id}
+                question={r.case.question}
+                expected={describeExpectation(r.case)}
+                reasons={r.grade.reasons}
+                diagnosis={diagnosis[r.case.id]}
+                trace={r.trace}
+              />
+            ))}
+          </div>
+        )}
+        {errors.length > 0 && (
+          <p className="mt-8 text-sm text-muted-foreground">
+            {errors.length} {errors.length === 1 ? "case" : "cases"} ended in an error from the API
+            or the harness and {errors.length === 1 ? "is" : "are"} left out of the pass rate rather
+            than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
+          </p>
+        )}
+      </section>
+  );
+}
+
 function Figure({ value, label }: { value: string; label: string }) {
   return (
     <div className="border-t pt-4">
@@ -358,7 +373,7 @@ function Differences() {
   const rows = compare.cases.filter((c) => c.differs);
   if (rows.length === 0) {
     return (
-      <p className="mt-4 max-w-[68ch] text-sm text-muted-foreground">
+      <p className="mt-4 text-sm text-muted-foreground">
         No case passed on one run and failed on another.
       </p>
     );
@@ -381,13 +396,13 @@ function Differences() {
         <TableBody>
           {rows.map((c) => (
             <TableRow key={c.id}>
-              <TableCell className="w-[46%] whitespace-normal align-top">
-                <p>
+              <TableCell className="w-[52%] whitespace-normal py-4 align-top">
+                <p className="text-base leading-relaxed">
                   <span className="font-sql text-xs text-muted-foreground">{c.id}</span>{" "}
                   {c.question}
                 </p>
                 {diagnosis[c.id] && (
-                  <p className="mt-1 max-w-[60ch] text-xs leading-relaxed text-muted-foreground">
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     {diagnosis[c.id]}
                   </p>
                 )}

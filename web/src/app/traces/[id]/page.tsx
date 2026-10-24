@@ -25,7 +25,7 @@ export default async function TracePage(props: PageProps<"/traces/[id]">) {
       {trace.proposals.length > 0 && (
         <section className="mt-16">
           <h2 className="mb-3 text-3xl">Proposed actions</h2>
-          <p className="mb-8 max-w-[68ch] text-lg text-muted-foreground">
+          <p className="mb-8 text-lg text-muted-foreground">
             Code has checked each one against the restaurant&apos;s policy and its data. Nothing
             happens until a person approves it here, and approving records the action without
             reaching a marketplace, a phone, or a register.

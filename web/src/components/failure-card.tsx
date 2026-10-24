@@ -65,7 +65,7 @@ export function FailureCard({
       {diagnosis && (
         <div className="mt-6">
           <h3 className="mb-2 text-base">What the trace shows</h3>
-          <p className="max-w-[68ch] leading-relaxed">{diagnosis}</p>
+          <p className=" leading-relaxed">{diagnosis}</p>
         </div>
       )}
       {trace.answer && (

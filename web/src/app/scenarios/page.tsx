@@ -30,7 +30,7 @@ export default function ScenariosPage() {
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
           Five questions, simplest first, with what should happen written down before each was asked.
         </h1>
-        <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
           Five questions, in order of how much the system has to do, put to two restaurants that run on six different written policies,
           answered by Claude Sonnet 5.5 on {when}. Each one states the expected behaviour
           before showing what happened, so you can judge the system rather than take its word.
