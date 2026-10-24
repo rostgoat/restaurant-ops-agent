@@ -37,7 +37,7 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <div>
           <h3 className="mb-2 text-base">What should happen</h3>
-          <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
+          <ul className="list-disc space-y-2 pl-5 leading-relaxed">
             {scenario.expected.map((line) => (
               <li key={line}>{line}</li>
             ))}
