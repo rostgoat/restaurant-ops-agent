@@ -29,17 +29,17 @@ const refused = capturedInjection as Trace;
 export default function HomePage() {
   return (
     <>
-      <section className="max-w-[64ch]">
-        <h1 className="max-w-[30ch] text-4xl sm:text-5xl">
-          Letting a model write SQL against a restaurant&apos;s books, without letting it do
-          harm.
+      <section>
+        <p className="font-heading text-base text-primary">Applied AI case study</p>
+        <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
+          Building an AI agent a restaurant can trust with its data and its rules.
         </h1>
-        <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
-          A model can turn &ldquo;how did delivery do last week&rdquo; into a query on its own.
-          Letting that query run against a real business is a different problem, and mostly not
-          a prompting one. This project is where I worked through it. The model proposes, code
-          decides what may run, a person approves anything that would change something, and every
-          step is recorded and priced. The two restaurants are synthetic; the pipeline is not.
+        <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
+          The model turns a plain question into SQL and reads the restaurant&apos;s own written
+          policies. Code decides what may run, keeps each restaurant to its own data and its own
+          rules, and records every step with what it cost. A person approves anything that would
+          change something. The two restaurants are synthetic; the pipeline, the checks, and the
+          failures are not.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg" className="h-11 px-5 font-heading text-base">
