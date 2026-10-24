@@ -32,40 +32,50 @@ const laneCell: Record<Lane, string> = {
   human: "border-human bg-human/5",
 };
 
+const laneStart: Record<Lane, string> = {
+  model: "md:col-start-1 md:col-span-3",
+  code: "md:col-start-2 md:col-span-2",
+  human: "md:col-start-3 md:col-span-1",
+};
+
 export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?: boolean }) {
   return (
     <section aria-label="Trace">
-      <ol className="border-t bg-card">
-        <li className="hidden border-b font-heading text-sm md:grid md:grid-cols-[5fr_6fr_3fr]">
-          {lanes.map((lane) => (
-            <span key={lane} className={cn("px-5 py-3", laneText[lane])}>
-              {laneTitle[lane]}
-            </span>
-          ))}
-        </li>
-        {trace.steps.map((step, i) => (
-          <li
-            key={step.seq}
-            className={cn("grid grid-cols-1 border-b md:grid-cols-[5fr_6fr_3fr]", animate && "step-in")}
-            style={animate ? ({ "--i": i } as React.CSSProperties) : undefined}
-          >
-            {lanes.map((lane) => (
-              <div key={lane} className={cn("min-w-0", lane !== step.actor && "hidden md:block")}>
-                {lane === step.actor && (
-                  <div className={cn("h-full border-l-4 px-5 py-5", laneCell[lane])}>
-                    <Badge
-                      variant="outline"
-                      className={cn("mb-1 font-heading md:hidden", laneText[lane])}
-                    >
-                      {laneTitle[lane]}
-                    </Badge>
-                    <StepBody step={step} />
-                  </div>
-                )}
-              </div>
-            ))}
-          </li>
+      <div className="hidden border-b font-heading text-sm md:grid md:grid-cols-[5fr_6fr_3fr]">
+        {lanes.map((lane) => (
+          <span key={lane} className={cn("px-5 py-3", laneText[lane])}>
+            {laneTitle[lane]}
+          </span>
         ))}
+      </div>
+      <ol className="mt-3 grid grid-cols-1 gap-y-3 md:grid-cols-[5fr_6fr_3fr]">
+        <li className={cn("min-w-0 rounded-r-md border-l-4 px-5 py-4", laneCell.human, laneStart.human)}>
+          <Badge variant="outline" className={cn("mb-2 font-heading", laneText.human)}>
+            Human
+          </Badge>
+          <h3 className="mb-1 text-base">Asked</h3>
+          <p className="text-muted-foreground">{trace.question}</p>
+        </li>
+        {trace.steps.map((step, i) => {
+          const lane = step.actor as Lane;
+          return (
+            <li
+              key={step.seq}
+              className={cn(
+                "min-w-0 rounded-r-md border-l-4 px-5 py-4",
+                laneCell[lane],
+                laneStart[lane],
+                animate && "step-in"
+              )}
+              style={animate ? ({ "--i": i + 1 } as React.CSSProperties) : undefined}
+            >
+              <Badge variant="outline" className={cn("mb-2 font-heading", laneText[lane])}>
+                {laneTitle[lane]}
+              </Badge>
+              <StepBody step={step} />
+            </li>
+          );
+        })}
       </ol>
       <Outcome trace={trace} />
     </section>
@@ -197,6 +207,39 @@ function StepBody({ step }: { step: Step }) {
           <Usage detail={d} />
         </>
       );
+    case "search_policy:proposed":
+      return (
+        <>
+          <Title>Looked up the policy</Title>
+          <p className="text-muted-foreground">&ldquo;{String(d.query)}&rdquo;</p>
+          <Usage detail={d} />
+        </>
+      );
+    case "retrieve:unavailable":
+      return <Title>Policy search is not available</Title>;
+    case "citations:passed":
+      return (
+        <>
+          <Title>Citations checked</Title>
+          <p className="text-muted-foreground">
+            {Array.isArray(d.cited) && d.cited.length > 0
+              ? `Every section cited was one that was retrieved: ${(d.cited as string[]).join("; ")}.`
+              : "Nothing was retrieved and nothing was cited."}
+          </p>
+        </>
+      );
+    case "citations:failed":
+      return (
+        <>
+          <Title>Citations failed</Title>
+          <p>{String(d.reason)}.</p>
+          {Array.isArray(d.not_retrieved) && d.not_retrieved.length > 0 && (
+            <p className="text-muted-foreground">
+              Not retrieved: {(d.not_retrieved as string[]).join("; ")}
+            </p>
+          )}
+        </>
+      );
     case "respond:max_tokens":
       return <Title>The model ran out of room before finishing</Title>;
     case "respond:error":
@@ -209,6 +252,7 @@ function StepBody({ step }: { step: Step }) {
     case "tool_limit:reached":
       return <Title>Stopped after {String(d.limit)} tool calls</Title>;
     default:
+      if (step.name === "retrieve") return <Retrieved step={step} />;
       return (
         <>
           <Title>
@@ -229,6 +273,31 @@ function Prose({ text }: { text: string }) {
     <div className="space-y-3 text-lg leading-relaxed [&_li]:ml-5 [&_ol]:list-decimal [&_table]:w-full [&_table]:text-base [&_td]:border-t [&_td]:py-1.5 [&_td]:pr-3 [&_th]:py-1.5 [&_th]:pr-3 [&_th]:text-left [&_th]:font-normal [&_th]:text-muted-foreground [&_ul]:list-disc">
       <Markdown remarkPlugins={[remarkGfm]}>{text}</Markdown>
     </div>
+  );
+}
+
+type RetrievedHit = { label: string; score: number; used: boolean };
+
+function Retrieved({ step }: { step: Step }) {
+  const d = step.detail ?? {};
+  const hits = Array.isArray(d.hits) ? (d.hits as RetrievedHit[]) : [];
+  const none = step.outcome === "nothing above threshold";
+  return (
+    <>
+      <Title>{none ? "Nothing in the policies came close enough" : `Retrieved ${step.outcome}`}</Title>
+      <p className="text-sm text-muted-foreground">
+        Searched this restaurant&apos;s policies only. Threshold {String(d.threshold)}; the model
+        saw only the sections above it.
+      </p>
+      <ul className="mt-2 space-y-1 text-sm">
+        {hits.map((h) => (
+          <li key={h.label} className={cn(!h.used && "text-muted-foreground")}>
+            <span className="font-sql">{h.score.toFixed(2)}</span> {h.label}
+            {!h.used && " (below threshold)"}
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 

@@ -62,11 +62,11 @@ export function ScenarioCard({ scenario }: { scenario: Scenario }) {
 
       <Collapsible open={open} onOpenChange={setOpen} className="mt-6">
         <CollapsibleTrigger asChild>
-          <Button variant="link" className="h-auto p-0 font-sans text-base">
+          <Button size="lg" variant={open ? "outline" : "default"} className="h-11 px-5 font-heading text-base">
             {open ? "Hide the trace" : "Show the trace"}
           </Button>
         </CollapsibleTrigger>
-        <CollapsibleContent className="mt-4">
+        <CollapsibleContent className="mt-8">
           <TraceLedger trace={t} />
         </CollapsibleContent>
       </Collapsible>
