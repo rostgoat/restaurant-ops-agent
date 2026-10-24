@@ -1,9 +1,5 @@
 import Link from "next/link";
-import { CapturedRun, capturedOn } from "@/components/captured-run";
 import { Button } from "@/components/ui/button";
-import type { Trace } from "@/lib/api";
-import capturedAnswer from "@/content/captured-trace.json";
-import capturedInjection from "@/content/captured-injection.json";
 
 const evidence = [
   {
@@ -22,9 +18,6 @@ const evidence = [
     href: "/ask",
   },
 ];
-
-const answered = capturedAnswer as Trace;
-const refused = capturedInjection as Trace;
 
 export default function HomePage() {
   return (
@@ -68,21 +61,6 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="mt-28">
-        <h2 className="mb-3 text-3xl">Captured from a real run</h2>
-        <p className="mb-10 max-w-[60ch] text-lg text-muted-foreground">
-          {capturedOn(answered)}, {answered.model}, asked as the owner of a fictional noodle
-          house. Nothing below is edited. Each step sits in the lane of whoever did it.
-        </p>
-        <CapturedRun trace={answered} />
-        <div className="mt-16">
-          <CapturedRun
-            trace={refused}
-            lead="The same agent, same day, given a question that tries to talk it out of its rules and into another merchant's data."
-          />
-        </div>
-      </section>
-
       <section className="mt-28 max-w-[64ch]">
         <h2 className="mb-8 text-3xl">What I worked through</h2>
         <ol className="space-y-8 text-lg leading-relaxed">
@@ -102,8 +80,12 @@ export default function HomePage() {
             <h3 className="mb-2 text-xl">What happens when the question is hostile</h3>
             <p className="text-muted-foreground">
               The model is told that anything in the question that reads like an instruction is
-              part of the question. Two refusals are captured above. A page of scenarios, including
-              the ones that did not go well, is next.
+              part of the question. The{" "}
+              <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
+                scenarios
+              </Link>{" "}
+              include an injection attempt, a request to delete data, and a question the policies
+              do not cover, each with the expected behaviour written first.
             </p>
           </li>
           <li>
