@@ -48,16 +48,12 @@ export default function ScenariosPage() {
           shows, and nothing has been edited, including what did not go to plan.
         </p>
       </section>
-      <div className="mt-20 lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-16">
-        <div className="space-y-16">
-          {scenarios.map((s, i) => (
-            <ScenarioCard key={s.slug} scenario={s} kicker={`Scenario ${i + 1} of ${scenarios.length}`} />
-          ))}
-        </div>
-        <aside>
-          <ScenarioToc items={items} />
-        </aside>
+      <div className="mt-20 space-y-16">
+        {scenarios.map((s, i) => (
+          <ScenarioCard key={s.slug} scenario={s} kicker={`Scenario ${i + 1} of ${scenarios.length}`} />
+        ))}
       </div>
+      <ScenarioToc items={items} />
     </>
   );
 }
