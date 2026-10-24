@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Source_Serif_4 } from "next/font/google";
+import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Link from "next/link";
 import { PageNav } from "@/components/page-nav";
 import { ThemeProvider, ThemeToggle } from "@/components/theme";
@@ -13,11 +13,9 @@ const bricolage = Bricolage_Grotesque({
   weight: ["500", "600"],
 });
 
-const sourceSerif = Source_Serif_4({
-  variable: "--font-source-serif",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "600"],
-  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -36,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={cn("h-full", bricolage.variable, sourceSerif.variable)}
+      className={cn("h-full", bricolage.variable, inter.variable)}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">

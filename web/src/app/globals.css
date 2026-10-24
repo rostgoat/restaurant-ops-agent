@@ -12,7 +12,7 @@
   --color-model: var(--model);
   --color-code: var(--code);
   --color-human: var(--human);
-  --font-sans: var(--font-source-serif);
+  --font-sans: var(--font-inter);
   --font-heading: var(--font-bricolage);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -142,8 +142,8 @@
   }
   html {
     @apply font-sans;
-    font-size: 17px;
-    line-height: 1.55;
+    font-size: 16px;
+    line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 {
