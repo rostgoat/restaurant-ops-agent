@@ -8,6 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { FailureCard } from "@/components/failure-card";
+import { StatusBadge } from "@/components/trace";
+import type { Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
 import run from "@/content/eval-run.json";
 
@@ -22,7 +25,7 @@ type Result = {
   };
   gold: unknown;
   grade: { outcome: string; reasons: string[]; expected: unknown; found: unknown };
-  trace: { status: string; cost_usd: number; latency_ms: number; answer?: string | null };
+  trace: Trace;
 };
 
 type Run = {
@@ -77,11 +80,16 @@ export default function EvaluationPage() {
           {s.passed} of {s.scored} cases pass. Here is every one that does not.
         </h1>
         <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
-          {s.cases} questions with a hand-written right answer each, run on {when} against a
-          frozen copy of the data so the score means the same thing next month. SQL cases are
-          graded against a gold query run on that database; policy cases against the section the
-          author identified; refusals and proposals against what the trace records. No model
-          grades another model.
+          The seven scenarios are stories you can read. This page is the measurement behind
+          them: {s.cases} separate questions, each with a right answer written down in advance,
+          run through the same agent and graded by code, against a frozen copy of the data so
+          the number means the same thing next month. It is how the project knows a change to
+          the prompt, the model, or a policy made things better rather than merely different.
+        </p>
+        <p className="mt-4 max-w-[76ch] text-lg leading-relaxed text-muted-foreground">
+          Last run {when}. SQL cases are graded against a gold query run on that database;
+          policy cases against the section the author identified; refusals and proposals against
+          what the trace records. No model grades another model.
         </p>
       </section>
 
@@ -129,9 +137,19 @@ export default function EvaluationPage() {
             not that the agent is right in general.
           </p>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-12">
             {failures.map((r) => (
-              <Failure key={r.case.id} r={r} />
+              <FailureCard
+                key={r.case.id}
+                id={r.case.id}
+                suite={suiteTitle[r.case.suite] ?? r.case.suite}
+                tags={r.case.tags ?? []}
+                merchantId={r.case.merchant_id}
+                question={r.case.question}
+                expected={describeExpectation(r.case)}
+                reasons={r.grade.reasons}
+                trace={r.trace}
+              />
             ))}
           </div>
         )}
@@ -142,6 +160,39 @@ export default function EvaluationPage() {
             than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
           </p>
         )}
+      </section>
+
+      <section className="mt-24">
+        <h2 className="mb-6 text-3xl">Every case</h2>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Case</TableHead>
+              <TableHead>Question</TableHead>
+              <TableHead>Asked as</TableHead>
+              <TableHead>Result</TableHead>
+              <TableHead className="text-right">Cost</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data.results.map((r) => (
+              <TableRow key={r.case.id}>
+                <TableCell className="font-sql text-xs">{r.case.id}</TableCell>
+                <TableCell className="whitespace-normal">{r.case.question}</TableCell>
+                <TableCell className="whitespace-nowrap text-muted-foreground">
+                  {r.case.merchant_id === 1 ? "Mekong" : "Ridgeline"}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={r.grade.outcome === "pass" ? "secondary" : "outline"} className="font-heading">
+                    {r.grade.outcome}
+                  </Badge>{" "}
+                  <StatusBadge status={r.trace.status} />
+                </TableCell>
+                <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </section>
 
       <section className="mt-24 max-w-[68ch]">
@@ -193,37 +244,25 @@ function fmt(v: number | null) {
   return v === null ? "n/a" : `${Math.round(v * 100)}%`;
 }
 
-function Failure({ r }: { r: Result }) {
-  return (
-    <article className="border-t pt-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="outline" className="font-sql">
-          {r.case.id}
-        </Badge>
-        <span className="font-heading text-sm text-muted-foreground">{suiteTitle[r.case.suite]?.split(":")[0]}</span>
-        {r.case.tags?.map((t) => (
-          <Badge key={t} variant="secondary">
-            {t}
-          </Badge>
-        ))}
-      </div>
-      <blockquote className="mt-4 rounded-md bg-muted px-5 py-3 italic">{r.case.question}</blockquote>
-      <ul className="mt-4 list-disc space-y-1 pl-5">
-        {r.grade.reasons.map((reason) => (
-          <li key={reason}>{reason}</li>
-        ))}
-      </ul>
-      {r.trace.answer && (
-        <p className="mt-4 text-sm text-muted-foreground">
-          The answer began: &ldquo;{r.trace.answer.slice(0, 300)}
-          {r.trace.answer.length > 300 ? "…" : ""}&rdquo;
-        </p>
-      )}
-      <p className="mt-2 text-sm text-muted-foreground">
-        {dollars(r.trace.cost_usd)}, {seconds(r.trace.latency_ms)}.
-      </p>
-    </article>
-  );
+function describeExpectation(c: Result["case"] & Record<string, unknown>): string {
+  switch (c.suite) {
+    case "sql":
+      return "Answered, with the gold figure from the database appearing in the answer.";
+    case "policy":
+      return c.retrieval_empty
+        ? "Answered without citing anything, because no section of this restaurant's policies applies."
+        : `Answered, citing ${(c.expected_citations as string[] | undefined)?.join(", ") ?? "the right section"}.`;
+    case "refuse":
+      return "Declined or blocked, without any query reaching the database.";
+    case "answer":
+      return "Answered plainly, without searching the policies.";
+    case "propose":
+      return c.proposal_status === "pending"
+        ? `A ${String(c.proposal_kind).replace("_", " ")} proposal left pending for a person.`
+        : `No ${String(c.proposal_kind).replace("_", " ")} proposal left pending: either not proposed, or blocked by code.`;
+    default:
+      return "";
+  }
 }
 
 export { count };
