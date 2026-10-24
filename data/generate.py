@@ -80,6 +80,12 @@ def pick(rng: np.random.Generator, mapping: dict[str, float], n: int) -> np.ndar
     return rng.choice(keys, size=n, p=w / w.sum())
 
 
+# Membership by id, not by draw, so an appended day agrees with the backfill.
+# One customer in 50 is a regular; one in 500 is also a serial refunder.
+REGULAR_EVERY = 50
+SERIAL_REFUNDER_EVERY = 500
+
+
 @dataclass
 class Ids:
     """Monotonic id allocator, so appended days never collide with backfill."""
@@ -195,6 +201,10 @@ def build_customers(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
         cid = ids.take("customer")
         ids_out.append(cid)
         seen = start + timedelta(days=float(rng.random() * span_days))
+        unsubscribed = ""
+        if rng.random() < c["unsubscribed_rate"]:
+            remaining = max(1.0, (start + timedelta(days=span_days) - seen).days)
+            unsubscribed = (seen + timedelta(days=float(rng.random() * remaining))).isoformat()
         cw.writerow(
             [
                 cid,
@@ -205,7 +215,7 @@ def build_customers(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
                 str(rng.random() < c["email_opt_in_rate"]).lower(),
                 str(rng.random() < c["sms_opt_in_rate"]).lower(),
                 str(rng.random() < c["sms_implied_consent_rate"]).lower(),
-                "",
+                unsubscribed,
             ]
         )
     return np.array(ids_out)
@@ -252,6 +262,10 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
     per_month = profile["orders_per_month"]
     dow_total = sum(dow_w.values())
     pay = profile["payments"]
+    regulars = (
+        customer_ids[customer_ids % REGULAR_EVERY == 0] if len(customer_ids) else customer_ids
+    )
+    marketplace = ("doordash", "uber_eats", "grubhub")
 
     for day in days:
         dname = DOW[day.weekday()]
@@ -320,7 +334,9 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
             raw = ch["source_raw"][int(rng.integers(0, len(ch["source_raw"])))]
             cust = ""
             if len(customer_ids) and rng.random() < profile["customers"]["identified_order_rate"]:
-                cust = str(int(rng.choice(customer_ids)))
+                from_regulars = rng.random() < profile["customers"]["regular_order_share"]
+                pool = regulars if len(regulars) and from_regulars else customer_ids
+                cust = str(int(rng.choice(pool)))
 
             ow.writerow(
                 [
@@ -336,20 +352,25 @@ def generate_orders(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer
 
             if state == "completed":
                 failed = rng.random() < pay["failure_rate"]
-                refunded = 0 if failed else (
-                    total if rng.random() < pay["refund_rate"] else 0
+                serial = cust != "" and int(cust) % SERIAL_REFUNDER_EVERY == 0
+                refund_rate = (
+                    profile["customers"]["serial_refund_rate"] if serial else pay["refund_rate"]
                 )
+                refunded = 0 if failed else (total if rng.random() < refund_rate else 0)
                 fee_rate = float(
                     from_percentiles(rng, pay["processing_fee_rate_pct"], 1)[0]
                 ) / 100
-                brand = pick(rng, pay["card_brand_mix"], 1)[0]
-                entry = pick(rng, pay["entry_method_mix"], 1)[0]
+                if chans[k] in marketplace:
+                    brand, entry = "", ""
+                elif rng.random() < pay["cash_share"]:
+                    brand, entry = "", "CASH"
+                else:
+                    brand = pick(rng, pay["card_brand_mix"], 1)[0]
+                    entry = pick(rng, pay["entry_method_mix"], 1)[0]
                 pw.writerow(
                     [
                         ids.take("payment"), oid, mid, created.isoformat(), total,
-                        tip, int(round(total * fee_rate)), refunded,
-                        "" if chans[k] in ("doordash", "uber_eats", "grubhub") else brand,
-                        "" if chans[k] in ("doordash", "uber_eats", "grubhub") else entry,
+                        tip, int(round(total * fee_rate)), refunded, brand, entry,
                         "failed" if failed else "completed",
                     ]
                 )

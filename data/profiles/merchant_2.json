@@ -94,7 +94,9 @@
     "email_opt_in_rate": 0.044,
     "sms_opt_in_rate": 0.01,
     "sms_implied_consent_rate": 0.23,
-    "unsubscribed_rate": 0.0,
+    "unsubscribed_rate": 0.02,
+    "regular_order_share": 0.5,
+    "serial_refund_rate": 0.5,
     "repeat_rate": 0.448,
     "orders_per_customer": { "p50": 1, "p75": 3, "p90": 9, "p99": 32, "max": 97 },
     "days_between_orders": {
@@ -103,6 +105,7 @@
   },
 
   "payments": {
+    "cash_share": 0.12,
     "refund_rate": 0.00167,
     "failure_rate": 0.006,
     "processing_fee_rate_pct": { "p25": 3.21, "p50": 3.49, "p75": 3.81, "p90": 4.33 },
