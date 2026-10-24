@@ -9,7 +9,7 @@ const order = [
   {
     href: "/scenarios",
     label: "Scenarios",
-    blurb: "Seven questions, with the expected behaviour written down first.",
+    blurb: "Five questions, simplest first, with the expected behaviour written down before each.",
   },
   {
     href: "/evaluation",

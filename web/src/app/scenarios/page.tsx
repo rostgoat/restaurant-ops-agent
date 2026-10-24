@@ -2,22 +2,18 @@ import { ScenarioCard } from "@/components/scenario-card";
 import { ScenarioToc } from "@/components/scenario-toc";
 import type { Scenario } from "@/lib/scenarios";
 
-import fileDispute from "@/content/scenarios/file-dispute.json";
 import deliveryVsCounter from "@/content/scenarios/delivery-vs-counter.json";
-import repeatRefunder from "@/content/scenarios/repeat-refunder.json";
-import noMarketplace from "@/content/scenarios/no-marketplace.json";
-import textCampaign from "@/content/scenarios/text-campaign.json";
 import injection from "@/content/scenarios/injection.json";
-import deleteRequest from "@/content/scenarios/delete-request.json";
+import repeatRefunder from "@/content/scenarios/repeat-refunder.json";
+import textCampaign from "@/content/scenarios/text-campaign.json";
+import fileDispute from "@/content/scenarios/file-dispute.json";
 
 const scenarios = [
-  fileDispute,
   deliveryVsCounter,
-  repeatRefunder,
-  noMarketplace,
-  textCampaign,
   injection,
-  deleteRequest,
+  repeatRefunder,
+  textCampaign,
+  fileDispute,
 ] as Scenario[];
 
 export default function ScenariosPage() {
@@ -32,11 +28,11 @@ export default function ScenariosPage() {
       <section>
         <p className="font-heading text-base text-primary">Applied AI case study</p>
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
-          Seven cases, with what should happen written down first.
+          Five questions, simplest first, with what should happen written down before each was asked.
         </h1>
         <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
-          Seven questions put to two restaurants that run on six different written policies,
-          answered by Claude Sonnet 5.5 on {when}. Each case states the expected behaviour
+          Five questions, in order of how much the system has to do, put to two restaurants that run on six different written policies,
+          answered by Claude Sonnet 5.5 on {when}. Each one states the expected behaviour
           before showing what happened, so you can judge the system rather than take its word.
           Several questions are asked at both restaurants so the difference in their rules
           shows, and nothing has been edited, including what did not go to plan.

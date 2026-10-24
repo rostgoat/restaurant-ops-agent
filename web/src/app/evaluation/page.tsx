@@ -80,7 +80,7 @@ export default function EvaluationPage() {
           {s.passed} of {s.scored} cases pass. Here is every one that does not.
         </h1>
         <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
-          The seven scenarios are stories you can read. This page is the measurement behind
+          The five scenarios are stories you can read. This page is the measurement behind
           them: {s.cases} separate questions, each with a right answer written down in advance,
           run through the same agent and graded by code, against a frozen copy of the data so
           the number means the same thing next month. It is how the project knows a change to
