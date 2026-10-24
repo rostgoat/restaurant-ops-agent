@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Kicker } from "@/components/kicker";
 import { ScenarioCard } from "@/components/scenario-card";
 import { Button } from "@/components/ui/button";
 import type { Scenario } from "@/lib/scenarios";
@@ -10,9 +11,7 @@ export default function HomePage() {
   return (
     <>
       <section>
-        <p className="font-heading text-base text-primary">
-          Applied AI case study
-        </p>
+        <Kicker />
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
           Building an AI agent a restaurant can trust with its data and its
           rules.

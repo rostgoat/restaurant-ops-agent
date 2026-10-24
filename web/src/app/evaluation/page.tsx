@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Kicker } from "@/components/kicker";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -16,6 +17,8 @@ import { compare, data, describeExpectation, diagnosis, errors, failures, suiteT
 
 const QUESTIONS_PER_DAY = 20;
 
+export const metadata = { title: "Evaluation" };
+
 export default function EvaluationPage() {
   const s = data.summary;
   const when = new Date(s.ran_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -24,7 +27,7 @@ export default function EvaluationPage() {
   return (
     <>
       <section>
-        <p className="font-heading text-base text-primary">Applied AI case study</p>
+        <Kicker page="Evaluation" />
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
           {s.cases} questions, graded by code. {s.passed} pass.
         </h1>

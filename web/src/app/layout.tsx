@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Link from "next/link";
+import { NavLinks } from "@/components/nav-links";
 import { PageNav } from "@/components/page-nav";
 import { ThemeProvider, ThemeToggle } from "@/components/theme";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -19,17 +19,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Restaurant ops agent",
+  title: { default: "Restaurant ops agent", template: "%s · Restaurant ops agent" },
   description:
     "An agent that answers a restaurant owner's questions about their sales, with every step traced and checked.",
 };
-
-const pages = [
-  { href: "/scenarios", label: "Scenarios" },
-  { href: "/evaluation", label: "Evaluation" },
-  { href: "/architecture", label: "Architecture" },
-  { href: "/ask", label: "Ask" },
-];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -46,13 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               Restaurant ops agent
             </Link>
             <ul className="flex items-center gap-4">
-              {pages.map((p) => (
-                <li key={p.href}>
-                  <Button asChild variant="link" className="font-heading text-base text-foreground">
-                    <Link href={p.href}>{p.label}</Link>
-                  </Button>
-                </li>
-              ))}
+              <NavLinks />
               <li>
                 <ThemeToggle />
               </li>

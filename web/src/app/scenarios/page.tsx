@@ -1,4 +1,5 @@
 import { ScenarioCard } from "@/components/scenario-card";
+import { Kicker } from "@/components/kicker";
 import { ScenarioToc } from "@/components/scenario-toc";
 import type { Scenario } from "@/lib/scenarios";
 
@@ -16,6 +17,8 @@ const scenarios = [
   fileDispute,
 ] as Scenario[];
 
+export const metadata = { title: "Scenarios" };
+
 export default function ScenariosPage() {
   const when = new Date(scenarios[0].trace.created_at).toLocaleDateString("en-US", {
     year: "numeric",
@@ -26,7 +29,7 @@ export default function ScenariosPage() {
   return (
     <>
       <section>
-        <p className="font-heading text-base text-primary">Applied AI case study</p>
+        <Kicker page="Scenarios" />
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
           Five questions, simplest first, with what should happen written down before each was asked.
         </h1>

@@ -1,9 +1,13 @@
 import { Separator } from "@/components/ui/separator";
+import { Kicker } from "@/components/kicker";
+
+export const metadata = { title: "Architecture" };
 
 export default function ArchitecturePage() {
   return (
     <article className="text-lg leading-relaxed">
-      <h1 className="mb-10 text-5xl">How a question becomes an answer</h1>
+      <Kicker page="Architecture" />
+      <h1 className="mt-4 mb-10 text-5xl">How a question becomes an answer</h1>
       <p>
         Every request passes through the same few steps, and the trace shows which of them the
         model did and which were done by ordinary code. The point of the split is that a wrong

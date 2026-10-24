@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Kicker } from "@/components/kicker";
 import { AskForm } from "@/components/ask-form";
 import { MerchantPicker } from "@/components/merchant-picker";
 import { StatusBadge, statusLine } from "@/components/trace";
@@ -19,11 +20,14 @@ import { currentMerchant } from "@/lib/merchant";
 // a visitor opening the link cold should never see a loading state.
 export const instant = false;
 
+export const metadata = { title: "Ask" };
+
 export default async function AskPage() {
   return (
     <>
       <section className="max-w-[64ch]">
-        <h1 className="text-4xl sm:text-5xl">Ask it yourself</h1>
+        <Kicker page="Ask" />
+        <h1 className="mt-4 text-4xl sm:text-5xl">Ask it yourself</h1>
         <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
           Pick one of the two restaurants and ask anything about its sales or its written
           policies. One of the suggestions asks the agent to delete data, so you can watch it

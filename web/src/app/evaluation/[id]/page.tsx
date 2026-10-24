@@ -17,6 +17,11 @@ import {
 import { compare, data, describeExpectation, diagnosis, suiteTitle } from "@/lib/evaluation";
 import { count } from "@/lib/format";
 
+export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+  const { id } = await props.params;
+  return { title: `Evaluation case ${id}` };
+}
+
 export function generateStaticParams() {
   return data.results.map((r) => ({ id: r.case.id }));
 }
