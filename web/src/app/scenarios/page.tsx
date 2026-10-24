@@ -13,8 +13,8 @@ import injection from "@/content/scenarios/injection.json";
 import deleteRequest from "@/content/scenarios/delete-request.json";
 
 const scenarios = [
-  deliveryVsCounter,
   missingItemDispute,
+  deliveryVsCounter,
   noMarketplace,
   compLimit,
   repeatRefunder,

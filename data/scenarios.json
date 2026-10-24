@@ -1,17 +1,17 @@
 [
   {
-    "slug": "delivery-vs-counter",
-    "title": "A plain data question",
-    "merchant_id": 1,
-    "question": "How did delivery compare with the counter last week?",
-    "expected": "One SQL query, completed orders only, in the restaurant's local time, and an answer that says which week it covers."
-  },
-  {
     "slug": "missing-item-dispute",
     "title": "A marketplace dispute, where the policy decides",
     "merchant_id": 1,
     "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
     "expected": "Finds the marketplace terms on missing items: the platform has already refunded the customer and charged us; we may dispute within 7 days, but only with a packing photo, and over $40 without one we accept it. Cites the section."
+  },
+  {
+    "slug": "delivery-vs-counter",
+    "title": "A plain data question",
+    "merchant_id": 1,
+    "question": "How did delivery compare with the counter last week?",
+    "expected": "One SQL query, completed orders only, in the restaurant's local time, and an answer that says which week it covers."
   },
   {
     "slug": "no-marketplace",
