@@ -7,6 +7,7 @@ from uuid import UUID
 from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
+from app.agent.proposals import Proposal
 from app.agent.trace import Step, Trace, Usage
 
 
@@ -45,6 +46,29 @@ WHERE merchant_id = %s ORDER BY created_at DESC LIMIT %s
 _SELECT_STEPS = """
 SELECT trace_id, seq, actor, name, outcome, detail, latency_ms
 FROM trace_steps WHERE trace_id = ANY(%s) ORDER BY trace_id, seq
+"""
+
+_INSERT_PROPOSAL = """
+INSERT INTO proposals
+    (id, merchant_id, trace_id, created_at, kind, summary, audience_size, discount_pct,
+     draft_message, status, blocked_reason, decided_at, payload)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+"""
+
+_PROPOSAL_COLUMNS = """
+    id, merchant_id, trace_id, created_at, kind, summary, audience_size, discount_pct,
+    draft_message, status, blocked_reason, decided_at, payload
+"""
+
+_SELECT_PROPOSALS_FOR = f"""
+SELECT {_PROPOSAL_COLUMNS} FROM proposals WHERE trace_id = ANY(%s) ORDER BY created_at, id
+"""
+
+_SELECT_PROPOSAL = f"SELECT {_PROPOSAL_COLUMNS} FROM proposals WHERE id = %s AND merchant_id = %s"
+
+_SELECT_PROPOSALS = f"""
+SELECT {_PROPOSAL_COLUMNS} FROM proposals
+WHERE merchant_id = %s ORDER BY (status = 'pending') DESC, created_at DESC LIMIT %s
 """
 
 
@@ -91,6 +115,37 @@ class Store:
                     for s in trace.steps
                 ],
             )
+            conn.cursor().executemany(_INSERT_PROPOSAL, [_proposal_row(p) for p in trace.proposals])
+
+    def append_steps(self, trace_id: UUID, steps: list[Step]) -> None:
+        with self._pool.connection() as conn, conn.transaction():
+            conn.cursor().executemany(
+                _INSERT_STEP,
+                [
+                    (
+                        trace_id, s.seq, s.actor, s.name, s.outcome,
+                        Jsonb(s.detail) if s.detail is not None else None, s.latency_ms,
+                    )
+                    for s in steps
+                ],
+            )
+
+    def get_proposal(self, proposal_id: UUID, merchant_id: int) -> Proposal | None:
+        with self._pool.connection() as conn:
+            row = conn.execute(_SELECT_PROPOSAL, (proposal_id, merchant_id)).fetchone()
+        return _proposal(row) if row else None
+
+    def proposals(self, merchant_id: int, limit: int) -> list[Proposal]:
+        with self._pool.connection() as conn:
+            rows = conn.execute(_SELECT_PROPOSALS, (merchant_id, limit)).fetchall()
+        return [_proposal(r) for r in rows]
+
+    def decide_proposal(self, proposal: Proposal) -> None:
+        with self._pool.connection() as conn, conn.transaction():
+            conn.execute(
+                "UPDATE proposals SET status = %s, decided_at = %s, payload = %s WHERE id = %s",
+                (proposal.status, proposal.decided_at, Jsonb(proposal.payload), proposal.id),
+            )
 
     def get_trace(self, trace_id: UUID, merchant_id: int) -> Trace | None:
         with self._pool.connection() as conn:
@@ -98,17 +153,28 @@ class Store:
             if row is None:
                 return None
             steps = conn.execute(_SELECT_STEPS, ([trace_id],)).fetchall()
-        return _trace(row, [_step(s) for s in steps])
+            proposals = conn.execute(_SELECT_PROPOSALS_FOR, ([trace_id],)).fetchall()
+        trace = _trace(row, [_step(s) for s in steps])
+        trace.proposals = [_proposal(p) for p in proposals]
+        return trace
 
     def recent_traces(self, merchant_id: int, limit: int) -> list[Trace]:
         with self._pool.connection() as conn:
             rows = conn.execute(_SELECT_RECENT, (merchant_id, limit)).fetchall()
             ids = [row[0] for row in rows]
             steps = conn.execute(_SELECT_STEPS, (ids,)).fetchall() if ids else []
+            proposals = conn.execute(_SELECT_PROPOSALS_FOR, (ids,)).fetchall() if ids else []
         by_trace: dict[UUID, list[Step]] = {}
         for s in steps:
             by_trace.setdefault(s[0], []).append(_step(s))
-        return [_trace(row, by_trace.get(row[0], [])) for row in rows]
+        proposals_by_trace: dict[UUID, list[Proposal]] = {}
+        for p in proposals:
+            proposal = _proposal(p)
+            proposals_by_trace.setdefault(proposal.trace_id, []).append(proposal)
+        traces = [_trace(row, by_trace.get(row[0], [])) for row in rows]
+        for t in traces:
+            t.proposals = proposals_by_trace.get(t.id, [])
+        return traces
 
 
 def _trace(row: tuple[Any, ...], steps: list[Step]) -> Trace:
@@ -131,6 +197,27 @@ def _trace(row: tuple[Any, ...], steps: list[Step]) -> Trace:
         tool_ms=tool_ms or 0,
         retries=retries,
         steps=steps,
+    )
+
+
+def _proposal_row(p: Proposal) -> tuple[Any, ...]:
+    return (
+        p.id, p.merchant_id, p.trace_id, p.created_at, p.kind, p.summary, p.audience_size,
+        p.discount_pct, p.draft_message, p.status, p.blocked_reason, p.decided_at,
+        Jsonb(p.payload),
+    )
+
+
+def _proposal(row: tuple[Any, ...]) -> Proposal:
+    (
+        id, merchant_id, trace_id, created_at, kind, summary, audience_size, discount_pct,
+        draft_message, status, blocked_reason, decided_at, payload,
+    ) = row
+    return Proposal(
+        id=id, merchant_id=merchant_id, trace_id=trace_id, created_at=created_at, kind=kind,
+        summary=summary, status=status, payload=payload or {}, blocked_reason=blocked_reason,
+        audience_size=audience_size, discount_pct=discount_pct, draft_message=draft_message,
+        decided_at=decided_at,
     )
 
 

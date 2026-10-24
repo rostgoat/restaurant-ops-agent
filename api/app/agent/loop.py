@@ -16,6 +16,7 @@ from app.sql.guard import DEFAULT_ROW_LIMIT, guard
 
 from .pricing import cost_usd
 from .prompt import SYSTEM, user_turn
+from .proposals import ProposalChecker, outcome, tool_message
 from .tools import TOOLS
 from .trace import Status, Trace
 
@@ -47,6 +48,7 @@ def answer(
     client: anthropic.Anthropic,
     runner: QueryRunner,
     policies: PolicySearch | None = None,
+    checker: ProposalChecker | None = None,
     settings: Settings = DEFAULT,
     now: datetime | None = None,
 ) -> Trace:
@@ -120,6 +122,8 @@ def answer(
         elif call.name == "search_policy":
             result, labels = _search_policy(call, trace, merchant_id, policies, settings)
             retrieved = (retrieved or set()) | labels
+        elif call.name == "propose":
+            result = _propose(call, trace, merchant_id, checker, now)
         else:
             result = _tool_result(call.id, f"There is no tool named {call.name}.", error=True)
         if result.get("is_error"):
@@ -221,6 +225,31 @@ def _search_policy(
     )
     payload = {"sections": [{"label": h.label, "text": h.body} for h in used]}
     return _tool_result(call.id, json.dumps(payload)), {h.label for h in used}
+
+
+def _propose(
+    call: Any, trace: Trace, merchant_id: int, checker: ProposalChecker | None, now: datetime
+) -> dict[str, Any]:
+    if checker is None:
+        trace.step("code", "check_proposal", "unavailable", dict(call.input))
+        return _tool_result(call.id, "Proposals are not available.", error=True)
+    t0 = time.perf_counter()
+    proposal = checker.check(merchant_id, trace.id, now, dict(call.input))
+    elapsed = _ms(t0)
+    trace.tool_ms += elapsed
+    trace.proposals.append(proposal)
+    detail = {
+        "proposal_id": str(proposal.id),
+        "kind": proposal.kind,
+        "summary": proposal.summary,
+        "checks": proposal.payload.get("checks", []),
+        "blocked_reason": proposal.blocked_reason,
+        "audience_size": proposal.audience_size,
+        "due_by": proposal.payload.get("due_by"),
+        "needs_owner": bool(proposal.payload.get("needs_owner")),
+    }
+    trace.step("code", "check_proposal", outcome(proposal), detail, latency_ms=elapsed)
+    return _tool_result(call.id, json.dumps(tool_message(proposal)))
 
 
 def _check_citations(trace: Trace, text: str, retrieved: set[str]) -> None:

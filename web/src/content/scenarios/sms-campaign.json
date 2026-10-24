@@ -209,6 +209,7 @@
         },
         "latency_ms": 0
       }
-    ]
+    ],
+    "proposals": []
   }
 }

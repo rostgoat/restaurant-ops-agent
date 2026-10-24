@@ -26,6 +26,22 @@ class UsageOut(BaseModel):
     output_tokens: int
 
 
+class ProposalOut(BaseModel):
+    id: UUID
+    merchant_id: int
+    trace_id: UUID
+    created_at: datetime
+    kind: str
+    summary: str
+    status: str
+    payload: dict[str, Any]
+    blocked_reason: str | None
+    audience_size: int | None
+    discount_pct: int | None
+    draft_message: str | None
+    decided_at: datetime | None
+
+
 class TraceOut(BaseModel):
     id: UUID
     merchant_id: int
@@ -41,6 +57,7 @@ class TraceOut(BaseModel):
     tool_ms: int
     retries: int
     steps: list[StepOut]
+    proposals: list[ProposalOut] = []
 
     @classmethod
     def from_trace(cls, trace: Trace) -> TraceOut:

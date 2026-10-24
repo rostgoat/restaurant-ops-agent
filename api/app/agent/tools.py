@@ -69,4 +69,47 @@ SEARCH_POLICY = {
     },
 }
 
-TOOLS = [RUN_SQL, SEARCH_POLICY, DECLINE]
+PROPOSE = {
+    "name": "propose",
+    "description": (
+        "Propose an action for a person to approve: file a marketplace dispute, run a text "
+        "campaign, comp an order, notify the owner, or something else. Call it when the owner "
+        "asks you to do something or when the right next step is an action rather than an "
+        "answer. Nothing happens until a person approves; never say an action has been taken. "
+        "Use null for fields that do not apply."
+    ),
+    "strict": True,
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "kind": {
+                "type": "string",
+                "enum": ["file_dispute", "sms_campaign", "comp", "notify_owner", "other"],
+            },
+            "summary": {"type": "string", "description": "One sentence the owner will read."},
+            "reason": {
+                "type": "string",
+                "description": "The policy basis, citing sections as [document: Section].",
+            },
+            "order_id": {"type": ["integer", "null"]},
+            "customer_id": {"type": ["integer", "null"]},
+            "amount_cents": {"type": ["integer", "null"], "description": "For a comp or refund."},
+            "discount_pct": {"type": ["integer", "null"], "description": "For a campaign."},
+            "audience_size": {
+                "type": ["integer", "null"],
+                "description": "Your estimate for a campaign; code recounts it.",
+            },
+            "draft_message": {
+                "type": ["string", "null"],
+                "description": "The full text of a campaign message, with the opt-out wording.",
+            },
+        },
+        "required": [
+            "kind", "summary", "reason", "order_id", "customer_id", "amount_cents",
+            "discount_pct", "audience_size", "draft_message",
+        ],
+        "additionalProperties": False,
+    },
+}
+
+TOOLS = [RUN_SQL, SEARCH_POLICY, PROPOSE, DECLINE]

@@ -5,6 +5,7 @@ import type { components } from "./api-types";
 export type Trace = components["schemas"]["TraceOut"];
 export type Step = components["schemas"]["StepOut"];
 export type Merchant = components["schemas"]["MerchantOut"];
+export type Proposal = components["schemas"]["ProposalOut"];
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
 
@@ -48,6 +49,21 @@ export async function getTrace(id: string, merchantId: number): Promise<Trace | 
     if (e instanceof Error && e.message.endsWith("404")) return null;
     throw e;
   }
+}
+
+export async function getProposals(merchantId: number, limit = 20): Promise<Proposal[]> {
+  return call<Proposal[]>(`/proposals?limit=${limit}`, { headers: asMerchant(merchantId) });
+}
+
+export async function decideProposal(
+  merchantId: number,
+  id: string,
+  decision: "approve" | "reject"
+): Promise<Proposal> {
+  return call<Proposal>(`/proposals/${id}/${decision}`, {
+    method: "POST",
+    headers: asMerchant(merchantId),
+  });
 }
 
 export async function ask(merchantId: number, question: string): Promise<Trace> {

@@ -15,8 +15,7 @@ import type { Step, Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-const lanes = ["human", "model", "code"] as const;
-type Lane = (typeof lanes)[number];
+type Lane = "human" | "model" | "code";
 
 const laneTitle: Record<Lane, string> = { model: "Model", code: "Code", human: "Human" };
 
@@ -263,6 +262,48 @@ function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
           )}
         </>
       );
+    case "propose:proposed":
+      return (
+        <>
+          <Title>Proposed an action</Title>
+          <p>{String(d.summary)}</p>
+          {typeof d.reason === "string" && (
+            <Answer text={d.reason} merchantId={merchantId} className="text-sm text-muted-foreground" />
+          )}
+          {typeof d.draft_message === "string" && (
+            <blockquote className="mt-2 rounded-md bg-background px-4 py-3 text-sm italic">
+              {d.draft_message}
+            </blockquote>
+          )}
+          <Usage detail={d} />
+        </>
+      );
+    case "check_proposal:unavailable":
+      return <Title>Proposals are not available</Title>;
+    case "approve:approved":
+      return (
+        <>
+          <Title>Approved by the owner</Title>
+          <p className="text-muted-foreground">{String(d.summary)}</p>
+        </>
+      );
+    case "reject:rejected":
+      return (
+        <>
+          <Title>Rejected by the owner</Title>
+          <p className="text-muted-foreground">{String(d.summary)}</p>
+        </>
+      );
+    case "execute:done":
+      return (
+        <>
+          <Title>{String(d.result)}</Title>
+          {typeof d.artifact === "string" && (
+            <p className="whitespace-pre-wrap text-sm">{d.artifact}</p>
+          )}
+          <p className="text-sm text-muted-foreground">{String(d.simulated)}</p>
+        </>
+      );
     case "respond:max_tokens":
       return <Title>The model ran out of room before finishing</Title>;
     case "respond:error":
@@ -276,6 +317,7 @@ function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
       return <Title>Stopped after {String(d.limit)} tool calls</Title>;
     default:
       if (step.name === "retrieve") return <Retrieved step={step} />;
+      if (step.name === "check_proposal") return <Checked step={step} />;
       return (
         <>
           <Title>
@@ -289,6 +331,27 @@ function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
         </>
       );
   }
+}
+
+function Checked({ step }: { step: Step }) {
+  const d = step.detail ?? {};
+  const checks = Array.isArray(d.checks) ? (d.checks as Check[]) : [];
+  const title =
+    step.outcome === "blocked"
+      ? "Blocked the proposal"
+      : step.outcome === "needs the owner"
+        ? "Checked the proposal: the owner must approve"
+        : "Checked the proposal: waiting for a person";
+  return (
+    <>
+      <Title>{title}</Title>
+      {typeof d.blocked_reason === "string" && <p>{d.blocked_reason}.</p>}
+      <Checks checks={checks} />
+      {typeof d.audience_size === "number" && (
+        <p className="mt-2 text-sm text-muted-foreground">Audience counted by code: {d.audience_size}</p>
+      )}
+    </>
+  );
 }
 
 type RetrievedHit = { label: string; score: number; used: boolean };

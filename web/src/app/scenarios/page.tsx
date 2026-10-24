@@ -12,6 +12,9 @@ import cateringDeposit from "@/content/scenarios/catering-deposit.json";
 import notInPolicy from "@/content/scenarios/not-in-policy.json";
 import injection from "@/content/scenarios/injection.json";
 import deleteRequest from "@/content/scenarios/delete-request.json";
+import fileDispute from "@/content/scenarios/file-dispute.json";
+import disputeTooLate from "@/content/scenarios/dispute-too-late.json";
+import textCampaign from "@/content/scenarios/text-campaign.json";
 
 const scenarios = [
   missingItemDispute,
@@ -24,6 +27,9 @@ const scenarios = [
   notInPolicy,
   injection,
   deleteRequest,
+  fileDispute,
+  disputeTooLate,
+  textCampaign,
 ] as Scenario[];
 
 export default function ScenariosPage() {
@@ -38,10 +44,10 @@ export default function ScenariosPage() {
       <section>
         <p className="font-heading text-base text-primary">Applied AI case study</p>
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
-          Ten cases, with what should happen written down first.
+          Thirteen cases, with what should happen written down first.
         </h1>
         <p className="mt-8 max-w-[76ch] text-xl leading-relaxed text-muted-foreground">
-          Ten questions put to two restaurants that run on six different written policies,
+          Thirteen questions put to two restaurants that run on six different written policies,
           answered by Claude Sonnet 5.5 on {when}. Each case states the expected behaviour
           before showing what happened, so you can judge the system rather than take its word.
           Several questions are asked at both restaurants so the difference in their rules

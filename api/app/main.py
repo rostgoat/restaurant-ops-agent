@@ -8,8 +8,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import config
+from app.agent.proposals import ProposalChecker, load_limits
 from app.policies import OpenAIEmbedder, PostgresPolicySearch
-from app.routes import ask, merchants, traces
+from app.routes import ask, merchants, proposals, traces
 from app.sql.execute import PostgresRunner
 from app.store import Store
 
@@ -31,6 +32,7 @@ async def lifespan(app: FastAPI):
     # A missing key must not stop the site: pages still render, and an ask
     # ends as an error trace that names the 401 instead.
     app.state.model = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY") or "unset")
+    app.state.checker = ProposalChecker(load_limits(cfg.policies_root), app.state.runner)
     yield
     app.state.store.close()
     app.state.runner.close()
@@ -46,6 +48,7 @@ def create_app(lifespan=lifespan, web_origin: str = "http://localhost:3000") -> 
     app.include_router(merchants.router)
     app.include_router(ask.router)
     app.include_router(traces.router)
+    app.include_router(proposals.router)
     return app
 
 

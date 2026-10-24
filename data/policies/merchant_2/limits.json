@@ -1,0 +1,10 @@
+{
+  "comps": { "manager_limit_cents": 2000 },
+  "disputes": { "window_days": {}, "photo_required_over_cents": null },
+  "sms": {
+    "implied_consent_days": 90,
+    "discount_cap_pct": 20,
+    "audience_cap": 300,
+    "stop_wording": "Text STOP to stop"
+  }
+}

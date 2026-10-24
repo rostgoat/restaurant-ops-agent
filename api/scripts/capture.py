@@ -4,6 +4,7 @@ trace next to its definition for the site to render.
 
     .venv/bin/python scripts/capture.py --api http://127.0.0.1:8000
 """
+
 from __future__ import annotations
 
 import argparse
@@ -34,9 +35,28 @@ def main() -> None:
         )
         with urllib.request.urlopen(req, timeout=300) as r:
             trace = json.load(r)
+        # A scenario marked "approve" has its first pending proposal approved
+        # here, standing in for the owner, so the capture shows the Human step.
+        pending = [p for p in trace.get("proposals", []) if p["status"] == "pending"]
+        if s.get("approve") and pending:
+            headers = {"X-Merchant-Id": str(s["merchant_id"])}
+            urllib.request.urlopen(
+                urllib.request.Request(
+                    f"{args.api}/proposals/{pending[0]['id']}/approve",
+                    headers=headers,
+                    method="POST",
+                ),
+                timeout=60,
+            ).read()
+            with urllib.request.urlopen(
+                urllib.request.Request(f"{args.api}/traces/{trace['id']}", headers=headers),
+                timeout=60,
+            ) as r:
+                trace = json.load(r)
         (out / f"{s['slug']}.json").write_text(json.dumps(s | {"trace": trace}, indent=2) + "\n")
         steps = ", ".join(f"{x['name']}:{x['outcome']}" for x in trace["steps"])
-        print(f"{s['slug']:22} {trace['status']:8} ${trace['cost_usd']:.4f} {trace['latency_ms']/1000:5.1f}s  {steps}")
+        head = f"{s['slug']:22} {trace['status']:8} ${trace['cost_usd']:.4f}"
+        print(f"{head} {trace['latency_ms'] / 1000:5.1f}s  {steps}")
 
 
 if __name__ == "__main__":

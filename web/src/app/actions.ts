@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { ApiUnreachable, ask, type Trace } from "@/lib/api";
+import { ApiUnreachable, ask, decideProposal, type Trace } from "@/lib/api";
 import { currentMerchant, setCurrentMerchant } from "@/lib/merchant";
 
 export type AskState = {
@@ -30,5 +30,17 @@ export async function switchMerchant(id: number): Promise<void> {
   if (Number.isInteger(id) && id > 0) {
     await setCurrentMerchant(id);
     revalidatePath("/");
+    revalidatePath("/ask");
+    revalidatePath("/approvals");
   }
+}
+
+export async function approveProposal(formData: FormData): Promise<void> {
+  await decideProposal(await currentMerchant(), String(formData.get("id")), "approve");
+  revalidatePath("/approvals");
+}
+
+export async function rejectProposal(formData: FormData): Promise<void> {
+  await decideProposal(await currentMerchant(), String(formData.get("id")), "reject");
+  revalidatePath("/approvals");
 }

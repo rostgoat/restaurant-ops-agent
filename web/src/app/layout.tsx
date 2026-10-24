@@ -26,6 +26,7 @@ export const metadata: Metadata = {
 
 const pages = [
   { href: "/scenarios", label: "Scenarios" },
+  { href: "/approvals", label: "Approvals" },
   { href: "/architecture", label: "Architecture" },
   { href: "/ask", label: "Ask" },
 ];

@@ -24,7 +24,10 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      POLICIES_ROOT: /data/policies
       WEB_ORIGIN: http://localhost:3000
+    volumes:
+      - ./data/policies:/data/policies:ro
     ports:
       - "8000:8000"
     depends_on:

@@ -48,7 +48,7 @@ export default function HomePage() {
       </section>
 
       <section className="mt-28">
-        <ScenarioCard scenario={scenario} kicker="Example scenario" />
+        <ScenarioCard scenario={scenario} kicker="Example scenario, one of thirteen" />
       </section>
     </>
   );

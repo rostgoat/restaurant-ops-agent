@@ -2,8 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID
+
+if TYPE_CHECKING:
+    from .proposals import Proposal
 
 Actor = Literal["model", "code", "human"]
 Status = Literal["answered", "refused", "blocked", "error"]
@@ -53,6 +56,7 @@ class Trace:
     tool_ms: int = 0
     retries: int = 0
     steps: list[Step] = field(default_factory=list)
+    proposals: list[Proposal] = field(default_factory=list)
 
     def step(
         self,

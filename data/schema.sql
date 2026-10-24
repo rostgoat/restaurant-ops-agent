@@ -180,7 +180,7 @@ CREATE TABLE proposals (
     created_at     timestamptz     NOT NULL DEFAULT now(),
     kind           text            NOT NULL,
     summary        text            NOT NULL,
-    audience_size  integer         NOT NULL,
+    audience_size  integer,        -- null unless the action addresses customers
     discount_pct   integer,
     draft_message  text,
     status         proposal_status NOT NULL DEFAULT 'pending',

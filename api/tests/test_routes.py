@@ -58,6 +58,7 @@ def make(client=None, runner=None):
     app.state.model = client or FakeClient()
     app.state.runner = runner or FakeRunner()
     app.state.policies = None
+    app.state.checker = None
     return TestClient(app), app.state.store
 
 

@@ -1,0 +1,13 @@
+{
+  "comps": { "manager_limit_cents": 2500 },
+  "disputes": {
+    "window_days": { "doordash": 7, "uber_eats": 30, "grubhub": 14 },
+    "photo_required_over_cents": 4000
+  },
+  "sms": {
+    "implied_consent_days": 0,
+    "discount_cap_pct": 15,
+    "audience_cap": 500,
+    "stop_wording": "Reply STOP to opt out"
+  }
+}
