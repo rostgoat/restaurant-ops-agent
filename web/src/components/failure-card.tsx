@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
 import type { Trace } from "@/lib/api";
-import { merchantName } from "@/lib/scenarios";
+import { MerchantBadge } from "@/components/merchant-badge";
 
 export function FailureCard({
   id,
@@ -40,7 +40,9 @@ export function FailureCard({
           </Badge>
         ))}
       </div>
-      <p className="mt-2 text-sm text-muted-foreground">Asked as {merchantName[merchantId]}</p>
+      <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+        Asked as <MerchantBadge merchantId={merchantId} />
+      </p>
       <blockquote className="mt-4 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {question}
       </blockquote>

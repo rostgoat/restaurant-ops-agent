@@ -102,7 +102,9 @@ export function TraceMeta({ trace }: { trace: Trace }) {
     <div className="rounded-md bg-muted px-5 py-4">
       <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <StatusBadge status={trace.status} />
-        {trace.status !== "answered" && <span className="text-sm">{statusLine(trace)}</span>}
+        {(trace.status === "blocked" || trace.status === "error") && (
+          <span className="text-sm">{statusLine(trace)}</span>
+        )}
       </p>
       <ul className="mt-3 flex flex-wrap gap-x-8 gap-y-2">
         {items.map((it) => (
@@ -142,8 +144,14 @@ export function StatusBadge({ status }: { status: Trace["status"] }) {
         : status === "blocked"
           ? "Blocked"
           : "Failed";
+  const tone =
+    status === "answered"
+      ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+      : status === "refused" || status === "blocked"
+        ? "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
+        : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
   return (
-    <Badge variant={status === "answered" ? "secondary" : "outline"} className="font-heading">
+    <Badge variant="outline" className={cn("font-heading", tone)}>
       {label}
     </Badge>
   );

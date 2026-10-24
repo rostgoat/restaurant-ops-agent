@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
-import { merchantName, type Scenario } from "@/lib/scenarios";
+import { MerchantBadge } from "@/components/merchant-badge";
+import type { Scenario } from "@/lib/scenarios";
 
 function toolsUsed(s: Scenario): string[] {
   const names = new Set(s.trace.steps.map((st) => st.name));
@@ -27,8 +28,8 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
     <article id={scenario.slug} className="scroll-mt-10 border-t pt-8">
       {kicker && <p className="mb-3 font-heading text-base text-primary">{kicker}</p>}
       <h2 className="text-2xl">{scenario.title}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Asked as {merchantName[scenario.merchant_id]}
+      <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+        Asked as <MerchantBadge merchantId={scenario.merchant_id} />
       </p>
       <blockquote className="mt-6 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {scenario.question}
