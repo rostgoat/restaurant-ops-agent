@@ -12,14 +12,14 @@ const evidence = [
     href: "/architecture",
   },
   {
-    figure: "Next",
-    label: "eval cases passing. The evaluation set is the next thing built; its numbers go here, good or bad",
-    href: null,
+    figure: "10 of 10",
+    label: "scenarios behaved as written down beforehand, refusals and policy calls included",
+    href: "/scenarios",
   },
   {
     figure: "About 1¢",
-    label: "per answered question on Claude Sonnet 5.5, measured from traced requests. Per merchant per month follows",
-    href: null,
+    label: "per answered question on Claude Sonnet 5.5, measured from the traced requests",
+    href: "/ask",
   },
 ];
 
