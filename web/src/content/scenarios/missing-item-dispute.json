@@ -1,0 +1,469 @@
+{
+  "slug": "missing-item-dispute",
+  "title": "A marketplace dispute, where the policy decides",
+  "merchant_id": 1,
+  "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
+  "expected": "Finds the marketplace terms on missing items: the platform has already refunded the customer and charged us; we may dispute within 7 days, but only with a packing photo, and over $40 without one we accept it. Cites the section.",
+  "trace": {
+    "id": "7f1df3ed-e86d-43e9-8b40-7fe3e22380da",
+    "merchant_id": 1,
+    "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
+    "created_at": "2026-10-24T01:28:52.598970Z",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't match one DoorDash order to exactly $52 on Tuesday, 2026-10-20. The closest are order 100539 at 6:10 pm, with $50.83 in food sales and a $56.04 total, and order 100601 at 7:21 pm, with a $45.47 total. Check the order ID in your DoorDash portal first, because the steps depend on it.\n\nHere is what to do, based on the marketplace policy:\n\n1. **Don't refund from your side.** DoorDash refunds the customer directly and charges the cost back to you by default [marketplace: Missing or incorrect items].\n2. **Look for the packing photo.** Photos are taken at the pass for every marketplace order over $40, so this order should have one. If the photo shows the item in the bag, you can dispute the chargeback.\n3. **File within the window.** DoorDash allows 7 days from the order date. For a Tuesday 10/20 order, that runs to about 10/27, so you have roughly 3 days left. A late dispute is rejected automatically [marketplace: Missing or incorrect items].\n4. **If there is no photo, don't dispute.** Accept the chargeback and log it as a packing miss [marketplace: Missing or incorrect items].\n5. **Check whether the customer is flagged.** A customer with three or more refunded marketplace orders in the last 90 days is flagged. For a flagged customer you dispute every missing-item claim whatever the order value, and the owner is told [marketplace: Repeat disputes].\n\nI can check this customer's refund history once you confirm the order.",
+    "usage": {
+      "input_tokens": 4362,
+      "cache_read_tokens": 8128,
+      "cache_write_tokens": 0,
+      "output_tokens": 1297
+    },
+    "cost_usd": 0.02332,
+    "latency_ms": 10967,
+    "model_ms": 10450,
+    "tool_ms": 505,
+    "retries": 0,
+    "steps": [
+      {
+        "seq": 1,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Find DoorDash orders around $52 on Tuesday 2026-10-20 local time",
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM merchants) AS local_time, state, item_count, gross_sales_cents, discount_cents, tax_cents, tip_cents, total_cents, customer_id FROM orders WHERE channel='doordash' AND (created_at AT TIME ZONE (SELECT timezone FROM merchants))::date = '2026-10-20' AND total_cents BETWEEN 5000 AND 5400",
+          "usage": {
+            "input_tokens": 122,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 312
+          }
+        },
+        "latency_ms": 2264
+      },
+      {
+        "seq": 2,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "merchants, orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=1 on merchants.id, orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AS local_time, state, item_count, gross_sales_cents, discount_cents, tax_cents, tip_cents, total_cents, customer_id FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE channel = 'doordash' AND CAST((created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) AS DATE) = '2026-10-20' AND total_cents BETWEEN 5000 AND 5400 LIMIT 500"
+        },
+        "latency_ms": 5
+      },
+      {
+        "seq": 3,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "id",
+            "local_time",
+            "state",
+            "item_count",
+            "gross_sales_cents",
+            "discount_cents",
+            "tax_cents",
+            "tip_cents",
+            "total_cents",
+            "customer_id"
+          ],
+          "row_count": 0,
+          "rows": [],
+          "truncated": false
+        },
+        "latency_ms": 5
+      },
+      {
+        "seq": 4,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Broaden: DoorDash orders on Tuesday near $52 using gross or total",
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM merchants) AS local_time, state, item_count, gross_sales_cents, tax_cents, tip_cents, total_cents FROM orders WHERE channel='doordash' AND (created_at AT TIME ZONE (SELECT timezone FROM merchants))::date BETWEEN '2026-10-19' AND '2026-10-21' AND (gross_sales_cents BETWEEN 4500 AND 5800 OR total_cents BETWEEN 4500 AND 5800) ORDER BY created_at",
+          "usage": {
+            "input_tokens": 528,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 295
+          }
+        },
+        "latency_ms": 2238
+      },
+      {
+        "seq": 5,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "merchants, orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=1 on merchants.id, orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AS local_time, state, item_count, gross_sales_cents, tax_cents, tip_cents, total_cents FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE channel = 'doordash' AND CAST((created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) AS DATE) BETWEEN '2026-10-19' AND '2026-10-21' AND (gross_sales_cents BETWEEN 4500 AND 5800 OR total_cents BETWEEN 4500 AND 5800) ORDER BY created_at LIMIT 500"
+        },
+        "latency_ms": 4
+      },
+      {
+        "seq": 6,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "id",
+            "local_time",
+            "state",
+            "item_count",
+            "gross_sales_cents",
+            "tax_cents",
+            "tip_cents",
+            "total_cents"
+          ],
+          "row_count": 17,
+          "rows": [
+            [
+              100257,
+              "2026-10-19T15:18:18",
+              "completed",
+              4,
+              5235,
+              537,
+              null,
+              5772
+            ],
+            [
+              100229,
+              "2026-10-19T16:09:48",
+              "completed",
+              5,
+              5411,
+              389,
+              null,
+              4181
+            ],
+            [
+              100376,
+              "2026-10-19T16:46:08",
+              "completed",
+              3,
+              4247,
+              435,
+              null,
+              4682
+            ],
+            [
+              100394,
+              "2026-10-19T19:39:12",
+              "completed",
+              3,
+              4254,
+              436,
+              null,
+              4690
+            ],
+            [
+              100293,
+              "2026-10-19T20:55:30",
+              "completed",
+              3,
+              4233,
+              434,
+              null,
+              4667
+            ],
+            [
+              100535,
+              "2026-10-20T12:08:33",
+              "completed",
+              6,
+              5797,
+              594,
+              null,
+              6391
+            ],
+            [
+              100660,
+              "2026-10-20T15:59:36",
+              "completed",
+              4,
+              5569,
+              571,
+              null,
+              6140
+            ],
+            [
+              100539,
+              "2026-10-20T18:10:35",
+              "completed",
+              3,
+              5083,
+              521,
+              null,
+              5604
+            ],
+            [
+              100601,
+              "2026-10-20T19:21:14",
+              "completed",
+              3,
+              4124,
+              423,
+              null,
+              4547
+            ],
+            [
+              100681,
+              "2026-10-20T19:48:28",
+              "completed",
+              3,
+              4082,
+              418,
+              null,
+              4500
+            ],
+            [
+              100735,
+              "2026-10-21T11:42:22",
+              "completed",
+              3,
+              5061,
+              382,
+              null,
+              4110
+            ],
+            [
+              100826,
+              "2026-10-21T12:28:39",
+              "completed",
+              5,
+              4979,
+              510,
+              null,
+              5489
+            ],
+            [
+              100725,
+              "2026-10-21T17:14:07",
+              "draft",
+              3,
+              5300,
+              543,
+              null,
+              5843
+            ],
+            [
+              100844,
+              "2026-10-21T17:20:15",
+              "completed",
+              3,
+              6007,
+              489,
+              null,
+              5263
+            ],
+            [
+              100742,
+              "2026-10-21T18:00:47",
+              "completed",
+              4,
+              5768,
+              591,
+              null,
+              6359
+            ],
+            [
+              100851,
+              "2026-10-21T19:10:31",
+              "completed",
+              2,
+              5725,
+              587,
+              null,
+              6312
+            ],
+            [
+              100840,
+              "2026-10-21T19:20:12",
+              "completed",
+              4,
+              5605,
+              575,
+              null,
+              6180
+            ]
+          ],
+          "truncated": false
+        },
+        "latency_ms": 11
+      },
+      {
+        "seq": 7,
+        "actor": "model",
+        "name": "search_policy",
+        "outcome": "proposed",
+        "detail": {
+          "query": "DoorDash marketplace order missing item customer complaint dispute deadline refund",
+          "usage": {
+            "input_tokens": 1550,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 117
+          }
+        },
+        "latency_ms": 1320
+      },
+      {
+        "seq": 8,
+        "actor": "code",
+        "name": "retrieve",
+        "outcome": "3 sections",
+        "detail": {
+          "query": "DoorDash marketplace order missing item customer complaint dispute deadline refund",
+          "merchant_id": 1,
+          "threshold": 0.5,
+          "hits": [
+            {
+              "label": "marketplace: Missing or incorrect items",
+              "score": 0.6598,
+              "used": true
+            },
+            {
+              "label": "marketplace: Repeat disputes",
+              "score": 0.5561,
+              "used": true
+            },
+            {
+              "label": "marketplace: Late, cold, or damaged deliveries",
+              "score": 0.5441,
+              "used": true
+            },
+            {
+              "label": "marketplace: Cancellations",
+              "score": 0.461,
+              "used": false
+            }
+          ]
+        },
+        "latency_ms": 489
+      },
+      {
+        "seq": 9,
+        "actor": "model",
+        "name": "answer",
+        "outcome": "answered",
+        "detail": {
+          "text": "I couldn't match one DoorDash order to exactly $52 on Tuesday, 2026-10-20. The closest are order 100539 at 6:10 pm, with $50.83 in food sales and a $56.04 total, and order 100601 at 7:21 pm, with a $45.47 total. Check the order ID in your DoorDash portal first, because the steps depend on it.\n\nHere is what to do, based on the marketplace policy:\n\n1. **Don't refund from your side.** DoorDash refunds the customer directly and charges the cost back to you by default [marketplace: Missing or incorrect items].\n2. **Look for the packing photo.** Photos are taken at the pass for every marketplace order over $40, so this order should have one. If the photo shows the item in the bag, you can dispute the chargeback.\n3. **File within the window.** DoorDash allows 7 days from the order date. For a Tuesday 10/20 order, that runs to about 10/27, so you have roughly 3 days left. A late dispute is rejected automatically [marketplace: Missing or incorrect items].\n4. **If there is no photo, don't dispute.** Accept the chargeback and log it as a packing miss [marketplace: Missing or incorrect items].\n5. **Check whether the customer is flagged.** A customer with three or more refunded marketplace orders in the last 90 days is flagged. For a flagged customer you dispute every missing-item claim whatever the order value, and the owner is told [marketplace: Repeat disputes].\n\nI can check this customer's refund history once you confirm the order.",
+          "usage": {
+            "input_tokens": 2162,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 573
+          }
+        },
+        "latency_ms": 4628
+      },
+      {
+        "seq": 10,
+        "actor": "code",
+        "name": "citations",
+        "outcome": "passed",
+        "detail": {
+          "cited": [
+            "marketplace: Missing or incorrect items",
+            "marketplace: Repeat disputes"
+          ],
+          "retrieved": [
+            "marketplace: Late, cold, or damaged deliveries",
+            "marketplace: Missing or incorrect items",
+            "marketplace: Repeat disputes"
+          ],
+          "not_retrieved": []
+        },
+        "latency_ms": 0
+      }
+    ]
+  }
+}

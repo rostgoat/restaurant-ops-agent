@@ -1,0 +1,111 @@
+{
+  "slug": "catering-deposit",
+  "title": "A cancelled catering order",
+  "merchant_id": 2,
+  "question": "A catering order for Saturday was cancelled on Friday afternoon. Do they get the deposit back?",
+  "expected": "No: the 50% deposit is kept inside 48 hours of pickup. Cites the catering section.",
+  "trace": {
+    "id": "d6cdedf5-6e28-4800-9e5d-dd09f4089acf",
+    "merchant_id": 2,
+    "question": "A catering order for Saturday was cancelled on Friday afternoon. Do they get the deposit back?",
+    "created_at": "2026-10-24T01:29:38.332620Z",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Based on the catering policy, probably not. The deposit is refundable only up to 48 hours before pickup, and it is kept after that [house: Catering]. A cancellation on Friday afternoon is less than 48 hours before a Saturday pickup. Even a Saturday-morning pickup would be only about 18 to 20 hours away, so the deposit would be kept.\n\nI haven't looked at the specific order. The pickup time or the cancellation time could change this if the cancellation was actually made earlier. The policy doesn't mention any exceptions, such as the owner choosing to refund anyway.",
+    "usage": {
+      "input_tokens": 423,
+      "cache_read_tokens": 4064,
+      "cache_write_tokens": 0,
+      "output_tokens": 249
+    },
+    "cost_usd": 0.004149,
+    "latency_ms": 4652,
+    "model_ms": 3824,
+    "tool_ms": 826,
+    "retries": 0,
+    "steps": [
+      {
+        "seq": 1,
+        "actor": "model",
+        "name": "search_policy",
+        "outcome": "proposed",
+        "detail": {
+          "query": "catering order cancellation deposit refund",
+          "usage": {
+            "input_tokens": 123,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 57
+          }
+        },
+        "latency_ms": 1477
+      },
+      {
+        "seq": 2,
+        "actor": "code",
+        "name": "retrieve",
+        "outcome": "1 section",
+        "detail": {
+          "query": "catering order cancellation deposit refund",
+          "merchant_id": 2,
+          "threshold": 0.5,
+          "hits": [
+            {
+              "label": "house: Catering",
+              "score": 0.7041,
+              "used": true
+            },
+            {
+              "label": "house: Refunds",
+              "score": 0.46,
+              "used": false
+            },
+            {
+              "label": "online-orders: Pickup orders",
+              "score": 0.4314,
+              "used": false
+            },
+            {
+              "label": "house: Online orders",
+              "score": 0.4148,
+              "used": false
+            }
+          ]
+        },
+        "latency_ms": 826
+      },
+      {
+        "seq": 3,
+        "actor": "model",
+        "name": "answer",
+        "outcome": "answered",
+        "detail": {
+          "text": "Based on the catering policy, probably not. The deposit is refundable only up to 48 hours before pickup, and it is kept after that [house: Catering]. A cancellation on Friday afternoon is less than 48 hours before a Saturday pickup. Even a Saturday-morning pickup would be only about 18 to 20 hours away, so the deposit would be kept.\n\nI haven't looked at the specific order. The pickup time or the cancellation time could change this if the cancellation was actually made earlier. The policy doesn't mention any exceptions, such as the owner choosing to refund anyway.",
+          "usage": {
+            "input_tokens": 300,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 192
+          }
+        },
+        "latency_ms": 2347
+      },
+      {
+        "seq": 4,
+        "actor": "code",
+        "name": "citations",
+        "outcome": "passed",
+        "detail": {
+          "cited": [
+            "house: Catering"
+          ],
+          "retrieved": [
+            "house: Catering"
+          ],
+          "not_retrieved": []
+        },
+        "latency_ms": 0
+      }
+    ]
+  }
+}

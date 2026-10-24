@@ -14,7 +14,7 @@ export default async function TracePage(props: PageProps<"/traces/[id]">) {
   return (
     <>
       <Button asChild variant="link" className="mb-10 h-auto p-0 font-sans text-sm">
-        <Link href="/">Ask another question</Link>
+        <Link href="/ask">Ask another question</Link>
       </Button>
       <h1 className="mb-3 text-4xl">{trace.question}</h1>
       <p className="mb-12 text-sm text-muted-foreground">

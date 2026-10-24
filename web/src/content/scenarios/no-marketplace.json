@@ -1,0 +1,340 @@
+{
+  "slug": "no-marketplace",
+  "title": "The same question at the coffee counter",
+  "merchant_id": 2,
+  "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
+  "expected": "Ridgeline is not on any delivery marketplace. The answer says so instead of borrowing the noodle house's rule or inventing one.",
+  "trace": {
+    "id": "23618a47-25ca-46bb-a61f-41f562ec8d18",
+    "merchant_id": 2,
+    "question": "A DoorDash customer says an item was missing from a $52 order on Tuesday. What do I do?",
+    "created_at": "2026-10-24T01:30:54.598258Z",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't find this order, and the written policies don't cover it.\n\nI searched DoorDash orders for Tuesday, Oct 20, 2026, in your local time, with totals between $45 and $59. I got no results. I then searched all DoorDash orders since Oct 17 with a gross or total amount between $48 and $56. That also returned nothing. The $52 figure may include something I didn't match, such as a different date, or the order may be recorded under another channel.\n\nI also searched your policies for missing items, marketplace disputes, refunds and comps. Nothing matched. They don't say what to do, what the deadline is, or who approves it. I won't make up a rule.\n\nHere is what I'd do:\n1. Ask the customer for the DoorDash order number and the exact time of the order.\n2. Check that order in the DoorDash merchant portal. Missing-item reports from DoorDash customers normally go through DoorDash's own resolution flow.\n3. Send me the order number or time, and I'll look it up here.",
+    "usage": {
+      "input_tokens": 3526,
+      "cache_read_tokens": 10160,
+      "cache_write_tokens": 0,
+      "output_tokens": 1027
+    },
+    "cost_usd": 0.019354,
+    "latency_ms": 11352,
+    "model_ms": 10416,
+    "tool_ms": 917,
+    "retries": 0,
+    "steps": [
+      {
+        "seq": 1,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Find DoorDash orders around $52 on Tuesday 2026-10-20 local time",
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM merchants) AS local_time, state, item_count, gross_sales_cents, discount_cents, tax_cents, tip_cents, total_cents, source_raw FROM orders WHERE channel='doordash' AND (created_at AT TIME ZONE (SELECT timezone FROM merchants))::date = '2026-10-20' AND total_cents BETWEEN 4500 AND 5900 ORDER BY created_at",
+          "usage": {
+            "input_tokens": 122,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 336
+          }
+        },
+        "latency_ms": 3341
+      },
+      {
+        "seq": 2,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "merchants, orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=2 on merchants.id, orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 2) AS merchants) AS local_time, state, item_count, gross_sales_cents, discount_cents, tax_cents, tip_cents, total_cents, source_raw FROM (SELECT * FROM orders WHERE merchant_id = 2) AS orders WHERE channel = 'doordash' AND CAST((created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 2) AS merchants)) AS DATE) = '2026-10-20' AND total_cents BETWEEN 4500 AND 5900 ORDER BY created_at LIMIT 500"
+        },
+        "latency_ms": 11
+      },
+      {
+        "seq": 3,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "id",
+            "local_time",
+            "state",
+            "item_count",
+            "gross_sales_cents",
+            "discount_cents",
+            "tax_cents",
+            "tip_cents",
+            "total_cents",
+            "source_raw"
+          ],
+          "row_count": 0,
+          "rows": [],
+          "truncated": false
+        },
+        "latency_ms": 9
+      },
+      {
+        "seq": 4,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Widen search: DoorDash orders Oct 18-23 with gross or total near $52",
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM merchants) AS local_time, state, item_count, gross_sales_cents, total_cents FROM orders WHERE channel='doordash' AND created_at >= '2026-10-17' AND (total_cents BETWEEN 4800 AND 5600 OR gross_sales_cents BETWEEN 4800 AND 5600) ORDER BY created_at",
+          "usage": {
+            "input_tokens": 552,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 243
+          }
+        },
+        "latency_ms": 1900
+      },
+      {
+        "seq": 5,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "merchants, orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=2 on merchants.id, orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT id, created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 2) AS merchants) AS local_time, state, item_count, gross_sales_cents, total_cents FROM (SELECT * FROM orders WHERE merchant_id = 2) AS orders WHERE channel = 'doordash' AND created_at >= '2026-10-17' AND (total_cents BETWEEN 4800 AND 5600 OR gross_sales_cents BETWEEN 4800 AND 5600) ORDER BY created_at LIMIT 500"
+        },
+        "latency_ms": 2
+      },
+      {
+        "seq": 6,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "id",
+            "local_time",
+            "state",
+            "item_count",
+            "gross_sales_cents",
+            "total_cents"
+          ],
+          "row_count": 0,
+          "rows": [],
+          "truncated": false
+        },
+        "latency_ms": 2
+      },
+      {
+        "seq": 7,
+        "actor": "model",
+        "name": "search_policy",
+        "outcome": "proposed",
+        "detail": {
+          "query": "marketplace order missing item dispute DoorDash deadline refund",
+          "usage": {
+            "input_tokens": 862,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 66
+          }
+        },
+        "latency_ms": 972
+      },
+      {
+        "seq": 8,
+        "actor": "code",
+        "name": "retrieve",
+        "outcome": "nothing above threshold",
+        "detail": {
+          "query": "marketplace order missing item dispute DoorDash deadline refund",
+          "merchant_id": 2,
+          "threshold": 0.5,
+          "hits": [
+            {
+              "label": "online-orders: Pickup orders",
+              "score": 0.4445,
+              "used": false
+            },
+            {
+              "label": "house: Online orders",
+              "score": 0.4357,
+              "used": false
+            },
+            {
+              "label": "online-orders: Order problems we cannot fix online",
+              "score": 0.4252,
+              "used": false
+            },
+            {
+              "label": "house: Refunds",
+              "score": 0.417,
+              "used": false
+            }
+          ]
+        },
+        "latency_ms": 491
+      },
+      {
+        "seq": 9,
+        "actor": "model",
+        "name": "search_policy",
+        "outcome": "proposed",
+        "detail": {
+          "query": "customer complaint missing item remake refund comp",
+          "usage": {
+            "input_tokens": 953,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 59
+          }
+        },
+        "latency_ms": 1018
+      },
+      {
+        "seq": 10,
+        "actor": "code",
+        "name": "retrieve",
+        "outcome": "nothing above threshold",
+        "detail": {
+          "query": "customer complaint missing item remake refund comp",
+          "merchant_id": 2,
+          "threshold": 0.5,
+          "hits": [
+            {
+              "label": "house: Refunds",
+              "score": 0.4791,
+              "used": false
+            },
+            {
+              "label": "house: Remakes and comps",
+              "score": 0.4041,
+              "used": false
+            },
+            {
+              "label": "online-orders: Order problems we cannot fix online",
+              "score": 0.3998,
+              "used": false
+            },
+            {
+              "label": "online-orders: Pickup orders",
+              "score": 0.3528,
+              "used": false
+            }
+          ]
+        },
+        "latency_ms": 415
+      },
+      {
+        "seq": 11,
+        "actor": "model",
+        "name": "answer",
+        "outcome": "answered",
+        "detail": {
+          "text": "I couldn't find this order, and the written policies don't cover it.\n\nI searched DoorDash orders for Tuesday, Oct 20, 2026, in your local time, with totals between $45 and $59. I got no results. I then searched all DoorDash orders since Oct 17 with a gross or total amount between $48 and $56. That also returned nothing. The $52 figure may include something I didn't match, such as a different date, or the order may be recorded under another channel.\n\nI also searched your policies for missing items, marketplace disputes, refunds and comps. Nothing matched. They don't say what to do, what the deadline is, or who approves it. I won't make up a rule.\n\nHere is what I'd do:\n1. Ask the customer for the DoorDash order number and the exact time of the order.\n2. Check that order in the DoorDash merchant portal. Missing-item reports from DoorDash customers normally go through DoorDash's own resolution flow.\n3. Send me the order number or time, and I'll look it up here.",
+          "usage": {
+            "input_tokens": 1037,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 323
+          }
+        },
+        "latency_ms": 3185
+      },
+      {
+        "seq": 12,
+        "actor": "code",
+        "name": "citations",
+        "outcome": "passed",
+        "detail": {
+          "cited": [],
+          "retrieved": [],
+          "not_retrieved": [],
+          "reason": null
+        },
+        "latency_ms": 0
+      }
+    ]
+  }
+}

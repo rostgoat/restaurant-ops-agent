@@ -206,8 +206,8 @@ function StepBody({ step }: { step: Step }) {
           <p className="break-words">{String(d.error)}</p>
         </>
       );
-    case "query_limit:reached":
-      return <Title>Stopped after {String(d.limit)} queries</Title>;
+    case "tool_limit:reached":
+      return <Title>Stopped after {String(d.limit)} tool calls</Title>;
     default:
       return (
         <>

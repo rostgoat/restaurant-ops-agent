@@ -170,7 +170,16 @@ def test_nothing_above_threshold_is_said_so_and_not_cited():
     assert "matches closely enough" in result["content"]
     assert "is_error" not in result
     assert trace.steps[-1].name == "citations"
+    assert trace.steps[-1].outcome == "passed"
+
+
+def test_citing_when_nothing_was_retrieved_fails_the_check():
+    client = FakeClient(reply(search_policy("q")), reply(text("You must do X [house: Comps].")))
+
+    trace = ask("q", client, FakeSearch([Hit("house: Allergies", "…", 0.18)]))
+
     assert trace.steps[-1].outcome == "failed"
+    assert "nothing was retrieved" in trace.steps[-1].detail["reason"]
 
 
 def test_the_threshold_is_a_setting():

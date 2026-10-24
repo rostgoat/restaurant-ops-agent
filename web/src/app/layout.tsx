@@ -25,8 +25,9 @@ export const metadata: Metadata = {
 };
 
 const pages = [
-  { href: "/", label: "Ask" },
+  { href: "/scenarios", label: "Scenarios" },
   { href: "/architecture", label: "Architecture" },
+  { href: "/ask", label: "Ask" },
 ];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

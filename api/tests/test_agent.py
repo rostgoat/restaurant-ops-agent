@@ -257,11 +257,11 @@ def test_repeated_blocks_end_as_blocked_not_as_an_answer():
     )
     runner = FakeRunner()
 
-    trace = ask(client=client, runner=runner, settings=Settings(max_queries=3))
+    trace = ask(client=client, runner=runner, settings=Settings(max_tool_calls=3))
 
     assert trace.status == "blocked"
     assert runner.sql == []
-    assert trace.steps[-1].name == "query_limit"
+    assert trace.steps[-1].name == "tool_limit"
     assert trace.retries == 3
 
 
@@ -371,10 +371,10 @@ def test_database_errors_past_the_query_limit_are_an_error():
     )
     runner = FakeRunner(QueryError("bad"), QueryError("bad"))
 
-    trace = ask(client=client, runner=runner, settings=Settings(max_queries=1))
+    trace = ask(client=client, runner=runner, settings=Settings(max_tool_calls=1))
 
     assert trace.status == "error"
-    assert trace.steps[-1].name == "query_limit"
+    assert trace.steps[-1].name == "tool_limit"
 
 
 # ------------------------------------------------------------ cost and time

@@ -25,11 +25,13 @@ class Settings:
     model: str = "claude-sonnet-5-5"
     effort: str = "medium"
     max_tokens: int = 8000
-    max_queries: int = 3
+    max_tool_calls: int = 6
     rows_to_model: int = 100
     row_limit: int = DEFAULT_ROW_LIMIT
     retrieval_limit: int = 4
-    retrieval_threshold: float = 0.30
+    # Set from ten captured cases: real matches scored 0.55 to 0.70, near misses
+    # 0.37 to 0.49. The evaluation set is where this becomes a measured value.
+    retrieval_threshold: float = 0.50
     workspace_id: str | None = None
 
 
@@ -107,8 +109,8 @@ def answer(
 
         trace.step("model", call.name, "proposed", dict(call.input) | usage, latency_ms=model_ms)
         calls += 1
-        if calls > settings.max_queries:
-            trace.step("code", "query_limit", "reached", {"limit": settings.max_queries})
+        if calls > settings.max_tool_calls:
+            trace.step("code", "tool_limit", "reached", {"limit": settings.max_tool_calls})
             return finish("blocked" if blocked and not executed else "error")
 
         if call.name == "run_sql":
@@ -225,7 +227,11 @@ def _check_citations(trace: Trace, text: str, retrieved: set[str]) -> None:
     cited = set(_CITATION.findall(text))
     missing = sorted(cited - retrieved)
     detail = {"cited": sorted(cited), "retrieved": sorted(retrieved), "not_retrieved": missing}
-    if not cited:
+    if not retrieved:
+        outcome = "failed" if cited else "passed"
+        reason = "cited a section although nothing was retrieved" if cited else None
+        trace.step("code", "citations", outcome, detail | {"reason": reason})
+    elif not cited:
         reason = "policy was used but nothing was cited"
         trace.step("code", "citations", "failed", detail | {"reason": reason})
     elif missing:

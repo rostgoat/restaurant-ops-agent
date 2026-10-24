@@ -1,28 +1,9 @@
 import Link from "next/link";
-import { AskForm } from "@/components/ask-form";
 import { CapturedRun, capturedOn } from "@/components/captured-run";
+import { Button } from "@/components/ui/button";
 import type { Trace } from "@/lib/api";
 import capturedAnswer from "@/content/captured-trace.json";
 import capturedInjection from "@/content/captured-injection.json";
-import { MerchantPicker } from "@/components/merchant-picker";
-import { StatusBadge, statusLine } from "@/components/trace";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ApiUnreachable, getMerchants, getRecentTraces } from "@/lib/api";
-import { dollars } from "@/lib/format";
-import { currentMerchant } from "@/lib/merchant";
-
-// Rendered in full on every request rather than streamed behind a fallback:
-// a visitor opening the link cold should never see a loading state.
-export const instant = false;
 
 const evidence = [
   {
@@ -45,7 +26,7 @@ const evidence = [
 const answered = capturedAnswer as Trace;
 const refused = capturedInjection as Trace;
 
-export default async function AskPage() {
+export default function HomePage() {
   return (
     <>
       <section className="max-w-[64ch]">
@@ -62,7 +43,7 @@ export default async function AskPage() {
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg" className="h-11 px-5 font-heading text-base">
-            <a href="#try">Try a question</a>
+            <Link href="/scenarios">See the scenarios</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="h-11 px-5 font-heading text-base">
             <a href="https://github.com/rostgoat/restaurant-ops-agent">View the code</a>
@@ -152,85 +133,17 @@ export default async function AskPage() {
         </ol>
       </section>
 
-      <section id="try" className="mt-28 scroll-mt-10">
-        <h2 className="mb-4 text-3xl">Try it</h2>
-        <p className="mb-12 max-w-[60ch] text-lg text-muted-foreground">
-          Pick one of the two restaurants and ask anything about its sales. One of the suggestions
-          asks the agent to delete data, so you can watch it refuse.
+      <section className="mt-28 max-w-[64ch]">
+        <p className="text-lg text-muted-foreground">
+          The ten scenarios show the cases that matter, with the expected behaviour written
+          first. The{" "}
+          <Link href="/ask" className="text-primary underline-offset-4 hover:underline">
+            Ask page
+          </Link>{" "}
+          lets you put your own question to either restaurant.
         </p>
-        <Workspace />
       </section>
     </>
   );
 }
 
-async function Workspace() {
-  const merchantId = await currentMerchant();
-  let merchants;
-  try {
-    merchants = await getMerchants();
-  } catch (e) {
-    return <Unreachable error={e} />;
-  }
-  const merchant = merchants.find((m) => m.id === merchantId) ?? merchants[0];
-  const traces = await getRecentTraces(merchant.id);
-  return (
-    <div className="grid gap-16 md:grid-cols-2 md:gap-20">
-      <div>
-        <div className="mb-8">
-          <MerchantPicker merchants={merchants} current={merchant.id} />
-        </div>
-        <AskForm merchantName={merchant.name} />
-      </div>
-      <section>
-        <h3 className="mb-4 text-2xl">Recent questions</h3>
-        {traces.length === 0 ? (
-          <p className="text-muted-foreground">
-            No questions yet for this restaurant. Ask the first one.
-          </p>
-        ) : (
-          <Table className="bg-card">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Question</TableHead>
-                <TableHead>Outcome</TableHead>
-                <TableHead className="text-right">Cost</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {traces.map((t) => (
-                <TableRow key={t.id}>
-                  <TableCell className="whitespace-normal">
-                    <Link href={`/traces/${t.id}`} className="underline-offset-4 hover:underline">
-                      {t.question}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={t.status} />
-                    <span className="sr-only">{statusLine(t)}</span>
-                  </TableCell>
-                  <TableCell className="text-right font-sql text-[13px]">
-                    {dollars(t.cost_usd)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </section>
-    </div>
-  );
-}
-
-function Unreachable({ error }: { error: unknown }) {
-  const message = error instanceof ApiUnreachable ? error.message : "The API returned an error.";
-  return (
-    <Alert variant="destructive" className="max-w-[68ch]">
-      <AlertTitle>{message}</AlertTitle>
-      <AlertDescription>
-        Start it with <code className="font-sql">cd api && .venv/bin/uvicorn app.main:app</code>{" "}
-        and reload.
-      </AlertDescription>
-    </Alert>
-  );
-}

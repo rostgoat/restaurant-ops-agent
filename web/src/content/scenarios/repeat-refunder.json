@@ -1,0 +1,644 @@
+{
+  "slug": "repeat-refunder",
+  "title": "A customer the data flags, where SQL and policy meet",
+  "merchant_id": 1,
+  "question": "Customer 1500 is claiming another missing item on a delivery order. How should I handle it?",
+  "expected": "Counts their refunded marketplace orders in the last 90 days with SQL, finds they cross the flag threshold of three, and applies the repeat-disputes rule: dispute every claim regardless of value and tell the owner.",
+  "trace": {
+    "id": "2761ef60-8068-4138-befb-1dbe65059497",
+    "merchant_id": 1,
+    "question": "Customer 1500 is claiming another missing item on a delivery order. How should I handle it?",
+    "created_at": "2026-10-24T01:29:18.622399Z",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Customer 1500 is flagged as a repeat disputer, so you should dispute this claim and not just accept it.\n\nIn the last 90 days (since about 2026-07-26), this customer has six refunded marketplace orders. Each was refunded in full:\n- DoorDash, Oct 13, $33.84\n- DoorDash, Sep 18, $33.21\n- DoorDash, Sep 13, $73.39\n- Uber Eats, Sep 10, $39.17\n- Uber Eats, Aug 30, $31.21\n- DoorDash, Aug 4, $136.67\n\nThe policy flags any customer with three or more refunded marketplace orders in 90 days. For flagged customers, every missing-item claim is disputed whatever the order value, and you, as the owner, are told [marketplace: Repeat disputes]. Consider this notice that the flag applies.\n\nThe dispute has to be filed inside the platform's window, counted from the order date. That is 7 days for DoorDash, 30 for Uber Eats and 14 for Grubhub. A late dispute is rejected automatically [marketplace: Missing or incorrect items]. Check which platform and date the new order is on. Today is Oct 24, so a DoorDash order from Oct 13 is already past its window.\n\nThe platform refunds the customer and charges the cost back to you by default. A packing photo of the item in the bag is the evidence for a dispute. Photos are taken for every marketplace order over $40. The rule for an order over $40 with no photo is to accept the chargeback and log it as a packing miss. The flag rule says to dispute regardless of value, so I can't tell you which of the two wins for a flagged order over $40 with no photo. You'd need to decide that.\n\nI don't know which order the new claim is about, so I can't check its date or amount.",
+    "usage": {
+      "input_tokens": 6992,
+      "cache_read_tokens": 8128,
+      "cache_write_tokens": 0,
+      "output_tokens": 1063
+    },
+    "cost_usd": 0.02624,
+    "latency_ms": 10136,
+    "model_ms": 9750,
+    "tool_ms": 372,
+    "retries": 0,
+    "steps": [
+      {
+        "seq": 1,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Customer 1500's recent orders and delivery history",
+          "sql": "select id, created_at, channel, fulfillment_type, state, item_count, total_cents, discount_cents from orders where customer_id=1500 order by created_at desc limit 30",
+          "usage": {
+            "input_tokens": 119,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 141
+          }
+        },
+        "latency_ms": 1634
+      },
+      {
+        "seq": 2,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=1 on orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "query limit 30"
+            }
+          ],
+          "sql": "SELECT id, created_at, channel, fulfillment_type, state, item_count, total_cents, discount_cents FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE customer_id = 1500 ORDER BY created_at DESC LIMIT 30"
+        },
+        "latency_ms": 2
+      },
+      {
+        "seq": 3,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "id",
+            "created_at",
+            "channel",
+            "fulfillment_type",
+            "state",
+            "item_count",
+            "total_cents",
+            "discount_cents"
+          ],
+          "row_count": 30,
+          "rows": [
+            [
+              100295,
+              "2026-10-19T20:50:09+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              1,
+              1623,
+              0
+            ],
+            [
+              98725,
+              "2026-10-14T16:04:13+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              1,
+              2051,
+              0
+            ],
+            [
+              98436,
+              "2026-10-13T22:02:09+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              2,
+              3384,
+              0
+            ],
+            [
+              91153,
+              "2026-09-18T00:12:46+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              2,
+              3321,
+              0
+            ],
+            [
+              90201,
+              "2026-09-13T22:22:16+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              4,
+              7339,
+              0
+            ],
+            [
+              89105,
+              "2026-09-10T18:59:37+00:00",
+              "uber_eats",
+              "delivery",
+              "completed",
+              3,
+              3917,
+              0
+            ],
+            [
+              87251,
+              "2026-09-04T01:21:15+00:00",
+              "square_online",
+              "delivery",
+              "completed",
+              1,
+              626,
+              872
+            ],
+            [
+              86211,
+              "2026-08-30T23:58:03+00:00",
+              "uber_eats",
+              "delivery",
+              "completed",
+              2,
+              3121,
+              0
+            ],
+            [
+              78696,
+              "2026-08-04T23:46:56+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              12,
+              13667,
+              0
+            ],
+            [
+              77902,
+              "2026-08-01T17:57:32+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              1,
+              1400,
+              0
+            ],
+            [
+              73953,
+              "2026-07-18T18:36:28+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              2,
+              1507,
+              202
+            ],
+            [
+              68096,
+              "2026-06-26T23:36:46+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              2,
+              2750,
+              0
+            ],
+            [
+              67377,
+              "2026-06-23T18:22:10+00:00",
+              "square_online",
+              "pickup",
+              "completed",
+              3,
+              3690,
+              561
+            ],
+            [
+              66987,
+              "2026-06-23T01:23:11+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              1,
+              2326,
+              0
+            ],
+            [
+              66202,
+              "2026-06-19T22:16:51+00:00",
+              "square_online",
+              "delivery",
+              "completed",
+              2,
+              4741,
+              0
+            ],
+            [
+              65140,
+              "2026-06-15T18:03:27+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              2,
+              2047,
+              0
+            ],
+            [
+              57612,
+              "2026-05-21T00:35:02+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              1,
+              2160,
+              0
+            ],
+            [
+              52798,
+              "2026-05-03T19:47:55+00:00",
+              "in_store",
+              "in_store",
+              "completed",
+              1,
+              1027,
+              0
+            ],
+            [
+              50725,
+              "2026-04-26T00:57:24+00:00",
+              "square_online",
+              "pickup",
+              "completed",
+              2,
+              3570,
+              0
+            ],
+            [
+              50352,
+              "2026-04-24T22:22:42+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              1,
+              886,
+              0
+            ],
+            [
+              47846,
+              "2026-04-15T21:10:48+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              4,
+              3613,
+              0
+            ],
+            [
+              45536,
+              "2026-04-07T17:03:24+00:00",
+              "doordash",
+              "delivery",
+              "completed",
+              2,
+              1811,
+              392
+            ],
+            [
+              45097,
+              "2026-04-06T00:01:12+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              2,
+              1965,
+              0
+            ],
+            [
+              45034,
+              "2026-04-05T14:56:37+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              4,
+              3398,
+              0
+            ],
+            [
+              43424,
+              "2026-03-30T20:50:33+00:00",
+              "uber_eats",
+              "delivery",
+              "completed",
+              2,
+              3220,
+              0
+            ],
+            [
+              42453,
+              "2026-03-27T23:26:32+00:00",
+              "square_online",
+              "delivery",
+              "completed",
+              1,
+              1329,
+              0
+            ],
+            [
+              38155,
+              "2026-03-12T23:31:59+00:00",
+              "square_online",
+              "delivery",
+              "completed",
+              2,
+              1661,
+              0
+            ],
+            [
+              36165,
+              "2026-03-06T00:57:43+00:00",
+              "uber_eats",
+              "delivery",
+              "completed",
+              2,
+              2869,
+              0
+            ],
+            [
+              32830,
+              "2026-02-22T01:27:05+00:00",
+              "square_online",
+              "pickup",
+              "completed",
+              1,
+              1785,
+              0
+            ],
+            [
+              32497,
+              "2026-02-20T22:59:28+00:00",
+              "in_store",
+              "pickup",
+              "completed",
+              1,
+              1078,
+              0
+            ]
+          ],
+          "truncated": false
+        },
+        "latency_ms": 2
+      },
+      {
+        "seq": 4,
+        "actor": "model",
+        "name": "search_policy",
+        "outcome": "proposed",
+        "detail": {
+          "query": "missing item delivery claim refund comp marketplace dispute deadline",
+          "usage": {
+            "input_tokens": 1723,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 67
+          }
+        },
+        "latency_ms": 1284
+      },
+      {
+        "seq": 5,
+        "actor": "code",
+        "name": "retrieve",
+        "outcome": "3 sections",
+        "detail": {
+          "query": "missing item delivery claim refund comp marketplace dispute deadline",
+          "merchant_id": 1,
+          "threshold": 0.5,
+          "hits": [
+            {
+              "label": "marketplace: Repeat disputes",
+              "score": 0.65,
+              "used": true
+            },
+            {
+              "label": "marketplace: Missing or incorrect items",
+              "score": 0.6451,
+              "used": true
+            },
+            {
+              "label": "marketplace: Late, cold, or damaged deliveries",
+              "score": 0.5764,
+              "used": true
+            },
+            {
+              "label": "house: Refunds on in-store and online orders",
+              "score": 0.4439,
+              "used": false
+            }
+          ]
+        },
+        "latency_ms": 353
+      },
+      {
+        "seq": 6,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Refunded marketplace orders for customer 1500 in last 90 days",
+          "sql": "select o.id, o.created_at, o.channel, o.total_cents, p.refunded_amount_cents, p.status from orders o left join payments p on p.order_id=o.id where o.customer_id=1500 and o.channel in ('doordash','uber_eats','grubhub') and o.created_at >= '2026-07-26' order by o.created_at desc",
+          "usage": {
+            "input_tokens": 2285,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 269
+          }
+        },
+        "latency_ms": 2211
+      },
+      {
+        "seq": 7,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "orders, payments"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=1 on orders.merchant_id, payments.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT o.id, o.created_at, o.channel, o.total_cents, p.refunded_amount_cents, p.status FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o LEFT JOIN (SELECT * FROM payments WHERE merchant_id = 1) AS p ON p.order_id = o.id WHERE o.customer_id = 1500 AND o.channel IN ('doordash', 'uber_eats', 'grubhub') AND o.created_at >= '2026-07-26' ORDER BY o.created_at DESC LIMIT 500"
+        },
+        "latency_ms": 9
+      },
+      {
+        "seq": 8,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "id",
+            "created_at",
+            "channel",
+            "total_cents",
+            "refunded_amount_cents",
+            "status"
+          ],
+          "row_count": 6,
+          "rows": [
+            [
+              98436,
+              "2026-10-13T22:02:09+00:00",
+              "doordash",
+              3384,
+              3384,
+              "completed"
+            ],
+            [
+              91153,
+              "2026-09-18T00:12:46+00:00",
+              "doordash",
+              3321,
+              3321,
+              "completed"
+            ],
+            [
+              90201,
+              "2026-09-13T22:22:16+00:00",
+              "doordash",
+              7339,
+              7339,
+              "completed"
+            ],
+            [
+              89105,
+              "2026-09-10T18:59:37+00:00",
+              "uber_eats",
+              3917,
+              3917,
+              "completed"
+            ],
+            [
+              86211,
+              "2026-08-30T23:58:03+00:00",
+              "uber_eats",
+              3121,
+              3121,
+              "completed"
+            ],
+            [
+              78696,
+              "2026-08-04T23:46:56+00:00",
+              "doordash",
+              13667,
+              13667,
+              "completed"
+            ]
+          ],
+          "truncated": false
+        },
+        "latency_ms": 17
+      },
+      {
+        "seq": 9,
+        "actor": "model",
+        "name": "answer",
+        "outcome": "answered",
+        "detail": {
+          "text": "Customer 1500 is flagged as a repeat disputer, so you should dispute this claim and not just accept it.\n\nIn the last 90 days (since about 2026-07-26), this customer has six refunded marketplace orders. Each was refunded in full:\n- DoorDash, Oct 13, $33.84\n- DoorDash, Sep 18, $33.21\n- DoorDash, Sep 13, $73.39\n- Uber Eats, Sep 10, $39.17\n- Uber Eats, Aug 30, $31.21\n- DoorDash, Aug 4, $136.67\n\nThe policy flags any customer with three or more refunded marketplace orders in 90 days. For flagged customers, every missing-item claim is disputed whatever the order value, and you, as the owner, are told [marketplace: Repeat disputes]. Consider this notice that the flag applies.\n\nThe dispute has to be filed inside the platform's window, counted from the order date. That is 7 days for DoorDash, 30 for Uber Eats and 14 for Grubhub. A late dispute is rejected automatically [marketplace: Missing or incorrect items]. Check which platform and date the new order is on. Today is Oct 24, so a DoorDash order from Oct 13 is already past its window.\n\nThe platform refunds the customer and charges the cost back to you by default. A packing photo of the item in the bag is the evidence for a dispute. Photos are taken for every marketplace order over $40. The rule for an order over $40 with no photo is to accept the chargeback and log it as a packing miss. The flag rule says to dispute regardless of value, so I can't tell you which of the two wins for a flagged order over $40 with no photo. You'd need to decide that.\n\nI don't know which order the new claim is about, so I can't check its date or amount.",
+          "usage": {
+            "input_tokens": 2865,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 586
+          }
+        },
+        "latency_ms": 4621
+      },
+      {
+        "seq": 10,
+        "actor": "code",
+        "name": "citations",
+        "outcome": "passed",
+        "detail": {
+          "cited": [
+            "marketplace: Missing or incorrect items",
+            "marketplace: Repeat disputes"
+          ],
+          "retrieved": [
+            "marketplace: Late, cold, or damaged deliveries",
+            "marketplace: Missing or incorrect items",
+            "marketplace: Repeat disputes"
+          ],
+          "not_retrieved": []
+        },
+        "latency_ms": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,209 @@
+{
+  "slug": "sms-campaign",
+  "title": "A text campaign that breaks three rules at once",
+  "merchant_id": 2,
+  "question": "Can I text everyone who ordered this month with 20% off, tonight at 9:30pm?",
+  "expected": "Not tonight: quiet hours start at 9pm. The 90-day relationship rule allows the audience without a separate opt-in, and 20% is exactly the cap. Cites the messaging sections it used.",
+  "trace": {
+    "id": "1c7782e1-de31-4d65-ac54-90f2da31f8fa",
+    "merchant_id": 2,
+    "question": "Can I text everyone who ordered this month with 20% off, tonight at 9:30pm?",
+    "created_at": "2026-10-24T01:29:28.785842Z",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Not as you've described it. I can't send or schedule texts, so this only covers what the rules allow.\n\n**Timing:** Tonight at 9:30pm is inside the quiet hours, which run from 9pm to 8am Mountain time. No marketing text can go out then. The earliest slot is 8am tomorrow, Mountain time [messaging: Quiet hours].\n\n**Offer:** 20% is the most a message may offer without your approval, so it's allowed. The offer has to expire within 7 days and apply once per customer. It also can't include Seasonal Specials [messaging: Offers in messages].\n\n**Who can get it:** Of the 76 identified customers with completed orders since October 1, only 18 have a phone number on file and haven't unsubscribed. Everyone else is off the list. Customers who ordered in the last 90 days and gave a phone number can get up to two marketing texts a calendar month without a separate opt-in. Anyone who has unsubscribed gets nothing [messaging: Who may receive texts]. None of the 18 has verified SMS consent, but that doesn't matter here because they all ordered within the last 90 days.\n\n**Frequency:** Check that none of the 18 has already had two marketing texts this month [messaging: Frequency]. I can't see message history, so I can't check that for you.",
+    "usage": {
+      "input_tokens": 1896,
+      "cache_read_tokens": 6096,
+      "cache_write_tokens": 0,
+      "output_tokens": 817
+    },
+    "cost_usd": 0.013181,
+    "latency_ms": 9531,
+    "model_ms": 9208,
+    "tool_ms": 315,
+    "retries": 0,
+    "steps": [
+      {
+        "seq": 1,
+        "actor": "model",
+        "name": "search_policy",
+        "outcome": "proposed",
+        "detail": {
+          "query": "texting customers SMS consent quiet hours offers",
+          "usage": {
+            "input_tokens": 120,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 150
+          }
+        },
+        "latency_ms": 1907
+      },
+      {
+        "seq": 2,
+        "actor": "code",
+        "name": "retrieve",
+        "outcome": "4 sections",
+        "detail": {
+          "query": "texting customers SMS consent quiet hours offers",
+          "merchant_id": 2,
+          "threshold": 0.5,
+          "hits": [
+            {
+              "label": "messaging: Quiet hours",
+              "score": 0.6806,
+              "used": true
+            },
+            {
+              "label": "messaging: Who may receive texts",
+              "score": 0.5892,
+              "used": true
+            },
+            {
+              "label": "messaging: Offers in messages",
+              "score": 0.5569,
+              "used": true
+            },
+            {
+              "label": "messaging: Frequency",
+              "score": 0.53,
+              "used": true
+            }
+          ]
+        },
+        "latency_ms": 303
+      },
+      {
+        "seq": 3,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Count customers who ordered this month by textability",
+          "sql": "select count(distinct c.id) total, count(distinct c.id) filter (where c.has_phone and c.unsubscribed_at is null) with_phone_not_unsub, count(distinct c.id) filter (where c.has_phone and c.unsubscribed_at is null and c.sms_opt_in) verified from orders o join customers c on c.id=o.customer_id where o.state='completed' and (o.created_at at time zone (select timezone from merchants)) >= '2026-10-01'",
+          "usage": {
+            "input_tokens": 736,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 241
+          }
+        },
+        "latency_ms": 3063
+      },
+      {
+        "seq": 4,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "customers, merchants, orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=2 on customers.merchant_id, merchants.id, orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT COUNT(DISTINCT c.id) AS total, COUNT(DISTINCT c.id) FILTER(WHERE c.has_phone AND c.unsubscribed_at IS NULL) AS with_phone_not_unsub, COUNT(DISTINCT c.id) FILTER(WHERE c.has_phone AND c.unsubscribed_at IS NULL AND c.sms_opt_in) AS verified FROM (SELECT * FROM orders WHERE merchant_id = 2) AS o JOIN (SELECT * FROM customers WHERE merchant_id = 2) AS c ON c.id = o.customer_id WHERE o.state = 'completed' AND (o.created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 2) AS merchants)) >= '2026-10-01' LIMIT 500"
+        },
+        "latency_ms": 5
+      },
+      {
+        "seq": 5,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "total",
+            "with_phone_not_unsub",
+            "verified"
+          ],
+          "row_count": 1,
+          "rows": [
+            [
+              76,
+              18,
+              0
+            ]
+          ],
+          "truncated": false
+        },
+        "latency_ms": 12
+      },
+      {
+        "seq": 6,
+        "actor": "model",
+        "name": "answer",
+        "outcome": "answered",
+        "detail": {
+          "text": "Not as you've described it. I can't send or schedule texts, so this only covers what the rules allow.\n\n**Timing:** Tonight at 9:30pm is inside the quiet hours, which run from 9pm to 8am Mountain time. No marketing text can go out then. The earliest slot is 8am tomorrow, Mountain time [messaging: Quiet hours].\n\n**Offer:** 20% is the most a message may offer without your approval, so it's allowed. The offer has to expire within 7 days and apply once per customer. It also can't include Seasonal Specials [messaging: Offers in messages].\n\n**Who can get it:** Of the 76 identified customers with completed orders since October 1, only 18 have a phone number on file and haven't unsubscribed. Everyone else is off the list. Customers who ordered in the last 90 days and gave a phone number can get up to two marketing texts a calendar month without a separate opt-in. Anyone who has unsubscribed gets nothing [messaging: Who may receive texts]. None of the 18 has verified SMS consent, but that doesn't matter here because they all ordered within the last 90 days.\n\n**Frequency:** Check that none of the 18 has already had two marketing texts this month [messaging: Frequency]. I can't see message history, so I can't check that for you.",
+          "usage": {
+            "input_tokens": 1040,
+            "cache_read_tokens": 2032,
+            "cache_write_tokens": 0,
+            "output_tokens": 426
+          }
+        },
+        "latency_ms": 4238
+      },
+      {
+        "seq": 7,
+        "actor": "code",
+        "name": "citations",
+        "outcome": "passed",
+        "detail": {
+          "cited": [
+            "messaging: Frequency",
+            "messaging: Offers in messages",
+            "messaging: Quiet hours",
+            "messaging: Who may receive texts"
+          ],
+          "retrieved": [
+            "messaging: Frequency",
+            "messaging: Offers in messages",
+            "messaging: Quiet hours",
+            "messaging: Who may receive texts"
+          ],
+          "not_retrieved": []
+        },
+        "latency_ms": 0
+      }
+    ]
+  }
+}
