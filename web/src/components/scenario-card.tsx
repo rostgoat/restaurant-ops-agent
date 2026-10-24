@@ -24,7 +24,7 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
   const [open, setOpen] = useState(false);
   const t = scenario.trace;
   return (
-    <article className="border-t pt-8">
+    <article id={scenario.slug} className="scroll-mt-10 border-t pt-8">
       {kicker && <p className="mb-3 font-heading text-base text-primary">{kicker}</p>}
       <h2 className="text-2xl">{scenario.title}</h2>
       <p className="mt-1 text-sm text-muted-foreground">
