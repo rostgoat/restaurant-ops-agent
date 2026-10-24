@@ -1,14 +1,22 @@
 "use client";
 
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
 
 const order = [
-  { href: "/", label: "Home" },
-  { href: "/scenarios", label: "Scenarios" },
-  { href: "/architecture", label: "Architecture" },
-  { href: "/ask", label: "Ask" },
+  { href: "/", label: "Home", blurb: "The case study in one page." },
+  {
+    href: "/scenarios",
+    label: "Scenarios",
+    blurb: "Ten questions, with the expected behaviour written down first.",
+  },
+  {
+    href: "/architecture",
+    label: "Architecture",
+    blurb: "How a question becomes an answer, and what stops it.",
+  },
+  { href: "/ask", label: "Ask", blurb: "Put your own question to either restaurant." },
 ];
 
 export function PageNav() {
@@ -18,20 +26,33 @@ export function PageNav() {
   const previous = order[index - 1];
   const next = order[index + 1];
   return (
-    <nav aria-label="Pages" className="mx-auto flex w-full max-w-5xl justify-between gap-4 px-8 pb-20 sm:px-16">
-      <div>
-        {previous && (
-          <Button asChild variant="outline" size="lg" className="h-11 px-5 font-heading text-base">
-            <Link href={previous.href}>Previous: {previous.label}</Link>
-          </Button>
-        )}
-      </div>
-      <div>
-        {next && (
-          <Button asChild size="lg" className="h-11 px-5 font-heading text-base">
-            <Link href={next.href}>Next: {next.label}</Link>
-          </Button>
-        )}
+    <nav aria-label="Pages" className="mx-auto w-full max-w-5xl px-8 pb-20 sm:px-16">
+      <div className="rounded-lg border p-6 sm:p-8">
+        <p className="mb-6 font-heading text-sm text-muted-foreground">Where next</p>
+        <div className="grid gap-8 sm:grid-cols-2">
+          <div>
+            {previous && (
+              <Link href={previous.href} className="group block">
+                <span className="inline-flex items-center gap-2 font-heading text-lg text-primary group-hover:underline underline-offset-4">
+                  <ArrowLeft className="size-5" aria-hidden />
+                  {previous.label}
+                </span>
+                <span className="mt-1 block text-sm text-muted-foreground">{previous.blurb}</span>
+              </Link>
+            )}
+          </div>
+          <div className="sm:text-right">
+            {next && (
+              <Link href={next.href} className="group block">
+                <span className="inline-flex items-center gap-2 font-heading text-lg text-primary group-hover:underline underline-offset-4">
+                  {next.label}
+                  <ArrowRight className="size-5" aria-hidden />
+                </span>
+                <span className="mt-1 block text-sm text-muted-foreground">{next.blurb}</span>
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );

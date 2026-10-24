@@ -6,8 +6,7 @@ import remarkGfm from "remark-gfm";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { StatusBadge, TraceLedger, statusLine } from "@/components/trace";
-import { dollars, seconds } from "@/lib/format";
+import { TraceLedger, TraceMeta } from "@/components/trace";
 import { merchantName, type Scenario } from "@/lib/scenarios";
 
 function toolsUsed(s: Scenario): string[] {
@@ -44,7 +43,6 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
         <div>
           <h3 className="mb-2 text-base">What happened</h3>
           <div className="mb-3 flex flex-wrap items-center gap-2">
-            <StatusBadge status={t.status} />
             {toolsUsed(scenario).map((u) => (
               <Badge key={u} variant="outline">
                 {u}
@@ -56,11 +54,11 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
               <Markdown remarkPlugins={[remarkGfm]}>{t.answer}</Markdown>
             </div>
           )}
-          <p className="mt-3 text-sm text-muted-foreground">
-            {statusLine(t)} {dollars(t.cost_usd)}, {seconds(t.latency_ms)}, {t.steps.length}{" "}
-            {t.steps.length === 1 ? "step" : "steps"}.
-          </p>
         </div>
+      </div>
+
+      <div className="mt-8">
+        <TraceMeta trace={t} />
       </div>
 
       <Collapsible open={open} onOpenChange={setOpen} className="mt-6">

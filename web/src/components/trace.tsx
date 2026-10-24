@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Clock, Coins, ListOrdered, RotateCcw } from "lucide-react";
 import type { Step, Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -83,15 +84,52 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
 }
 
 function Outcome({ trace }: { trace: Trace }) {
+  return (
+    <div className="mt-6">
+      <TraceMeta trace={trace} />
+    </div>
+  );
+}
+
+export function TraceMeta({ trace }: { trace: Trace }) {
   const tokensIn =
     trace.usage.input_tokens + trace.usage.cache_read_tokens + trace.usage.cache_write_tokens;
+  const items = [
+    { icon: Coins, value: dollars(trace.cost_usd), label: "to answer" },
+    {
+      icon: Clock,
+      value: seconds(trace.latency_ms),
+      label: trace.model_ms > 0 ? `${seconds(trace.model_ms)} in the model` : "wall time",
+    },
+    {
+      icon: ListOrdered,
+      value: String(trace.steps.length),
+      label: `${trace.steps.length === 1 ? "step" : "steps"}, ${count(tokensIn)} tokens in, ${count(trace.usage.output_tokens)} out`,
+    },
+  ];
+  if (trace.retries > 0) {
+    items.push({
+      icon: RotateCcw,
+      value: String(trace.retries),
+      label: trace.retries === 1 ? "retry" : "retries",
+    });
+  }
   return (
-    <p className="mt-5 text-sm text-muted-foreground">
-      {statusLine(trace)} {dollars(trace.cost_usd)}, {seconds(trace.latency_ms)}
-      {trace.model_ms > 0 && ` (${seconds(trace.model_ms)} in the model)`}, {count(tokensIn)}{" "}
-      tokens in, {count(trace.usage.output_tokens)} out
-      {trace.retries > 0 && `, ${trace.retries} ${trace.retries === 1 ? "retry" : "retries"}`}.
-    </p>
+    <div className="rounded-md bg-muted px-5 py-4">
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <StatusBadge status={trace.status} />
+        {trace.status !== "answered" && <span className="text-sm">{statusLine(trace)}</span>}
+      </p>
+      <ul className="mt-3 flex flex-wrap gap-x-8 gap-y-2">
+        {items.map((it) => (
+          <li key={it.label} className="flex items-center gap-2">
+            <it.icon className="size-4 text-muted-foreground" aria-hidden />
+            <span className="font-heading text-base">{it.value}</span>
+            <span className="text-sm text-muted-foreground">{it.label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

@@ -5,7 +5,7 @@ export default function ArchitecturePage() {
     <article className="mx-auto max-w-[68ch] text-lg leading-relaxed">
       <h1 className="mb-10 text-5xl">How a question becomes an answer</h1>
       <p>
-        Every request passes through the same four steps, and the trace shows which of them the
+        Every request passes through the same few steps, and the trace shows which of them the
         model did and which were done by ordinary code. The point of the split is that a wrong
         answer from the model cannot become a wrong action: code decides what is allowed to run.
       </p>
@@ -14,11 +14,12 @@ export default function ArchitecturePage() {
       <h2 className="mb-3 text-2xl">The model proposes</h2>
       <p>
         The model sees a description of the seven tables it may read and the owner&apos;s question.
-        It has two tools. <em>run_sql</em> proposes one SELECT statement and says what the query
-        answers. <em>decline</em> turns the question down with a reason the owner will read, for
-        questions that are not about this restaurant&apos;s data, that ask to change anything, or
-        that carry instructions aimed at the model. It can also answer in plain text with no tool
-        at all.
+        It has three tools. <em>run_sql</em> proposes one SELECT statement and says what the query
+        answers. <em>search_policy</em> asks for the sections of this restaurant&apos;s own written
+        rules that bear on the question. <em>decline</em> turns the question down with a reason the
+        owner will read, for questions that are not about this restaurant, that ask to change
+        anything, or that carry instructions aimed at the model. It can also answer in plain text
+        with no tool at all.
       </p>
 
       <Separator className="my-14" />
@@ -44,6 +45,22 @@ export default function ArchitecturePage() {
         The rewritten query runs in a read-only transaction with a statement timeout, so even a
         query that slipped past the guard could not write or hang the database. The rows go back
         to the model, capped at a hundred, and the trace keeps exactly what the model saw.
+      </p>
+
+      <Separator className="my-14" />
+      <h2 className="mb-3 text-2xl">Code finds the policy</h2>
+      <p>
+        Each restaurant&apos;s policies are stored one section at a time with an embedding, and a
+        search looks only within the caller&apos;s restaurant before any similarity is computed,
+        the same way the guard scopes a query. Sections below a similarity threshold are recorded
+        in the trace but withheld from the model, and when nothing clears it the model is told so
+        rather than handed the nearest miss. The two restaurants&apos; rules differ on purpose, so
+        the wrong tenant&apos;s policy would be a wrong decision, not just a wrong answer.
+      </p>
+      <p>
+        After an answer that used policy, code checks the citations: every section the answer
+        cites in brackets must be one that was retrieved, and something must be cited at all.
+        Either failure is recorded as a failed check in the trace.
       </p>
 
       <Separator className="my-14" />
