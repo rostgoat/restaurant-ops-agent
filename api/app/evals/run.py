@@ -48,7 +48,7 @@ def gold_value(runner: PostgresRunner, case: dict[str, Any]) -> Any:
     sql = case.get("gold_sql")
     if not sql:
         return None
-    verdict = guard(sql, case["merchant_id"])
+    verdict = guard(sql, case.get("gold_merchant_id", case["merchant_id"]))
     if not verdict.ok:
         raise RuntimeError(f"{case['id']}: gold SQL fails the guard: {verdict.reason}")
     rows = runner.run(verdict.sql).rows
@@ -226,6 +226,11 @@ def main() -> None:
     ap.add_argument("--model", default=DEFAULT.model)
     ap.add_argument("--effort", default=DEFAULT.effort)
     ap.add_argument("--threshold", type=float, default=DEFAULT.retrieval_threshold)
+    ap.add_argument(
+        "--no-site-copy",
+        action="store_true",
+        help="keep the run file but leave the site's main run alone (comparison runs)",
+    )
     args = ap.parse_args()
     if not args.dsn:
         sys.exit("set EVAL_DATABASE_URL or pass --dsn")
@@ -292,7 +297,8 @@ def main() -> None:
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     path = RUNS / f"{stamp}.json"
     path.write_text(json.dumps(run, indent=1) + "\n")
-    SITE_COPY.write_text(json.dumps(run, indent=1) + "\n")
+    if not args.no_site_copy:
+        SITE_COPY.write_text(json.dumps(run, indent=1) + "\n")
     s = summary
     print(f"\n{s['passed']}/{s['scored']} passed, {s['errors']} errors")
     print(f"${s['cost_total_usd']} total, median ${s['cost_per_answered_median_usd']} per answer")

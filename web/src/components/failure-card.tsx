@@ -16,6 +16,7 @@ export function FailureCard({
   question,
   expected,
   reasons,
+  diagnosis,
   trace,
 }: {
   id: string;
@@ -25,6 +26,7 @@ export function FailureCard({
   question: string;
   expected: string;
   reasons: string[];
+  diagnosis?: string;
   trace: Trace;
 }) {
   const [open, setOpen] = useState(false);
@@ -60,6 +62,12 @@ export function FailureCard({
           </ul>
         </div>
       </div>
+      {diagnosis && (
+        <div className="mt-6">
+          <h3 className="mb-2 text-base">What the trace shows</h3>
+          <p className="max-w-[68ch] leading-relaxed">{diagnosis}</p>
+        </div>
+      )}
       {trace.answer && (
         <div className="mt-6">
           <h3 className="mb-2 text-base">What it answered</h3>

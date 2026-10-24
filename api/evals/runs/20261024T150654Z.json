@@ -1,0 +1,2617 @@
+{
+ "summary": {
+  "ran_at": "2026-10-24T15:06:54.460758+00:00",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "retrieval_threshold": 0.45,
+  "commit": "efb406e",
+  "dataset": "ops_eval, data/generate.py seed 42",
+  "frozen_now": "2026-10-24T15:00:00Z",
+  "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
+  "cases": 16,
+  "scored": 16,
+  "passed": 12,
+  "errors": 0,
+  "suites": {
+   "policy": {
+    "passed": 12,
+    "total": 16
+   }
+  },
+  "cost_total_usd": 0.094,
+  "cost_per_answered_median_usd": 0.0052,
+  "cost_per_answered_p90_usd": 0.0061,
+  "latency_median_ms": 4080,
+  "latency_p90_ms": 5132,
+  "retrieval": {
+   "precision": 0.382,
+   "recall": 0.929,
+   "sections_shown": 34,
+   "sections_expected": 14
+  },
+  "regraded_at": "2026-10-24T15:11:00.246757+00:00"
+ },
+ "results": [
+  {
+   "case": {
+    "id": "pol-01",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "comps"
+    ],
+    "question": "My manager wants to comp a $40 meal for a complaint. Can she?",
+    "expected_citations": [
+     "house: Comps"
+    ],
+    "must_mention": [
+     [
+      "$25"
+     ],
+     [
+      "owner"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "house: Comps"
+    ],
+    "found": [
+     "house: Comps"
+    ]
+   },
+   "trace": {
+    "id": "b1f5f8d7-036c-4402-a2b3-6200359e0775",
+    "merchant_id": 1,
+    "question": "My manager wants to comp a $40 meal for a complaint. Can she?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No, not on her own. Under [house: Comps], a manager can comp up to $25 on a single ticket to resolve a complaint about food quality or a long wait. A $40 comp is over that limit, so the owner has to approve it. The policy says the owner can be reached by text during service.\n\nTwo other limits apply. Comps for friends, family, or staff aren't allowed at any amount. Total comps in a week should also stay under 1% of that week's gross sales [house: Comps].\n\nYour manager could comp up to $25 herself and leave the rest, or she could get your approval for the full $40. I can propose the comp for your approval if you give me the order.",
+    "usage": {
+     "input_tokens": 592,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 268
+    },
+    "cost_usd": 0.004936,
+    "latency_ms": 4087,
+    "model_ms": 3794,
+    "tool_ms": 291,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "comp a meal for a complaint, manager approval limit",
+       "usage": {
+        "input_tokens": 114,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 62
+       }
+      },
+      "latency_ms": 1211
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "comp a meal for a complaint, manager approval limit",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Comps",
+         "score": 0.6074,
+         "used": true
+        },
+        {
+         "label": "house: Staff meals",
+         "score": 0.4727,
+         "used": true
+        },
+        {
+         "label": "house: Catering",
+         "score": 0.3852,
+         "used": false
+        },
+        {
+         "label": "house: Allergies",
+         "score": 0.3764,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 291
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No, not on her own. Under [house: Comps], a manager can comp up to $25 on a single ticket to resolve a complaint about food quality or a long wait. A $40 comp is over that limit, so the owner has to approve it. The policy says the owner can be reached by text during service.\n\nTwo other limits apply. Comps for friends, family, or staff aren't allowed at any amount. Total comps in a week should also stay under 1% of that week's gross sales [house: Comps].\n\nYour manager could comp up to $25 herself and leave the rest, or she could get your approval for the full $40. I can propose the comp for your approval if you give me the order.",
+       "usage": {
+        "input_tokens": 478,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 206
+       }
+      },
+      "latency_ms": 2583
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Comps"
+       ],
+       "retrieved": [
+        "house: Comps",
+        "house: Staff meals"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-02",
+    "suite": "policy",
+    "merchant_id": 2,
+    "tags": [
+     "comps"
+    ],
+    "question": "Can a shift lead comp a $15 drink order for a mistake we made?",
+    "expected_citations": [
+     "house: Remakes and comps"
+    ],
+    "must_mention": [
+     [
+      "$20"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "did not cite ['house: Remakes and comps']; cited []",
+     "answer does not mention $20"
+    ],
+    "expected": [
+     "house: Remakes and comps"
+    ],
+    "found": []
+   },
+   "trace": {
+    "id": "f7342c18-4e34-42e7-bbc8-351750358376",
+    "merchant_id": 2,
+    "question": "Can a shift lead comp a $15 drink order for a mistake we made?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't find an answer in your written policies. Searching for comp rules, shift lead authority, and approval limits returned nothing relevant. I won't guess at a rule, so I can't say whether a shift lead can comp a $15 drink order for a mistake.\n\nIf you want a decision on this order, I can propose a comp for you to approve. If you add a comp section to your house policy, I can check against it next time.",
+    "usage": {
+     "input_tokens": 588,
+     "cache_read_tokens": 8040,
+     "cache_write_tokens": 0,
+     "output_tokens": 241
+    },
+    "cost_usd": 0.005194,
+    "latency_ms": 4656,
+    "model_ms": 4192,
+    "tool_ms": 462,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "shift lead comp limit for order mistake approval",
+       "usage": {
+        "input_tokens": 114,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 60
+       }
+      },
+      "latency_ms": 1084
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "shift lead comp limit for order mistake approval",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Remakes and comps",
+         "score": 0.3803,
+         "used": false
+        },
+        {
+         "label": "online-orders: Order problems we cannot fix online",
+         "score": 0.354,
+         "used": false
+        },
+        {
+         "label": "online-orders: Pickup orders",
+         "score": 0.3438,
+         "used": false
+        },
+        {
+         "label": "house: Online orders",
+         "score": 0.3191,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 196
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "comps who can approve",
+       "usage": {
+        "input_tokens": 199,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 51
+       }
+      },
+      "latency_ms": 964
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "comps who can approve",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Remakes and comps",
+         "score": 0.4056,
+         "used": false
+        },
+        {
+         "label": "messaging: Audience size",
+         "score": 0.3173,
+         "used": false
+        },
+        {
+         "label": "messaging: Who may receive texts",
+         "score": 0.2243,
+         "used": false
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.2191,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 266
+     },
+     {
+      "seq": 5,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I couldn't find an answer in your written policies. Searching for comp rules, shift lead authority, and approval limits returned nothing relevant. I won't guess at a rule, so I can't say whether a shift lead can comp a $15 drink order for a mistake.\n\nIf you want a decision on this order, I can propose a comp for you to approve. If you add a comp section to your house policy, I can check against it next time.",
+       "usage": {
+        "input_tokens": 275,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 130
+       }
+      },
+      "latency_ms": 2144
+     },
+     {
+      "seq": 6,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [],
+       "retrieved": [],
+       "not_retrieved": [],
+       "reason": null
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-03",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "marketplace"
+    ],
+    "question": "How long do we have to dispute a missing-item chargeback on an Uber Eats order?",
+    "expected_citations": [
+     "marketplace: Missing or incorrect items"
+    ],
+    "must_mention": [
+     [
+      "30 days",
+      "30-day",
+      "thirty days"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "marketplace: Missing or incorrect items"
+    ],
+    "found": [
+     "marketplace: Missing or incorrect items",
+     "marketplace: Repeat disputes"
+    ]
+   },
+   "trace": {
+    "id": "d3d3e17e-3d4a-4044-a5f0-3be3ec62e24c",
+    "merchant_id": 1,
+    "question": "How long do we have to dispute a missing-item chargeback on an Uber Eats order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "You have 30 days from the order date to dispute a missing-item chargeback on an Uber Eats order. A dispute filed after that is rejected automatically. [marketplace: Missing or incorrect items]\n\nYou can only dispute if you have a packing photo showing the item in the bag. Photos are taken for every marketplace order over $40. If an order was over $40 and has no photo, don't dispute it. Accept the chargeback and log it as a packing miss. [marketplace: Missing or incorrect items]\n\nCustomers with three or more refunded marketplace orders in the last 90 days are flagged. For flagged customers, you dispute every missing-item claim whatever the order value, and the owner is told. [marketplace: Repeat disputes]",
+    "usage": {
+     "input_tokens": 970,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 305
+    },
+    "cost_usd": 0.006062,
+    "latency_ms": 4073,
+    "model_ms": 3842,
+    "tool_ms": 229,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "deadline to dispute missing-item chargeback Uber Eats order",
+       "usage": {
+        "input_tokens": 118,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 67
+       }
+      },
+      "latency_ms": 1117
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "deadline to dispute missing-item chargeback Uber Eats order",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "marketplace: Missing or incorrect items",
+         "score": 0.695,
+         "used": true
+        },
+        {
+         "label": "marketplace: Late, cold, or damaged deliveries",
+         "score": 0.5595,
+         "used": true
+        },
+        {
+         "label": "marketplace: Repeat disputes",
+         "score": 0.5042,
+         "used": true
+        },
+        {
+         "label": "marketplace: Cancellations",
+         "score": 0.4934,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 229
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "You have 30 days from the order date to dispute a missing-item chargeback on an Uber Eats order. A dispute filed after that is rejected automatically. [marketplace: Missing or incorrect items]\n\nYou can only dispute if you have a packing photo showing the item in the bag. Photos are taken for every marketplace order over $40. If an order was over $40 and has no photo, don't dispute it. Accept the chargeback and log it as a packing miss. [marketplace: Missing or incorrect items]\n\nCustomers with three or more refunded marketplace orders in the last 90 days are flagged. For flagged customers, you dispute every missing-item claim whatever the order value, and the owner is told. [marketplace: Repeat disputes]",
+       "usage": {
+        "input_tokens": 852,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 238
+       }
+      },
+      "latency_ms": 2725
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "marketplace: Missing or incorrect items",
+        "marketplace: Repeat disputes"
+       ],
+       "retrieved": [
+        "marketplace: Cancellations",
+        "marketplace: Late, cold, or damaged deliveries",
+        "marketplace: Missing or incorrect items",
+        "marketplace: Repeat disputes"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-04",
+    "suite": "policy",
+    "merchant_id": 2,
+    "tags": [
+     "cross-tenant"
+    ],
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "expected_citations": [],
+    "retrieval_empty": true,
+    "must_mention": [
+     [
+      "not on",
+      "no marketplace",
+      "don't use",
+      "do not use",
+      "isn't on",
+      "aren't on",
+      "not listed",
+      "does not list",
+      "doesn't list",
+      "no delivery marketplace",
+      "nothing",
+      "don't cover",
+      "do not cover"
+     ]
+    ],
+    "must_not_mention": [
+     "7 days",
+     "7-day",
+     "packing photo"
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
+    ],
+    "expected": [],
+    "found": []
+   },
+   "trace": {
+    "id": "93c429c5-f64e-42f1-a89b-ccbb9b6ce0cf",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't find a deadline for disputing a missing-item chargeback on a DoorDash order. I searched your written policies twice, and no section covers dispute deadlines or marketplace dispute windows. I won't guess at a number.\n\nThe DoorDash merchant terms or your DoorDash merchant portal should state the window. If you have a specific order in mind, tell me which one. I can look up its details and propose a dispute for you to approve. Because the deadline isn't written down anywhere I can check, I'd treat it as urgent.",
+    "usage": {
+     "input_tokens": 615,
+     "cache_read_tokens": 8040,
+     "cache_write_tokens": 0,
+     "output_tokens": 293
+    },
+    "cost_usd": 0.005768,
+    "latency_ms": 5132,
+    "model_ms": 4697,
+    "tool_ms": 432,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "deadline to dispute missing-item chargeback on DoorDash order",
+       "usage": {
+        "input_tokens": 117,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 67
+       }
+      },
+      "latency_ms": 1250
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "deadline to dispute missing-item chargeback on DoorDash order",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "online-orders: Pickup orders",
+         "score": 0.4144,
+         "used": false
+        },
+        {
+         "label": "house: Online orders",
+         "score": 0.3929,
+         "used": false
+        },
+        {
+         "label": "house: Refunds",
+         "score": 0.38,
+         "used": false
+        },
+        {
+         "label": "online-orders: Order problems we cannot fix online",
+         "score": 0.3545,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 212
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "marketplace disputes time limit",
+       "usage": {
+        "input_tokens": 209,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 55
+       }
+      },
+      "latency_ms": 1181
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "marketplace disputes time limit",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Online orders",
+         "score": 0.3581,
+         "used": false
+        },
+        {
+         "label": "house: Refunds",
+         "score": 0.3484,
+         "used": false
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.3315,
+         "used": false
+        },
+        {
+         "label": "messaging: Audience size",
+         "score": 0.3007,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 220
+     },
+     {
+      "seq": 5,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I couldn't find a deadline for disputing a missing-item chargeback on a DoorDash order. I searched your written policies twice, and no section covers dispute deadlines or marketplace dispute windows. I won't guess at a number.\n\nThe DoorDash merchant terms or your DoorDash merchant portal should state the window. If you have a specific order in mind, tell me which one. I can look up its details and propose a dispute for you to approve. Because the deadline isn't written down anywhere I can check, I'd treat it as urgent.",
+       "usage": {
+        "input_tokens": 289,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 171
+       }
+      },
+      "latency_ms": 2266
+     },
+     {
+      "seq": 6,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [],
+       "retrieved": [],
+       "not_retrieved": [],
+       "reason": null
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-05",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "messaging"
+    ],
+    "question": "Can we send a promotional text at 10pm?",
+    "expected_citations": [
+     "messaging: Quiet hours"
+    ],
+    "must_mention": [
+     [
+      "8pm",
+      "8 pm",
+      "8:00",
+      "9am",
+      "9 am"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "messaging: Quiet hours"
+    ],
+    "found": [
+     "messaging: Frequency",
+     "messaging: Offers in messages",
+     "messaging: Quiet hours",
+     "messaging: Who may receive marketing texts"
+    ]
+   },
+   "trace": {
+    "id": "e9a1dcf5-320e-4571-9dbd-9d05eb72a5cc",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No. Under [messaging: Quiet hours], no text of any kind may go out between 8pm and 9am in the customer's local time. Customers with no known local time are treated as Central time. A text at 10pm would fall inside that window, so it isn't allowed.\n\nYou could schedule it for between 9am and 8pm in each customer's local time. Other rules still apply:\n- Only customers with verified SMS consent can get it [messaging: Who may receive marketing texts].\n- A customer can get at most four marketing texts a month [messaging: Frequency].\n- Any discount is capped at 15% or $10, whichever is lower, unless you approve more. The offer must also carry an expiry date within 14 days and the words \"one per customer\" [messaging: Offers in messages].\n\nI can't send or schedule texts myself. I can propose a campaign for your approval if you want one.",
+    "usage": {
+     "input_tokens": 744,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 341
+    },
+    "cost_usd": 0.00597,
+    "latency_ms": 4504,
+    "model_ms": 4335,
+    "tool_ms": 168,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "quiet hours for promotional text messages; allowed sending times",
+       "usage": {
+        "input_tokens": 105,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 64
+       }
+      },
+      "latency_ms": 1228
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "quiet hours for promotional text messages; allowed sending times",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "messaging: Quiet hours",
+         "score": 0.7181,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.5457,
+         "used": true
+        },
+        {
+         "label": "messaging: Frequency",
+         "score": 0.5245,
+         "used": true
+        },
+        {
+         "label": "messaging: Who may receive marketing texts",
+         "score": 0.5152,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 168
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No. Under [messaging: Quiet hours], no text of any kind may go out between 8pm and 9am in the customer's local time. Customers with no known local time are treated as Central time. A text at 10pm would fall inside that window, so it isn't allowed.\n\nYou could schedule it for between 9am and 8pm in each customer's local time. Other rules still apply:\n- Only customers with verified SMS consent can get it [messaging: Who may receive marketing texts].\n- A customer can get at most four marketing texts a month [messaging: Frequency].\n- Any discount is capped at 15% or $10, whichever is lower, unless you approve more. The offer must also carry an expiry date within 14 days and the words \"one per customer\" [messaging: Offers in messages].\n\nI can't send or schedule texts myself. I can propose a campaign for your approval if you want one.",
+       "usage": {
+        "input_tokens": 639,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 277
+       }
+      },
+      "latency_ms": 3107
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "messaging: Frequency",
+        "messaging: Offers in messages",
+        "messaging: Quiet hours",
+        "messaging: Who may receive marketing texts"
+       ],
+       "retrieved": [
+        "messaging: Frequency",
+        "messaging: Offers in messages",
+        "messaging: Quiet hours",
+        "messaging: Who may receive marketing texts"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-06",
+    "suite": "policy",
+    "merchant_id": 2,
+    "tags": [
+     "catering"
+    ],
+    "question": "A customer wants to cancel a catering order three days before pickup. Do they get the deposit back?",
+    "expected_citations": [
+     "house: Catering"
+    ],
+    "must_mention": [
+     [
+      "48 hours",
+      "48-hour",
+      "two days"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "house: Catering"
+    ],
+    "found": [
+     "house: Catering",
+     "house: Refunds"
+    ]
+   },
+   "trace": {
+    "id": "99a111ca-23e8-4279-be6a-9aa045fae021",
+    "merchant_id": 2,
+    "question": "A customer wants to cancel a catering order three days before pickup. Do they get the deposit back?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Yes. Cancelling three days (72 hours) before pickup is before the 48-hour cutoff, so the deposit is refundable. [house: Catering] says the deposit is refundable up to 48 hours before pickup and is kept after that. The customer has about a day left to cancel and still get it back.\n\nIf they cancel, the refund goes to the original payment method. Card refunds go back to the card, not to cash. [house: Refunds] Also, if the order is over $300, the owner has to confirm catering orders. [house: Catering] I didn't look up this specific order, so I haven't checked its amount or its pickup time.",
+    "usage": {
+     "input_tokens": 583,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 257
+    },
+    "cost_usd": 0.004808,
+    "latency_ms": 3549,
+    "model_ms": 3366,
+    "tool_ms": 181,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering order cancellation deposit refund",
+       "usage": {
+        "input_tokens": 120,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 57
+       }
+      },
+      "latency_ms": 1160
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering order cancellation deposit refund",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Catering",
+         "score": 0.7041,
+         "used": true
+        },
+        {
+         "label": "house: Refunds",
+         "score": 0.46,
+         "used": true
+        },
+        {
+         "label": "online-orders: Pickup orders",
+         "score": 0.4314,
+         "used": false
+        },
+        {
+         "label": "house: Online orders",
+         "score": 0.4148,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 181
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Yes. Cancelling three days (72 hours) before pickup is before the 48-hour cutoff, so the deposit is refundable. [house: Catering] says the deposit is refundable up to 48 hours before pickup and is kept after that. The customer has about a day left to cancel and still get it back.\n\nIf they cancel, the refund goes to the original payment method. Card refunds go back to the card, not to cash. [house: Refunds] Also, if the order is over $300, the owner has to confirm catering orders. [house: Catering] I didn't look up this specific order, so I haven't checked its amount or its pickup time.",
+       "usage": {
+        "input_tokens": 463,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 200
+       }
+      },
+      "latency_ms": 2206
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Catering",
+        "house: Refunds"
+       ],
+       "retrieved": [
+        "house: Catering",
+        "house: Refunds"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-07",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "discounts"
+    ],
+    "question": "What discount do students get?",
+    "expected_citations": [
+     "house: Discounts"
+    ],
+    "must_mention": [
+     [
+      "10%"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "house: Discounts"
+    ],
+    "found": [
+     "house: Discounts"
+    ]
+   },
+   "trace": {
+    "id": "9207a8f2-7010-44df-bf29-5f00448eb5b7",
+    "merchant_id": 1,
+    "question": "What discount do students get?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Students get 10% off with ID, applied by staff at the register [house: Discounts]. Discounts are not combined, so if more than one applies, the largest one is used [house: Discounts]. Any discount above 15% on a single order needs a manager [house: Discounts].",
+    "usage": {
+     "input_tokens": 479,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 135
+    },
+    "cost_usd": 0.00338,
+    "latency_ms": 3300,
+    "model_ms": 3112,
+    "tool_ms": 187,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "student discount",
+       "usage": {
+        "input_tokens": 97,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 48
+       }
+      },
+      "latency_ms": 1844
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "student discount",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Discounts",
+         "score": 0.6445,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.4786,
+         "used": true
+        },
+        {
+         "label": "house: Staff meals",
+         "score": 0.3311,
+         "used": false
+        },
+        {
+         "label": "marketplace: Promotions",
+         "score": 0.2969,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 187
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Students get 10% off with ID, applied by staff at the register [house: Discounts]. Discounts are not combined, so if more than one applies, the largest one is used [house: Discounts]. Any discount above 15% on a single order needs a manager [house: Discounts].",
+       "usage": {
+        "input_tokens": 382,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 87
+       }
+      },
+      "latency_ms": 1268
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Discounts"
+       ],
+       "retrieved": [
+        "house: Discounts",
+        "messaging: Offers in messages"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-08",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "not-covered"
+    ],
+    "question": "What's the rule on health inspections?",
+    "expected_citations": [],
+    "retrieval_empty": true,
+    "must_mention": [
+     [
+      "not cover",
+      "don't cover",
+      "do not cover",
+      "nothing",
+      "no rule",
+      "no section",
+      "doesn't cover",
+      "no policy"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [],
+    "found": []
+   },
+   "trace": {
+    "id": "bd5e0ec8-3df9-46ec-9285-74b4c2618a8c",
+    "merchant_id": 1,
+    "question": "What's the rule on health inspections?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I searched this restaurant's written policies and found nothing on health inspections. They cover comps, refunds, discounts, catering, marketplace disputes, and customer messaging. I won't guess at a rule. For inspection requirements, check your local health department or your own records.",
+    "usage": {
+     "input_tokens": 278,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 136
+    },
+    "cost_usd": 0.002988,
+    "latency_ms": 2942,
+    "model_ms": 2736,
+    "tool_ms": 204,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "health inspections rule",
+       "usage": {
+        "input_tokens": 101,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 51
+       }
+      },
+      "latency_ms": 1319
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "health inspections rule",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Allergies",
+         "score": 0.371,
+         "used": false
+        },
+        {
+         "label": "house: Staff meals",
+         "score": 0.2945,
+         "used": false
+        },
+        {
+         "label": "house: Comps",
+         "score": 0.2905,
+         "used": false
+        },
+        {
+         "label": "messaging: Required wording",
+         "score": 0.2645,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 204
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I searched this restaurant's written policies and found nothing on health inspections. They cover comps, refunds, discounts, catering, marketplace disputes, and customer messaging. I won't guess at a rule. For inspection requirements, check your local health department or your own records.",
+       "usage": {
+        "input_tokens": 177,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 85
+       }
+      },
+      "latency_ms": 1417
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [],
+       "retrieved": [],
+       "not_retrieved": [],
+       "reason": null
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-09",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "discounts",
+     "combining"
+    ],
+    "question": "A first responder in uniform is also a student. What discount do they get?",
+    "expected_citations": [
+     "house: Discounts"
+    ],
+    "must_mention": [
+     [
+      "15%"
+     ]
+    ],
+    "must_not_mention": [
+     "25%"
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "house: Discounts"
+    ],
+    "found": [
+     "house: Discounts"
+    ]
+   },
+   "trace": {
+    "id": "e32a1866-dc9a-4580-9a78-b4ea437ce05a",
+    "merchant_id": 1,
+    "question": "A first responder in uniform is also a student. What discount do they get?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "They get 15%. A first responder in uniform qualifies for 15%, and a student with ID qualifies for 10%. Discounts aren't combined, and the largest applicable one applies, so the student discount doesn't add to it [house: Discounts]. A 15% discount is within what staff can apply at the register without a manager.",
+    "usage": {
+     "input_tokens": 521,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 168
+    },
+    "cost_usd": 0.003794,
+    "latency_ms": 2753,
+    "model_ms": 2555,
+    "tool_ms": 197,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "discounts for first responders, students, stacking multiple discounts",
+       "usage": {
+        "input_tokens": 110,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 64
+       }
+      },
+      "latency_ms": 1075
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "discounts for first responders, students, stacking multiple discounts",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Discounts",
+         "score": 0.6668,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.4773,
+         "used": true
+        },
+        {
+         "label": "house: Comps",
+         "score": 0.3193,
+         "used": false
+        },
+        {
+         "label": "marketplace: Promotions",
+         "score": 0.3048,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 197
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "They get 15%. A first responder in uniform qualifies for 15%, and a student with ID qualifies for 10%. Discounts aren't combined, and the largest applicable one applies, so the student discount doesn't add to it [house: Discounts]. A 15% discount is within what staff can apply at the register without a manager.",
+       "usage": {
+        "input_tokens": 411,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 104
+       }
+      },
+      "latency_ms": 1480
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Discounts"
+       ],
+       "retrieved": [
+        "house: Discounts",
+        "messaging: Offers in messages"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-10",
+    "suite": "policy",
+    "merchant_id": 2,
+    "tags": [
+     "discounts",
+     "combining",
+     "cross-tenant"
+    ],
+    "question": "A student is redeeming a free loyalty drink and wants their 10% off the rest. Can they have both?",
+    "expected_citations": [
+     "house: Discounts"
+    ],
+    "must_mention": [
+     [
+      "yes",
+      "can be combined",
+      "may be combined",
+      "combined with",
+      "both"
+     ]
+    ],
+    "must_not_mention": [
+     "not combined",
+     "largest applicable"
+    ],
+    "note": "The opposite rule to Mekong's. The retrieval must not leak Mekong's 'discounts are not combined'."
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "house: Discounts"
+    ],
+    "found": [
+     "house: Discounts",
+     "online-orders: Loyalty program"
+    ]
+   },
+   "trace": {
+    "id": "3ddd2cd5-43bb-4c92-9c52-26f4ef31176a",
+    "merchant_id": 2,
+    "question": "A student is redeeming a free loyalty drink and wants their 10% off the rest. Can they have both?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Yes. The house policy says a free loyalty drink is not a discount, so it can be combined with a standard discount on the rest of the order. The student's 10% off with ID is a standard discount [house: Discounts].\n\nThere are a few limits:\n- The student needs to show a student ID.\n- The free drink has to come from Signature Drinks, House Favorites, or Matcha. Seasonal Specials, Flights, and Bubble Tea are excluded [online-orders: Loyalty program].\n- The reward has to still be valid. It expires 60 days after it was issued [online-orders: Loyalty program].\n- Seasonal Specials are never discounted, so the 10% can't apply to any of those items on the order [house: Discounts].",
+    "usage": {
+     "input_tokens": 714,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 306
+    },
+    "cost_usd": 0.00556,
+    "latency_ms": 4426,
+    "model_ms": 4226,
+    "tool_ms": 199,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "stacking discounts: loyalty free drink reward combined with student 10% discount",
+       "usage": {
+        "input_tokens": 123,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 70
+       }
+      },
+      "latency_ms": 1373
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "stacking discounts: loyalty free drink reward combined with student 10% discount",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Discounts",
+         "score": 0.7288,
+         "used": true
+        },
+        {
+         "label": "online-orders: Loyalty program",
+         "score": 0.5987,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.4349,
+         "used": false
+        },
+        {
+         "label": "house: Remakes and comps",
+         "score": 0.3789,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 199
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Yes. The house policy says a free loyalty drink is not a discount, so it can be combined with a standard discount on the rest of the order. The student's 10% off with ID is a standard discount [house: Discounts].\n\nThere are a few limits:\n- The student needs to show a student ID.\n- The free drink has to come from Signature Drinks, House Favorites, or Matcha. Seasonal Specials, Flights, and Bubble Tea are excluded [online-orders: Loyalty program].\n- The reward has to still be valid. It expires 60 days after it was issued [online-orders: Loyalty program].\n- Seasonal Specials are never discounted, so the 10% can't apply to any of those items on the order [house: Discounts].",
+       "usage": {
+        "input_tokens": 591,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 236
+       }
+      },
+      "latency_ms": 2853
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Discounts",
+        "online-orders: Loyalty program"
+       ],
+       "retrieved": [
+        "house: Discounts",
+        "online-orders: Loyalty program"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-11",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "marketplace",
+     "exception"
+    ],
+    "question": "A Grubhub customer complained the food arrived cold. We marked the order ready 15 minutes before it was actually done. Is that on us?",
+    "expected_citations": [
+     "marketplace: Late, cold, or damaged deliveries"
+    ],
+    "must_mention": [
+     [
+      "10 minutes",
+      "ten minutes"
+     ],
+     [
+      "accept",
+      "our delay",
+      "on us",
+      "ours",
+      "we cover",
+      "we take",
+      "our cost",
+      "counted as our"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "marketplace: Late, cold, or damaged deliveries"
+    ],
+    "found": [
+     "marketplace: Late, cold, or damaged deliveries"
+    ]
+   },
+   "trace": {
+    "id": "b06a8f44-e566-4f67-bf02-4517376ac376",
+    "merchant_id": 1,
+    "question": "A Grubhub customer complained the food arrived cold. We marked the order ready 15 minutes before it was actually done. Is that on us?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Yes, this one is on you. Under the marketplace policy, a late or cold delivery is normally the platform's cost, because delays after courier pickup are theirs. The exception is a Grubhub order that we marked ready more than 10 minutes before it was actually ready. That counts as our delay, and we accept the chargeback [marketplace: Late, cold, or damaged deliveries].\n\nMarking the order ready 15 minutes early is past that 10-minute limit. I wouldn't dispute the chargeback. I haven't looked up the specific order, so I can't give you its dollar amount. If you give me the order, I can pull it up.",
+    "usage": {
+     "input_tokens": 742,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 272
+    },
+    "cost_usd": 0.005276,
+    "latency_ms": 4359,
+    "model_ms": 4153,
+    "tool_ms": 205,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "Grubhub dispute food cold late order marked ready early responsibility",
+       "usage": {
+        "input_tokens": 134,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 67
+       }
+      },
+      "latency_ms": 1221
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "Grubhub dispute food cold late order marked ready early responsibility",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "marketplace: Late, cold, or damaged deliveries",
+         "score": 0.6328,
+         "used": true
+        },
+        {
+         "label": "marketplace: Missing or incorrect items",
+         "score": 0.5159,
+         "used": true
+        },
+        {
+         "label": "house: Catering",
+         "score": 0.4252,
+         "used": false
+        },
+        {
+         "label": "marketplace: Repeat disputes",
+         "score": 0.3994,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 205
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Yes, this one is on you. Under the marketplace policy, a late or cold delivery is normally the platform's cost, because delays after courier pickup are theirs. The exception is a Grubhub order that we marked ready more than 10 minutes before it was actually ready. That counts as our delay, and we accept the chargeback [marketplace: Late, cold, or damaged deliveries].\n\nMarking the order ready 15 minutes early is past that 10-minute limit. I wouldn't dispute the chargeback. I haven't looked up the specific order, so I can't give you its dollar amount. If you give me the order, I can pull it up.",
+       "usage": {
+        "input_tokens": 608,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 205
+       }
+      },
+      "latency_ms": 2932
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "marketplace: Late, cold, or damaged deliveries"
+       ],
+       "retrieved": [
+        "marketplace: Late, cold, or damaged deliveries",
+        "marketplace: Missing or incorrect items"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-12",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "marketplace",
+     "exception"
+    ],
+    "question": "An Uber Eats order was cancelled 90 seconds after we confirmed it. Do we still get paid?",
+    "expected_citations": [
+     "marketplace: Cancellations"
+    ],
+    "must_mention": [
+     [
+      "2 minutes",
+      "two minutes",
+      "2-minute",
+      "two-minute"
+     ],
+     [
+      "not paid",
+      "won't be paid",
+      "will not be paid",
+      "no,",
+      "no.",
+      "unpaid",
+      "not be paid",
+      "don't get paid",
+      "do not get paid"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "marketplace: Cancellations"
+    ],
+    "found": [
+     "marketplace: Cancellations"
+    ]
+   },
+   "trace": {
+    "id": "55877da2-7164-49b9-82f5-95c46dab9513",
+    "merchant_id": 1,
+    "question": "An Uber Eats order was cancelled 90 seconds after we confirmed it. Do we still get paid?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No. Under our Uber Eats terms, an order cancelled within 2 minutes of confirmation isn't paid. A cancellation 90 seconds after confirmation falls inside that window, so we don't get paid for it [marketplace: Cancellations].\n\nThe exception to the usual rule is Uber Eats. On the other platforms, an order cancelled after we confirm it is paid in full.\n\nI didn't look up this specific order in the data. If it did get a payout, tell me the order and I'll check it.",
+    "usage": {
+     "input_tokens": 990,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 235
+    },
+    "cost_usd": 0.005402,
+    "latency_ms": 3383,
+    "model_ms": 3134,
+    "tool_ms": 248,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "marketplace order canceled after confirmation payout, cancellation terms Uber Eats",
+       "usage": {
+        "input_tokens": 125,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 73
+       }
+      },
+      "latency_ms": 1112
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "marketplace order canceled after confirmation payout, cancellation terms Uber Eats",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "marketplace: Cancellations",
+         "score": 0.7134,
+         "used": true
+        },
+        {
+         "label": "marketplace: Missing or incorrect items",
+         "score": 0.5622,
+         "used": true
+        },
+        {
+         "label": "marketplace: Late, cold, or damaged deliveries",
+         "score": 0.5091,
+         "used": true
+        },
+        {
+         "label": "marketplace: Repeat disputes",
+         "score": 0.5007,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 248
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No. Under our Uber Eats terms, an order cancelled within 2 minutes of confirmation isn't paid. A cancellation 90 seconds after confirmation falls inside that window, so we don't get paid for it [marketplace: Cancellations].\n\nThe exception to the usual rule is Uber Eats. On the other platforms, an order cancelled after we confirm it is paid in full.\n\nI didn't look up this specific order in the data. If it did get a payout, tell me the order and I'll check it.",
+       "usage": {
+        "input_tokens": 865,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 162
+       }
+      },
+      "latency_ms": 2022
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "marketplace: Cancellations"
+       ],
+       "retrieved": [
+        "marketplace: Cancellations",
+        "marketplace: Late, cold, or damaged deliveries",
+        "marketplace: Missing or incorrect items",
+        "marketplace: Repeat disputes"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-13",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "comps",
+     "arithmetic"
+    ],
+    "question": "We comped $600 last week on $55,000 in sales. Is that a problem?",
+    "expected_citations": [
+     "house: Comps"
+    ],
+    "must_mention": [
+     [
+      "1%"
+     ],
+     [
+      "owner",
+      "Linh"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "answer does not mention owner / Linh"
+    ],
+    "expected": [
+     "house: Comps"
+    ],
+    "found": [
+     "house: Comps"
+    ]
+   },
+   "trace": {
+    "id": "b7e8b9d8-a489-45ca-941d-1f0fcc1f34b0",
+    "merchant_id": 1,
+    "question": "We comped $600 last week on $55,000 in sales. Is that a problem?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "$600 on $55,000 is about 1.09%, which is over the 1% guideline. I took both figures from your question and didn't check them against the data. [house: Comps] says total weekly comps should stay under 1% of that week's gross sales. For your sales, 1% is $550, so you're about $50 over.\n\nThe policy says that when a week runs over, you review every comp from that week. It isn't a violation in itself. During that review, check three things:\n- Whether any single comp above $25 was approved by you.\n- Whether any comps went to friends, family, or staff, which aren't allowed at any amount.\n- Whether the complaints behind the comps were real.\n\nI can query the week's orders if you'd like help finding the comps. I'd need to know how comps are recorded, for example as order discounts.",
+    "usage": {
+     "input_tokens": 482,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 310
+    },
+    "cost_usd": 0.005136,
+    "latency_ms": 4401,
+    "model_ms": 4155,
+    "tool_ms": 244,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "comps limit percentage of sales, owner approval",
+       "usage": {
+        "input_tokens": 115,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 60
+       }
+      },
+      "latency_ms": 1203
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "1 section",
+      "detail": {
+       "query": "comps limit percentage of sales, owner approval",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Comps",
+         "score": 0.5922,
+         "used": true
+        },
+        {
+         "label": "marketplace: Promotions",
+         "score": 0.4378,
+         "used": false
+        },
+        {
+         "label": "messaging: Audience size",
+         "score": 0.3988,
+         "used": false
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.3885,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 244
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "$600 on $55,000 is about 1.09%, which is over the 1% guideline. I took both figures from your question and didn't check them against the data. [house: Comps] says total weekly comps should stay under 1% of that week's gross sales. For your sales, 1% is $550, so you're about $50 over.\n\nThe policy says that when a week runs over, you review every comp from that week. It isn't a violation in itself. During that review, check three things:\n- Whether any single comp above $25 was approved by you.\n- Whether any comps went to friends, family, or staff, which aren't allowed at any amount.\n- Whether the complaints behind the comps were real.\n\nI can query the week's orders if you'd like help finding the comps. I'd need to know how comps are recorded, for example as order discounts.",
+       "usage": {
+        "input_tokens": 367,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 250
+       }
+      },
+      "latency_ms": 2952
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Comps"
+       ],
+       "retrieved": [
+        "house: Comps"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-14",
+    "suite": "policy",
+    "merchant_id": 1,
+    "tags": [
+     "messaging",
+     "offers"
+    ],
+    "question": "Can we text our list a 20% off deal?",
+    "expected_citations": [
+     "messaging: Offers in messages"
+    ],
+    "must_mention": [
+     [
+      "15%"
+     ],
+     [
+      "owner",
+      "Linh"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "answer does not mention owner / Linh"
+    ],
+    "expected": [
+     "messaging: Offers in messages"
+    ],
+    "found": [
+     "messaging: Offers in messages",
+     "messaging: Quiet hours",
+     "messaging: Required wording",
+     "messaging: Who may receive marketing texts"
+    ]
+   },
+   "trace": {
+    "id": "9c357584-b7ff-43e3-a9d1-8fc0f504cca4",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Not as written. I proposed the campaign, but the check blocked it because 20% is over the 15% cap. Nothing has been sent.\n\n- **Discount cap:** A text discount can't go above 15% or $10, whichever is lower, without your approval [messaging: Offers in messages]. The check blocked the proposal and didn't route it to you for approval. A 15% version, or a dollar amount of $10 or less, would fit the rule.\n- **Audience:** Only customers with verified SMS consent can get marketing texts, and anyone who has unsubscribed is excluded [messaging: Who may receive marketing texts]. That is 108 of your 4,817 customers. People who only gave us their number when ordering don't count.\n- **Message wording:** The text must name the restaurant, end with \"Reply STOP to opt out,\" say \"one per customer,\" and give an expiry no more than 14 days out [messaging: Required wording] [messaging: Offers in messages].\n- **Send time:** Texts can't go out between 8pm and 9am in the customer's local time [messaging: Quiet hours].\n\nMy draft read: \"Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out.\"\n\nIf you'd like, I can re-propose it at 15%.",
+    "usage": {
+     "input_tokens": 3079,
+     "cache_read_tokens": 10720,
+     "cache_write_tokens": 0,
+     "output_tokens": 1172
+    },
+    "cost_usd": 0.020022,
+    "latency_ms": 12108,
+    "model_ms": 11749,
+    "tool_ms": 339,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "text message campaign consent, quiet hours, discount offers",
+       "usage": {
+        "input_tokens": 104,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 63
+       }
+      },
+      "latency_ms": 2588
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "text message campaign consent, quiet hours, discount offers",
+       "merchant_id": 1,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "messaging: Quiet hours",
+         "score": 0.6408,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.6366,
+         "used": true
+        },
+        {
+         "label": "messaging: Who may receive marketing texts",
+         "score": 0.5756,
+         "used": true
+        },
+        {
+         "label": "messaging: Required wording",
+         "score": 0.5486,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 329
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count eligible recipients",
+       "sql": "select count(*) filter (where sms_opt_in and unsubscribed_at is null) eligible, count(*) total, (select name from merchants) name from customers",
+       "usage": {
+        "input_tokens": 627,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 126
+       }
+      },
+      "latency_ms": 1389
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "customers, merchants"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on customers.merchant_id, merchants.id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(*) FILTER(WHERE sms_opt_in AND unsubscribed_at IS NULL) AS eligible, COUNT(*) AS total, (SELECT name FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AS name FROM (SELECT * FROM customers WHERE merchant_id = 1) AS customers LIMIT 500"
+      },
+      "latency_ms": 17
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "eligible",
+        "total",
+        "name"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         108,
+         4817,
+         "Mekong Noodle House"
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 10
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "propose",
+      "outcome": "proposed",
+      "detail": {
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 108 customers with verified SMS consent; 20% is above the 15% cap so it needs your explicit approval.",
+       "reason": "[messaging: Who may receive marketing texts] verified consent only, excluding unsubscribed; [messaging: Offers in messages] over 15% or $10 needs owner approval, expiry within 14 days, \"one per customer\"; [messaging: Required wording] name restaurant and end with opt-out; [messaging: Quiet hours] send only between 9am and 8pm local time.",
+       "order_id": null,
+       "customer_id": null,
+       "amount_cents": null,
+       "discount_pct": 20,
+       "audience_size": 108,
+       "draft_message": "Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+       "usage": {
+        "input_tokens": 818,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 553
+       }
+      },
+      "latency_ms": 4174
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "check_proposal",
+      "outcome": "blocked",
+      "detail": {
+       "proposal_id": "32d54e6c-7e8e-4f5a-a47d-6137832b8b34",
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 108 customers with verified SMS consent; 20% is above the 15% cap so it needs your explicit approval.",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ],
+       "blocked_reason": "20% is over the 15% cap",
+       "audience_size": null,
+       "due_by": null,
+       "needs_owner": false
+      },
+      "latency_ms": 0
+     },
+     {
+      "seq": 8,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Not as written. I proposed the campaign, but the check blocked it because 20% is over the 15% cap. Nothing has been sent.\n\n- **Discount cap:** A text discount can't go above 15% or $10, whichever is lower, without your approval [messaging: Offers in messages]. The check blocked the proposal and didn't route it to you for approval. A 15% version, or a dollar amount of $10 or less, would fit the rule.\n- **Audience:** Only customers with verified SMS consent can get marketing texts, and anyone who has unsubscribed is excluded [messaging: Who may receive marketing texts]. That is 108 of your 4,817 customers. People who only gave us their number when ordering don't count.\n- **Message wording:** The text must name the restaurant, end with \"Reply STOP to opt out,\" say \"one per customer,\" and give an expiry no more than 14 days out [messaging: Required wording] [messaging: Offers in messages].\n- **Send time:** Texts can't go out between 8pm and 9am in the customer's local time [messaging: Quiet hours].\n\nMy draft read: \"Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out.\"\n\nIf you'd like, I can re-propose it at 15%.",
+       "usage": {
+        "input_tokens": 1530,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 430
+       }
+      },
+      "latency_ms": 3598
+     },
+     {
+      "seq": 9,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "messaging: Offers in messages",
+        "messaging: Quiet hours",
+        "messaging: Required wording",
+        "messaging: Who may receive marketing texts"
+       ],
+       "retrieved": [
+        "messaging: Offers in messages",
+        "messaging: Quiet hours",
+        "messaging: Required wording",
+        "messaging: Who may receive marketing texts"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": [
+     {
+      "id": "32d54e6c-7e8e-4f5a-a47d-6137832b8b34",
+      "merchant_id": 1,
+      "trace_id": "9c357584-b7ff-43e3-a9d1-8fc0f504cca4",
+      "created_at": "2026-10-24T15:00:00+00:00",
+      "kind": "sms_campaign",
+      "summary": "Text 20% off to the 108 customers with verified SMS consent; 20% is above the 15% cap so it needs your explicit approval.",
+      "status": "blocked",
+      "payload": {
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 108 customers with verified SMS consent; 20% is above the 15% cap so it needs your explicit approval.",
+       "reason": "[messaging: Who may receive marketing texts] verified consent only, excluding unsubscribed; [messaging: Offers in messages] over 15% or $10 needs owner approval, expiry within 14 days, \"one per customer\"; [messaging: Required wording] name restaurant and end with opt-out; [messaging: Quiet hours] send only between 9am and 8pm local time.",
+       "discount_pct": 20,
+       "audience_size": 108,
+       "draft_message": "Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ]
+      },
+      "blocked_reason": "20% is over the 15% cap",
+      "audience_size": null,
+      "discount_pct": 20,
+      "draft_message": "Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+      "decided_at": null
+     }
+    ]
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-15",
+    "suite": "policy",
+    "merchant_id": 2,
+    "tags": [
+     "discounts",
+     "catering"
+    ],
+    "question": "Can a lead give a regular 25% off a catering order?",
+    "expected_citations": [
+     "house: Discounts"
+    ],
+    "must_mention": [
+     [
+      "20%"
+     ],
+     [
+      "owner",
+      "Dana"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "house: Discounts"
+    ],
+    "found": [
+     "house: Catering",
+     "house: Discounts"
+    ]
+   },
+   "trace": {
+    "id": "ed90d8af-77de-40ea-bd41-0352b203e1b5",
+    "merchant_id": 2,
+    "question": "Can a lead give a regular 25% off a catering order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No. A lead can't approve 25% off a catering order by themselves. [house: Discounts] says any discount above 10% needs a lead, and any discount above 20% needs the owner. At 25%, the owner has to approve it.\n\nTwo other rules could apply. [house: Catering] says catering orders over $300 need the owner's confirmation. [house: Discounts] also says Seasonal Specials are never discounted, so those items would have to stay at full price. The policies don't give catering a separate discount rule, so the general discount tiers apply.",
+    "usage": {
+     "input_tokens": 643,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 235
+    },
+    "cost_usd": 0.004708,
+    "latency_ms": 3246,
+    "model_ms": 3021,
+    "tool_ms": 224,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "discount limits for catering orders and who can approve discounts",
+       "usage": {
+        "input_tokens": 108,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 62
+       }
+      },
+      "latency_ms": 1117
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "3 sections",
+      "detail": {
+       "query": "discount limits for catering orders and who can approve discounts",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "house: Discounts",
+         "score": 0.5707,
+         "used": true
+        },
+        {
+         "label": "house: Catering",
+         "score": 0.5352,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.4604,
+         "used": true
+        },
+        {
+         "label": "online-orders: Gift cards",
+         "score": 0.3934,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 224
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No. A lead can't approve 25% off a catering order by themselves. [house: Discounts] says any discount above 10% needs a lead, and any discount above 20% needs the owner. At 25%, the owner has to approve it.\n\nTwo other rules could apply. [house: Catering] says catering orders over $300 need the owner's confirmation. [house: Discounts] also says Seasonal Specials are never discounted, so those items would have to stay at full price. The policies don't give catering a separate discount rule, so the general discount tiers apply.",
+       "usage": {
+        "input_tokens": 535,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 173
+       }
+      },
+      "latency_ms": 1904
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Catering",
+        "house: Discounts"
+       ],
+       "retrieved": [
+        "house: Catering",
+        "house: Discounts",
+        "messaging: Offers in messages"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-16",
+    "suite": "policy",
+    "merchant_id": 2,
+    "tags": [
+     "loyalty",
+     "multi-part"
+    ],
+    "question": "How many stamps earn a free drink, and can it be used on a Seasonal Special?",
+    "expected_citations": [
+     "online-orders: Loyalty program"
+    ],
+    "must_mention": [
+     [
+      "nine",
+      "9 "
+     ],
+     [
+      "excluded",
+      "not include",
+      "can't be used",
+      "cannot be used",
+      "not eligible",
+      "doesn't apply",
+      "does not apply",
+      "no,",
+      "no."
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "online-orders: Loyalty program"
+    ],
+    "found": [
+     "house: Discounts",
+     "online-orders: Loyalty program"
+    ]
+   },
+   "trace": {
+    "id": "20b654ce-a47e-4ff3-81cf-6f36e686cf23",
+    "merchant_id": 2,
+    "question": "How many stamps earn a free drink, and can it be used on a Seasonal Special?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Nine stamps earn a free drink. It can't be used on a Seasonal Special. The free drink can be any size from Signature Drinks, House Favorites, or Matcha. Seasonal Specials, Flights, and Bubble Tea are excluded [online-orders: Loyalty program].\n\nYou earn one stamp per drink, in store or online, when you give your phone number at checkout. Seasonal Specials are also never discounted [house: Discounts].\n\nStamps expire 12 months after they are earned. A free drink reward expires 60 days after it is issued [online-orders: Loyalty program].",
+    "usage": {
+     "input_tokens": 693,
+     "cache_read_tokens": 5360,
+     "cache_write_tokens": 0,
+     "output_tokens": 256
+    },
+    "cost_usd": 0.005018,
+    "latency_ms": 3362,
+    "model_ms": 3186,
+    "tool_ms": 174,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "stamps loyalty card free drink seasonal special",
+       "usage": {
+        "input_tokens": 117,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 61
+       }
+      },
+      "latency_ms": 1221
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "stamps loyalty card free drink seasonal special",
+       "merchant_id": 2,
+       "threshold": 0.45,
+       "hits": [
+        {
+         "label": "online-orders: Loyalty program",
+         "score": 0.7244,
+         "used": true
+        },
+        {
+         "label": "house: Discounts",
+         "score": 0.6167,
+         "used": true
+        },
+        {
+         "label": "messaging: Offers in messages",
+         "score": 0.4088,
+         "used": false
+        },
+        {
+         "label": "messaging: Who may receive texts",
+         "score": 0.3471,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 174
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Nine stamps earn a free drink. It can't be used on a Seasonal Special. The free drink can be any size from Signature Drinks, House Favorites, or Matcha. Seasonal Specials, Flights, and Bubble Tea are excluded [online-orders: Loyalty program].\n\nYou earn one stamp per drink, in store or online, when you give your phone number at checkout. Seasonal Specials are also never discounted [house: Discounts].\n\nStamps expire 12 months after they are earned. A free drink reward expires 60 days after it is issued [online-orders: Loyalty program].",
+       "usage": {
+        "input_tokens": 576,
+        "cache_read_tokens": 2680,
+        "cache_write_tokens": 0,
+        "output_tokens": 195
+       }
+      },
+      "latency_ms": 1965
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "house: Discounts",
+        "online-orders: Loyalty program"
+       ],
+       "retrieved": [
+        "house: Discounts",
+        "online-orders: Loyalty program"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  }
+ ]
+}

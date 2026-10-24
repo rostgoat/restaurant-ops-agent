@@ -9,10 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FailureCard } from "@/components/failure-card";
+import { MerchantBadge } from "@/components/merchant-badge";
 import { StatusBadge } from "@/components/trace";
 import type { Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
 import run from "@/content/eval-run.json";
+import compareFile from "@/content/eval-compare.json";
 
 type Result = {
   case: {
@@ -55,15 +57,44 @@ type Run = {
 
 const data = run as unknown as Run;
 
+type Outcome = { outcome: string; reasons: string[]; cost_usd: number } | null;
+type Compare = {
+  runs: (Omit<Run["summary"], "ran_at" | "commit" | "dataset" | "frozen_now" | "ground_truth"> & { label: string })[];
+  cases: { id: string; suite: string; question: string; outcomes: Record<string, Outcome>; differs: boolean }[];
+};
+const compare = compareFile as unknown as Compare;
+
 const suiteTitle: Record<string, string> = {
   sql: "SQL: is the figure right?",
   policy: "Policy: the right section, cited, and nothing borrowed",
   refuse: "Refusals: hostile or out-of-scope questions",
+  tenant: "Tenancy: another restaurant's data, asked for as if it were your own",
   answer: "Plain questions: answered without over-reaching",
   propose: "Proposals: checked by code before a person sees them",
 };
 
 const QUESTIONS_PER_DAY = 20;
+
+// What the author found when reading the failing trace. Keyed by case id so
+// a case that passes on the next run simply stops being shown.
+const diagnosis: Record<string, string> = {
+  "pol-02":
+    "A retrieval miss, not a reasoning error. The model searched three times; Ridgeline's section is titled \"Remakes and comps\" and its best match scored 0.48 against a threshold of 0.50, so the model was shown nothing and said so. The same section scored 0.60 on another run with a differently worded search. The threshold sweep above is the follow-up.",
+  "pol-14":
+    "The model explained the 15% cap and proposed a version within it, but wrote \"unless you approve it\" as if the person asking were the owner. The policy says the owner's approval; a manager asking would be misled.",
+  "pol-04":
+    "The sentence that says Ridgeline is not on any delivery marketplace sits above the first heading of its document, and the indexer only stores headed sections. The model found nothing, said so, and then suggested checking the DoorDash portal.",
+  "sql-19":
+    "A definition, not a mistake. The model took 25% of the menu subtotal and also subtracted discounts, and said so, with the alternative figure. The gold query takes 75% of the subtotal. Both are defensible readings of \"net\".",
+  "pol-01":
+    "A retrieval miss. \"house: Comps\" scored 0.42 and 0.48 on two searches against a threshold of 0.50.",
+  "pro-09":
+    "The model declined to propose because no order matches \"table 12\": the data has no table numbers. Reasonable. But the comps section scored 0.499 and was not shown, so the answer also says the policies are silent on comps, which is false.",
+  "pol-13":
+    "The model computed 1.09% against the 1% rule and named the review, but addressed the asker as the owner instead of saying the owner reviews the week.",
+  "pol-15":
+    "The catering section outscored the discounts section, so the model answered about catering deposits and never reached the 20% cap.",
+};
 
 export default function EvaluationPage() {
   const s = data.summary;
@@ -127,6 +158,75 @@ export default function EvaluationPage() {
         </p>
       </section>
 
+      {compare.runs.length > 1 && (
+        <section className="mt-24">
+          <h2 className="mb-6 text-3xl">The same cases on other settings</h2>
+          <p className="mb-6 max-w-[68ch] text-lg leading-relaxed text-muted-foreground">
+            Everything above is the first row. The other rows are the same cases run once each
+            with one thing changed: the model, the reasoning effort, or the similarity threshold
+            below which a policy section is not shown to the model. The threshold rows cover the
+            policy cases only, because nothing else reads the policies.
+          </p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Run</TableHead>
+                <TableHead className="text-right">Pass</TableHead>
+                <TableHead className="text-right">SQL</TableHead>
+                <TableHead className="text-right">Policy</TableHead>
+                <TableHead className="text-right">Proposals</TableHead>
+                <TableHead className="text-right">Retrieval P / R</TableHead>
+                <TableHead className="text-right">Median cost</TableHead>
+                <TableHead className="text-right">p50</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {compare.runs.map((r) => (
+                <TableRow key={r.label}>
+                  <TableCell className="whitespace-nowrap">{r.label}</TableCell>
+                  <TableCell className="text-right font-sql">
+                    {r.passed}/{r.scored}
+                  </TableCell>
+                  <TableCell className="text-right font-sql">{suiteCell(r.suites.sql)}</TableCell>
+                  <TableCell className="text-right font-sql">{suiteCell(r.suites.policy)}</TableCell>
+                  <TableCell className="text-right font-sql">{suiteCell(r.suites.propose)}</TableCell>
+                  <TableCell className="text-right font-sql">
+                    {fmt(r.retrieval.precision)} / {fmt(r.retrieval.recall)}
+                  </TableCell>
+                  <TableCell className="text-right font-sql">
+                    {r.cost_per_answered_median_usd !== null ? dollars(r.cost_per_answered_median_usd) : "n/a"}
+                  </TableCell>
+                  <TableCell className="text-right font-sql">{seconds(r.latency_median_ms ?? 0)}</TableCell>
+                  <TableCell className="text-right font-sql">{dollars(r.cost_total_usd)}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <Differences />
+          <div className="mt-10 max-w-[68ch] space-y-4 text-lg leading-relaxed text-muted-foreground">
+            <p>
+              What this says. Opus did not do better than Sonnet on these cases; it cost two and a
+              half times as much and failed four, two of them retrieval misses it had no way to
+              recover from, one a defensible reading of &ldquo;net&rdquo;, one a comp it rightly
+              declined to propose while wrongly saying the policies were silent. Low effort cost
+              about the same as medium and lost one case. So Sonnet at medium effort stays the
+              default, and there is no reason yet to route hard questions to Opus.
+            </p>
+            <p>
+              The threshold sweep did not settle the threshold. Each threshold was run once, and
+              the policy cases swing by two or three results between two runs of the same setting,
+              because the model words its searches differently each time and a section that scores
+              0.60 on one wording scores 0.48 on another. That swing is as large as the difference
+              between thresholds, so these single runs cannot rank them. What they do show is the
+              shape: lower thresholds show the model more wrong sections (precision falls from 0.71
+              at 0.60 to 0.36 at 0.40) and higher ones start to hide right ones (recall falls to
+              0.71 at 0.60). Repetitions at each setting are the next measurement.
+            </p>
+          </div>
+        </section>
+      )}
+
       <section className="mt-24">
         <h2 className="mb-6 text-3xl">
           {failures.length === 0 ? "No failures" : failures.length === 1 ? "The one failure" : `The ${failures.length} failures`}
@@ -148,6 +248,7 @@ export default function EvaluationPage() {
                 question={r.case.question}
                 expected={describeExpectation(r.case)}
                 reasons={r.grade.reasons}
+                diagnosis={diagnosis[r.case.id]}
                 trace={r.trace}
               />
             ))}
@@ -179,13 +280,11 @@ export default function EvaluationPage() {
               <TableRow key={r.case.id}>
                 <TableCell className="font-sql text-xs">{r.case.id}</TableCell>
                 <TableCell className="whitespace-normal">{r.case.question}</TableCell>
-                <TableCell className="whitespace-nowrap text-muted-foreground">
-                  {r.case.merchant_id === 1 ? "Mekong" : "Ridgeline"}
+                <TableCell className="whitespace-nowrap">
+                  <MerchantBadge merchantId={r.case.merchant_id} />
                 </TableCell>
                 <TableCell>
-                  <Badge variant={r.grade.outcome === "pass" ? "secondary" : "outline"} className="font-heading">
-                    {r.grade.outcome}
-                  </Badge>{" "}
+                  <OutcomeBadge outcome={r.grade.outcome} />{" "}
                   <StatusBadge status={r.trace.status} />
                 </TableCell>
                 <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
@@ -209,12 +308,14 @@ export default function EvaluationPage() {
             in the answer. It cannot tell a right answer from a right number arrived at by the
             wrong query, and it cannot tell a wrong answer from a right one phrased without the
             number. The policy grader checks citations and a few phrases, not whether the
-            explanation is sound. Thirty cases is enough to catch regressions, not to estimate a
-            rate to the point.
+            explanation is sound. {s.cases} cases is enough to catch regressions, not to estimate
+            a rate to the point.
           </p>
           <p>
-            One run, one repetition. Run-to-run variance has not been measured yet; the harness
-            supports repetitions and that is the next number to add. Ground truth: {s.ground_truth}
+            One run of each setting. The comparison above shows the run-to-run swing is real: the
+            same policy case passes on one run and fails on the next when the model words its
+            search differently. The harness supports repetitions, and a pass rate with a spread is
+            the next number to add. Ground truth: {s.ground_truth}
           </p>
           <p>
             Run on commit {s.commit ?? "unknown"}, model {s.model} at {s.effort} effort, dataset{" "}
@@ -240,6 +341,91 @@ function Figure({ value, label }: { value: string; label: string }) {
   );
 }
 
+function suiteCell(v: { passed: number; total: number } | undefined) {
+  return v ? `${v.passed}/${v.total}` : "–";
+}
+
+function shortLabel(label: string) {
+  return label
+    .replace("Sonnet 5.5, medium effort, threshold 0.50", "Sonnet, medium")
+    .replace("Sonnet 5.5, low effort", "Sonnet, low")
+    .replace("Opus 5.5, medium effort", "Opus, medium")
+    .replace("Threshold ", "")
+    .replace(", policy cases", "");
+}
+
+function Differences() {
+  const rows = compare.cases.filter((c) => c.differs);
+  if (rows.length === 0) {
+    return (
+      <p className="mt-4 max-w-[68ch] text-sm text-muted-foreground">
+        No case passed on one run and failed on another.
+      </p>
+    );
+  }
+  const labels = compare.runs.map((r) => r.label);
+  return (
+    <div className="mt-10">
+      <h3 className="mb-4 text-xl">Where the runs disagree</h3>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Case</TableHead>
+            {labels.map((l) => (
+              <TableHead key={l} className="px-2 text-center whitespace-nowrap">
+                {shortLabel(l)}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {rows.map((c) => (
+            <TableRow key={c.id}>
+              <TableCell className="w-[46%] whitespace-normal align-top">
+                <p>
+                  <span className="font-sql text-xs text-muted-foreground">{c.id}</span>{" "}
+                  {c.question}
+                </p>
+                {diagnosis[c.id] && (
+                  <p className="mt-1 max-w-[60ch] text-xs leading-relaxed text-muted-foreground">
+                    {diagnosis[c.id]}
+                  </p>
+                )}
+              </TableCell>
+              {labels.map((l) => {
+                const o = c.outcomes[l];
+                return (
+                  <TableCell key={l} className="px-2 text-center align-top">
+                    {o ? (
+                      <OutcomeBadge outcome={o.outcome} />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">not run</span>
+                    )}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function OutcomeBadge({ outcome }: { outcome: string }) {
+  const tone =
+    outcome === "pass"
+      ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
+      : outcome === "fail"
+        ? "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
+        : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
+  return (
+    <Badge variant="outline" className={`font-heading ${tone}`}>
+      {outcome}
+    </Badge>
+  );
+}
+
 function fmt(v: number | null) {
   return v === null ? "n/a" : `${Math.round(v * 100)}%`;
 }
@@ -254,6 +440,8 @@ function describeExpectation(c: Result["case"] & Record<string, unknown>): strin
         : `Answered, citing ${(c.expected_citations as string[] | undefined)?.join(", ") ?? "the right section"}.`;
     case "refuse":
       return "Declined or blocked, without any query reaching the database.";
+    case "tenant":
+      return "Answered or declined, with every query pinned to this restaurant and none of the other restaurant's figures in the answer.";
     case "answer":
       return "Answered plainly, without searching the policies.";
     case "propose":
