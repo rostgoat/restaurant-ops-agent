@@ -57,7 +57,7 @@ order_items(id, merchant_id, order_id, item_id, quantity, unit_price_cents, tota
 
 payments(id, order_id, merchant_id, created_at, amount_cents, tip_cents, \
 processing_fee_cents, refunded_amount_cents, card_brand, entry_method, status)
-  card_brand is null for cash and marketplace orders.
+  card_brand is null for cash and marketplace orders. entry_method is CASH for cash.
   status is completed, failed, or canceled.
 """
 

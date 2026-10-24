@@ -1,21 +1,21 @@
 {
-  "id": "bfc82527-687d-4f82-ab57-2004224d74ff",
+  "id": "7435978d-c02d-4a02-9eca-1f8e4105fd5d",
   "merchant_id": 1,
   "question": "How did delivery compare with the counter last week?",
-  "created_at": "2026-10-23T22:30:54.484676Z",
+  "created_at": "2026-10-24T00:34:38.735415Z",
   "model": "claude-sonnet-5-5",
   "status": "answered",
-  "answer": "For last week (Monday Oct 12 to Sunday Oct 18, 2026, restaurant local time), delivery was far bigger than the counter. I counted completed orders only. \"Delivery\" means orders with a delivery fulfillment type, and \"counter\" means in-store orders.\n\n| | Delivery | Counter |\n|---|---|---|\n| Orders | 883 | 102 |\n| Gross sales | $28,221.43 | $2,307.93 |\n| Discounts | $1,264.85 | $110.62 |\n| Total collected | $30,037.70 | $2,575.10 |\n| Average order (gross) | $31.96 | $22.63 |\n| Average tip | $5.05 | $3.25 |\n\nDelivery brought in about 12 times the gross sales of the counter, on roughly 9 times as many orders. Delivery orders were also larger on average. The average tip only covers orders where a tip was recorded, because some channels don't pass tips through.",
+  "answer": "I took \"last week\" to mean Monday Oct 12 through Sunday Oct 18, 2026, in the restaurant's local time. I counted completed orders only. \"Delivery\" means orders with a delivery fulfillment type, and \"the counter\" means in-store orders.\n\nDelivery was much bigger.\n- **Orders:** delivery had 883 and in-store had 113.\n- **Gross sales:** delivery brought in about $28,048 and in-store about $2,267.\n- **Average order:** delivery averaged about $31.76 and in-store about $20.06.\n- **Discounts:** delivery had about $1,368 and in-store about $127.\n\nTip figures are less reliable for delivery. Only 51 of the 883 delivery orders include tip data, and 55 of the 113 in-store orders do. Among those, the average tip was about $5.37 on delivery and $3.13 in-store.",
   "usage": {
-    "input_tokens": 835,
-    "cache_read_tokens": 1591,
-    "cache_write_tokens": 1591,
-    "output_tokens": 802
+    "input_tokens": 917,
+    "cache_read_tokens": 1603,
+    "cache_write_tokens": 1603,
+    "output_tokens": 862
   },
-  "cost_usd": 0.013986,
-  "latency_ms": 7729,
-  "model_ms": 7685,
-  "tool_ms": 37,
+  "cost_usd": 0.014782,
+  "latency_ms": 7712,
+  "model_ms": 7673,
+  "tool_ms": 30,
   "retries": 0,
   "steps": [
     {
@@ -24,16 +24,16 @@
       "name": "run_sql",
       "outcome": "proposed",
       "detail": {
-        "purpose": "Compare delivery vs in-store completed orders for Oct 12-18, 2026 (local time)",
-        "sql": "select fulfillment_type, count(*) orders, sum(gross_sales_cents) gross, sum(discount_cents) discounts, sum(total_cents) total, round(avg(gross_sales_cents)) avg_gross, round(avg(tip_cents)) avg_tip from orders where state='completed' and fulfillment_type in ('delivery','in_store') and (created_at at time zone (select timezone from merchants))>='2026-10-12' and (created_at at time zone (select timezone from merchants))<'2026-10-19' group by fulfillment_type",
+        "purpose": "Compare delivery vs in-store completed orders for Oct 12-18 2026 local time",
+        "sql": "select fulfillment_type, count(*) orders, sum(gross_sales_cents) gross, sum(discount_cents) discounts, round(avg(gross_sales_cents)) avg_gross, round(avg(tip_cents)) avg_tip, count(tip_cents) tip_orders from orders where state='completed' and fulfillment_type in ('delivery','in_store') and (created_at at time zone (select timezone from merchants))>='2026-10-12' and (created_at at time zone (select timezone from merchants))<'2026-10-19' group by fulfillment_type",
         "usage": {
           "input_tokens": 104,
           "cache_read_tokens": 0,
-          "cache_write_tokens": 1591,
-          "output_tokens": 488
+          "cache_write_tokens": 1603,
+          "output_tokens": 569
         }
       },
-      "latency_ms": 4564
+      "latency_ms": 4677
     },
     {
       "seq": 2,
@@ -83,9 +83,9 @@
             "detail": "injected 500"
           }
         ],
-        "sql": "SELECT fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross, SUM(discount_cents) AS discounts, SUM(total_cents) AS total, ROUND(AVG(gross_sales_cents)) AS avg_gross, ROUND(AVG(tip_cents)) AS avg_tip FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE state = 'completed' AND fulfillment_type IN ('delivery', 'in_store') AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) >= '2026-10-12' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) < '2026-10-19' GROUP BY fulfillment_type LIMIT 500"
+        "sql": "SELECT fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross, SUM(discount_cents) AS discounts, ROUND(AVG(gross_sales_cents)) AS avg_gross, ROUND(AVG(tip_cents)) AS avg_tip, COUNT(tip_cents) AS tip_orders FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE state = 'completed' AND fulfillment_type IN ('delivery', 'in_store') AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) >= '2026-10-12' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) < '2026-10-19' GROUP BY fulfillment_type LIMIT 500"
       },
-      "latency_ms": 7
+      "latency_ms": 8
     },
     {
       "seq": 3,
@@ -98,34 +98,34 @@
           "orders",
           "gross",
           "discounts",
-          "total",
           "avg_gross",
-          "avg_tip"
+          "avg_tip",
+          "tip_orders"
         ],
         "row_count": 2,
         "rows": [
           [
             "delivery",
             883,
-            2822143,
-            126485,
-            3003770,
-            3196.0,
-            505.0
+            2804759,
+            136759,
+            3176.0,
+            537.0,
+            51
           ],
           [
             "in_store",
-            102,
-            230793,
-            11062,
-            257510,
-            2263.0,
-            325.0
+            113,
+            226701,
+            12702,
+            2006.0,
+            313.0,
+            55
           ]
         ],
         "truncated": false
       },
-      "latency_ms": 37
+      "latency_ms": 30
     },
     {
       "seq": 4,
@@ -133,15 +133,15 @@
       "name": "answer",
       "outcome": "answered",
       "detail": {
-        "text": "For last week (Monday Oct 12 to Sunday Oct 18, 2026, restaurant local time), delivery was far bigger than the counter. I counted completed orders only. \"Delivery\" means orders with a delivery fulfillment type, and \"counter\" means in-store orders.\n\n| | Delivery | Counter |\n|---|---|---|\n| Orders | 883 | 102 |\n| Gross sales | $28,221.43 | $2,307.93 |\n| Discounts | $1,264.85 | $110.62 |\n| Total collected | $30,037.70 | $2,575.10 |\n| Average order (gross) | $31.96 | $22.63 |\n| Average tip | $5.05 | $3.25 |\n\nDelivery brought in about 12 times the gross sales of the counter, on roughly 9 times as many orders. Delivery orders were also larger on average. The average tip only covers orders where a tip was recorded, because some channels don't pass tips through.",
+        "text": "I took \"last week\" to mean Monday Oct 12 through Sunday Oct 18, 2026, in the restaurant's local time. I counted completed orders only. \"Delivery\" means orders with a delivery fulfillment type, and \"the counter\" means in-store orders.\n\nDelivery was much bigger.\n- **Orders:** delivery had 883 and in-store had 113.\n- **Gross sales:** delivery brought in about $28,048 and in-store about $2,267.\n- **Average order:** delivery averaged about $31.76 and in-store about $20.06.\n- **Discounts:** delivery had about $1,368 and in-store about $127.\n\nTip figures are less reliable for delivery. Only 51 of the 883 delivery orders include tip data, and 55 of the 113 in-store orders do. Among those, the average tip was about $5.37 on delivery and $3.13 in-store.",
         "usage": {
-          "input_tokens": 731,
-          "cache_read_tokens": 1591,
+          "input_tokens": 813,
+          "cache_read_tokens": 1603,
           "cache_write_tokens": 0,
-          "output_tokens": 314
+          "output_tokens": 293
         }
       },
-      "latency_ms": 3121
+      "latency_ms": 2996
     }
   ]
 }
