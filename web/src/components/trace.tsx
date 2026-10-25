@@ -138,12 +138,12 @@ export function statusLine(trace: Trace): string {
 export function StatusBadge({ status }: { status: Trace["status"] }) {
   const label =
     status === "answered"
-      ? "Answered"
+      ? "answered"
       : status === "refused"
-        ? "Declined"
+        ? "declined"
         : status === "blocked"
-          ? "Blocked"
-          : "Failed";
+          ? "blocked"
+          : "failed";
   const tone =
     status === "answered"
       ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
