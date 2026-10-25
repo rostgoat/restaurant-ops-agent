@@ -42,12 +42,14 @@ export async function ask(merchantId: number, question: string): Promise<Trace> 
 }
 
 // How one question has fared every time this restaurant asked it, across
-// the capture and every visitor's re-run. Null when the API is not up.
+// the capture and every visitor's re-run. Null when the API is not up or
+// is slow to wake: a page must not wait on this line.
 export async function questionStats(merchantId: number, question: string): Promise<QuestionStats | null> {
   try {
     return await call<QuestionStats>(`/questions/stats?question=${encodeURIComponent(question)}`, {
       headers: { "X-Merchant-Id": String(merchantId) },
       cache: "no-store",
+      signal: AbortSignal.timeout(2000),
     });
   } catch {
     return null;
