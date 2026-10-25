@@ -138,32 +138,37 @@ export default function EvaluationPage() {
           </Table>
           <Differences />
           <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
+            <p>I ran the same {s.cases} questions several ways to find out where this system breaks.</p>
             <p>
-              <strong className="text-foreground">The model is not the bottleneck.</strong> Low
-              effort passed {`${low?.passed ?? "?"} of ${low?.scored ?? "?"}`}, medium passed{" "}
-              {`${s.passed} of ${s.scored}`}. The one-case gap is a wording flip, not a reasoning gap. A bigger model
-              would not have changed these results.
+              <strong className="text-foreground">Model.</strong> The model is not the bottleneck.
+              Sonnet at low effort passes {`${low?.passed ?? "?"} of ${low?.scored ?? "?"}`} cases
+              and at medium effort it passes {s.passed}. The gap is one case, and it turns on how the
+              model phrases its answer, not on how it reasons. A bigger model would cost more and
+              change nothing here.
             </p>
             <p>
-              <strong className="text-foreground">Retrieval is.</strong> Both failures on the main
-              run are the same failure. The right section exists, scored 0.38 to 0.49 against the
-              model&apos;s search, and the threshold was {s.retrieval_threshold}. Shown nothing, the
-              model said the policy was silent. That is the failure to worry about, because it reads
-              like a careful answer.
+              <strong className="text-foreground">Retrieval.</strong> The bottleneck is what the
+              model is shown. Both failures on the main run happen the same way. The right policy
+              section exists, but it scores 0.38 to 0.49 against the model&apos;s search, and the
+              threshold is {s.retrieval_threshold.toFixed(2)}. The model sees nothing and tells the
+              user the policy is silent. That is the failure I worry about most. A wrong number is
+              easy to catch. A confident &ldquo;there is no rule&rdquo; is not.
             </p>
             <p>
-              <strong className="text-foreground">Set the threshold low.</strong> At 0.40 the model
-              sees {fmt(t040?.retrieval.recall ?? null)} of the right sections and some wrong ones.
-              At 0.60 it sees {fmt(t060?.retrieval.recall ?? null)} of the right ones, and four
-              discount cases fail together when one section drops below the bar. A hidden section
-              produces a confident wrong answer; an extra section gets ignored. The range is 0.40
-              to 0.50.
+              <strong className="text-foreground">Threshold.</strong> So I measured the dial instead
+              of guessing. At 0.40 the model sees {fmt(t040?.retrieval.recall ?? null)} of the right
+              sections, plus some that do not apply. At 0.60 it sees{" "}
+              {fmt(t060?.retrieval.recall ?? null)}, and four discount questions fail together when
+              one section drops below the bar. The two mistakes are not equal. An extra section is
+              mostly ignored. A hidden one produces a confident wrong answer. So err low, between
+              0.40 and 0.50.
             </p>
             <p>
-              <strong className="text-foreground">What this cannot tell you.</strong> Each setting
-              ran once, and the model words its own searches, so a one-case difference between
-              settings is noise. Running each setting several times would give a pass rate with a
-              spread, and that is the next measurement.
+              <strong className="text-foreground">Measurement.</strong> Each setting ran once. The
+              model writes its own searches and words them differently each time, so the same
+              section can score 0.60 on one run and 0.48 on the next. A one-case difference between
+              settings is noise. The direction of the trend is not. The next step is to run each
+              setting several times and choose a value with a spread, not a point.
             </p>
           </div>
         </section>
