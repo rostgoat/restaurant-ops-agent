@@ -41,6 +41,35 @@ DEFAULT = Settings()
 _CITATION = re.compile(r"\[([^\[\]]*§\s*\d+[^\[\]]*)\]")
 
 
+@dataclass
+class _Session:
+    """Everything one request carries between model turns."""
+
+    trace: Trace
+    settings: Settings
+    merchant_id: int
+    runner: QueryRunner
+    policies: PolicySearch | None
+    checker: ProposalChecker | None
+    now: datetime
+    started: float
+    messages: list[dict[str, Any]]
+    calls: int = 0
+    executed: bool = False
+    blocked: bool = False
+    retrieved: set[str] | None = None
+
+    def finish(self, status: Status, text: str | None = None) -> Trace:
+        self.trace.cost_usd = cost_usd(self.settings.model, self.trace.usage)
+
+        return self.trace.finish(status, text, latency_ms=_ms(self.started))
+
+    def stopped_short(self) -> Status:
+        """Nothing ran: if the guard blocked a query, the guard decided this request."""
+
+        return "blocked" if self.blocked and not self.executed else "error"
+
+
 def answer(
     question: str,
     merchant_id: int,
@@ -53,95 +82,136 @@ def answer(
     now: datetime | None = None,
 ) -> Trace:
     now = now or datetime.now(UTC)
-    started = time.perf_counter()
-    trace = Trace(
-        id=uuid4(),
+    session = _Session(
+        trace=Trace(
+            id=uuid4(),
+            merchant_id=merchant_id,
+            question=question,
+            created_at=now,
+            model=settings.model,
+        ),
+        settings=settings,
         merchant_id=merchant_id,
-        question=question,
-        created_at=now,
-        model=settings.model,
+        runner=runner,
+        policies=policies,
+        checker=checker,
+        now=now,
+        started=time.perf_counter(),
+        messages=[{"role": "user", "content": user_turn(question, now)}],
     )
-    messages: list[dict[str, Any]] = [{"role": "user", "content": user_turn(question, now)}]
-    calls = 0
-    executed = False
-    blocked = False
-    retrieved: set[str] | None = None
-
-    def finish(status: Status, text: str | None = None) -> Trace:
-        trace.cost_usd = cost_usd(settings.model, trace.usage)
-
-        return trace.finish(status, text, latency_ms=_ms(started))
 
     while True:
-        t0 = time.perf_counter()
+        done = _turn(session, client)
 
-        try:
-            reply = client.messages.create(**request(settings, messages))
-        except anthropic.APIError as e:
-            trace.step("model", "respond", "error", {"error": str(e)}, latency_ms=_ms(t0))
+        if done is not None:
+            return done
 
-            return finish("error")
-        model_ms = _ms(t0)
-        trace.model_ms += model_ms
-        trace.usage.add(reply.usage)
-        trace.model = reply.model
-        usage = _usage(reply.usage)
 
-        if reply.stop_reason == "refusal":
-            detail = reply.stop_details.model_dump() if reply.stop_details else {}
-            trace.step("model", "respond", "refusal", detail | usage, latency_ms=model_ms)
+def _turn(s: _Session, client: anthropic.Anthropic) -> Trace | None:
+    """One model call and whatever it asked for. A trace when the request is over."""
+    reply, model_ms = _call_model(s, client)
 
-            return finish("refused")
+    if reply is None:
+        return s.finish("error")
+    usage = _usage(reply.usage)
+    stopped = _stopped_early(s, reply, usage, model_ms)
 
-        if reply.stop_reason == "max_tokens":
-            trace.step("model", "respond", "max_tokens", usage, latency_ms=model_ms)
+    if stopped is not None:
+        return stopped
+    text = "".join(b.text for b in reply.content if b.type == "text").strip()
+    call = next((b for b in reply.content if b.type == "tool_use"), None)
 
-            return finish("error")
+    if call is None:
+        return _answered(s, text, usage, model_ms)
 
-        text = "".join(b.text for b in reply.content if b.type == "text").strip()
-        call = next((b for b in reply.content if b.type == "tool_use"), None)
+    if call.name == "decline":
+        return _declined(s, call, usage, model_ms)
+    s.trace.step("model", call.name, "proposed", dict(call.input) | usage, latency_ms=model_ms)
+    s.calls += 1
 
-        if call is None:
-            trace.step("model", "answer", "answered", {"text": text} | usage, latency_ms=model_ms)
+    if s.calls > s.settings.max_tool_calls:
+        s.trace.step("code", "tool_limit", "reached", {"limit": s.settings.max_tool_calls})
 
-            if retrieved is not None:
-                _check_citations(trace, text, retrieved)
-            # Text after a block, with nothing executed, is the model talking
-            # around the guard. The guard decided this request, not the model.
-            return finish("blocked" if blocked and not executed else "answered", text)
+        return s.finish(s.stopped_short())
+    result = _dispatch(s, call)
 
-        if call.name == "decline":
-            reason = str(call.input.get("reason", "")).strip()
-            detail = {"reason": reason} | usage
-            trace.step("model", "decline", "declined", detail, latency_ms=model_ms)
+    if result.get("is_error"):
+        s.trace.retries += 1
+    s.messages.append({"role": "assistant", "content": reply.content})
+    s.messages.append({"role": "user", "content": [result]})
 
-            return finish("refused", reason)
+    return None
 
-        trace.step("model", call.name, "proposed", dict(call.input) | usage, latency_ms=model_ms)
-        calls += 1
 
-        if calls > settings.max_tool_calls:
-            trace.step("code", "tool_limit", "reached", {"limit": settings.max_tool_calls})
+def _call_model(s: _Session, client: anthropic.Anthropic) -> tuple[Any, int]:
+    t0 = time.perf_counter()
 
-            return finish("blocked" if blocked and not executed else "error")
+    try:
+        reply = client.messages.create(**request(s.settings, s.messages))
+    except anthropic.APIError as e:
+        s.trace.step("model", "respond", "error", {"error": str(e)}, latency_ms=_ms(t0))
 
-        if call.name == "run_sql":
-            result, outcome = _run_sql(call, trace, merchant_id, runner, settings)
-            executed = executed or outcome == "ok"
-            blocked = blocked or outcome == "blocked"
-        elif call.name == "search_policy":
-            result, labels = _search_policy(call, trace, merchant_id, policies, settings)
-            retrieved = (retrieved or set()) | labels
-        elif call.name == "propose":
-            result = _propose(call, trace, merchant_id, checker, now)
-        else:
-            result = _tool_result(call.id, f"There is no tool named {call.name}.", error=True)
+        return None, _ms(t0)
+    model_ms = _ms(t0)
+    s.trace.model_ms += model_ms
+    s.trace.usage.add(reply.usage)
+    s.trace.model = reply.model
 
-        if result.get("is_error"):
-            trace.retries += 1
+    return reply, model_ms
 
-        messages.append({"role": "assistant", "content": reply.content})
-        messages.append({"role": "user", "content": [result]})
+
+def _stopped_early(s: _Session, reply: Any, usage: dict[str, Any], model_ms: int) -> Trace | None:
+    if reply.stop_reason == "refusal":
+        detail = reply.stop_details.model_dump() if reply.stop_details else {}
+        s.trace.step("model", "respond", "refusal", detail | usage, latency_ms=model_ms)
+
+        return s.finish("refused")
+
+    if reply.stop_reason == "max_tokens":
+        s.trace.step("model", "respond", "max_tokens", usage, latency_ms=model_ms)
+
+        return s.finish("error")
+
+    return None
+
+
+def _answered(s: _Session, text: str, usage: dict[str, Any], model_ms: int) -> Trace:
+    s.trace.step("model", "answer", "answered", {"text": text} | usage, latency_ms=model_ms)
+
+    if s.retrieved is not None:
+        _check_citations(s.trace, text, s.retrieved)
+    # Text after a block, with nothing executed, is the model talking around
+    # the guard. The guard decided this request, not the model.
+    status: Status = "blocked" if s.blocked and not s.executed else "answered"
+
+    return s.finish(status, text)
+
+
+def _declined(s: _Session, call: Any, usage: dict[str, Any], model_ms: int) -> Trace:
+    reason = str(call.input.get("reason", "")).strip()
+    s.trace.step("model", "decline", "declined", {"reason": reason} | usage, latency_ms=model_ms)
+
+    return s.finish("refused", reason)
+
+
+def _dispatch(s: _Session, call: Any) -> dict[str, Any]:
+    if call.name == "run_sql":
+        result, outcome = _run_sql(call, s.trace, s.merchant_id, s.runner, s.settings)
+        s.executed = s.executed or outcome == "ok"
+        s.blocked = s.blocked or outcome == "blocked"
+
+        return result
+
+    if call.name == "search_policy":
+        result, labels = _search_policy(call, s.trace, s.merchant_id, s.policies, s.settings)
+        s.retrieved = (s.retrieved or set()) | labels
+
+        return result
+
+    if call.name == "propose":
+        return _propose(call, s.trace, s.merchant_id, s.checker, s.now)
+
+    return _tool_result(call.id, f"There is no tool named {call.name}.", error=True)
 
 
 def request(settings: Settings, messages: list[dict[str, Any]]) -> dict[str, Any]:
@@ -170,33 +240,43 @@ def _run_sql(
     runner: QueryRunner,
     settings: Settings,
 ) -> tuple[dict[str, Any], str]:
-    sql = str(call.input.get("sql", ""))
+    verdict = _guarded(trace, str(call.input.get("sql", "")), merchant_id, settings)
 
+    if not verdict.ok:
+        message = (
+            f"Blocked by the '{verdict.blocked_by}' check: {verdict.reason}. "
+            "Rewrite the query, or decline if it cannot be done."
+        )
+
+        return _tool_result(call.id, message, error=True), "blocked"
+
+    return _executed(call, trace, runner, verdict.sql, settings)
+
+
+def _guarded(trace: Trace, sql: str, merchant_id: int, settings: Settings):
     t0 = time.perf_counter()
     verdict = guard(sql, merchant_id, row_limit=settings.row_limit)
     checks = [{"name": c.name, "passed": c.passed, "detail": c.detail} for c in verdict.checks]
 
     if not verdict.ok:
-        trace.step(
-            "code",
-            "guard",
-            "blocked",
-            {"checks": checks, "blocked_by": verdict.blocked_by, "reason": verdict.reason},
-            latency_ms=_ms(t0),
-        )
-        message = (
-            f"Blocked by the '{verdict.blocked_by}' check: {verdict.reason}. "
-            "Rewrite the query, or decline if it cannot be done."
-        )
-        return _tool_result(call.id, message, error=True), "blocked"
+        detail = {"checks": checks, "blocked_by": verdict.blocked_by, "reason": verdict.reason}
+        trace.step("code", "guard", "blocked", detail, latency_ms=_ms(t0))
+
+        return verdict
     trace.step(
         "code", "guard", "passed", {"checks": checks, "sql": verdict.sql}, latency_ms=_ms(t0)
     )
 
+    return verdict
+
+
+def _executed(
+    call: Any, trace: Trace, runner: QueryRunner, sql: str, settings: Settings
+) -> tuple[dict[str, Any], str]:
     t0 = time.perf_counter()
 
     try:
-        rows = runner.run(verdict.sql)
+        rows = runner.run(sql)
     except QueryError as e:
         elapsed = _ms(t0)
         trace.tool_ms += elapsed
@@ -206,7 +286,6 @@ def _run_sql(
         return _tool_result(call.id, message, error=True), "error"
     elapsed = _ms(t0)
     trace.tool_ms += elapsed
-
     payload = rows.to_payload(settings.rows_to_model)
     trace.step("code", "execute", "ok", payload, latency_ms=elapsed)
 

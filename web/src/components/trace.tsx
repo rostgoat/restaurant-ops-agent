@@ -162,191 +162,180 @@ export function StatusBadge({ status }: { status: Trace["status"] }) {
   );
 }
 
+type Detail = Record<string, unknown>;
+type Renderer = (d: Detail, step: Step, merchantId: number) => React.ReactNode;
+
+// One renderer per step name and outcome, keyed "name:outcome".
+const renderers: Record<string, Renderer> = {
+  "run_sql:proposed": (d) => (
+    <>
+      <Title>Proposed a query</Title>
+      {typeof d.purpose === "string" && <p className="text-muted-foreground">{d.purpose}</p>}
+      <Sql sql={String(d.sql ?? "")} />
+      <Usage detail={d} />
+    </>
+  ),
+  "guard:passed": (d) => (
+    <>
+      <Title>Guard passed</Title>
+      <Checks checks={d.checks} />
+      {typeof d.sql === "string" && <QueryAsRun sql={d.sql} />}
+    </>
+  ),
+  "guard:blocked": (d) => (
+    <>
+      <Title>Guard blocked it at “{String(d.blocked_by)}”</Title>
+      <p>{String(d.reason)}</p>
+      <Checks checks={d.checks} />
+    </>
+  ),
+  "execute:ok": (d, step) => (
+    <>
+      <Title>
+        Ran it: {count(Number(d.row_count ?? 0))} {Number(d.row_count) === 1 ? "row" : "rows"} in{" "}
+        {seconds(step.latency_ms)}
+      </Title>
+      <Rows detail={d} />
+    </>
+  ),
+  "execute:error": (d) => (
+    <>
+      <Title>The database rejected it</Title>
+      <p>{String(d.error)}</p>
+    </>
+  ),
+  "answer:answered": (d, _step, merchantId) => (
+    <>
+      <Title>Answered</Title>
+      <Answer text={String(d.text)} merchantId={merchantId} className="text-lg" />
+      <Usage detail={d} />
+    </>
+  ),
+  "decline:declined": (d, _step, merchantId) => (
+    <>
+      <Title>Declined</Title>
+      <Answer text={String(d.reason)} merchantId={merchantId} className="text-lg" />
+      <Usage detail={d} />
+    </>
+  ),
+  "respond:refusal": (d) => (
+    <>
+      <Title>The model refused</Title>
+      {typeof d.category === "string" && <p>Category: {d.category}.</p>}
+      <Usage detail={d} />
+    </>
+  ),
+  "respond:max_tokens": () => <Title>The model ran out of room before finishing</Title>,
+  "respond:error": (d) => (
+    <>
+      <Title>The model call failed</Title>
+      <p className="break-words">{String(d.error)}</p>
+    </>
+  ),
+  "search_policy:proposed": (d) => (
+    <>
+      <Title>Looked up the policy</Title>
+      <p className="text-muted-foreground">&ldquo;{String(d.query)}&rdquo;</p>
+      <Usage detail={d} />
+    </>
+  ),
+  "retrieve:unavailable": () => <Title>Policy search is not available</Title>,
+  "citations:passed": (d) => (
+    <>
+      <Title>Citations checked</Title>
+      <p className="text-muted-foreground">
+        {Array.isArray(d.cited) && d.cited.length > 0
+          ? `Every section cited was one that was retrieved: ${(d.cited as string[]).join("; ")}.`
+          : "Nothing was retrieved and nothing was cited."}
+      </p>
+    </>
+  ),
+  "citations:failed": (d) => (
+    <>
+      <Title>Citations failed</Title>
+      <p>{String(d.reason)}.</p>
+      {Array.isArray(d.not_retrieved) && d.not_retrieved.length > 0 && (
+        <p className="text-muted-foreground">Not retrieved: {(d.not_retrieved as string[]).join("; ")}</p>
+      )}
+    </>
+  ),
+  "propose:proposed": (d, _step, merchantId) => (
+    <>
+      <Title>Proposed an action</Title>
+      <p>{String(d.summary)}</p>
+      {typeof d.reason === "string" && (
+        <Answer text={d.reason} merchantId={merchantId} className="text-sm text-muted-foreground" />
+      )}
+      {typeof d.draft_message === "string" && (
+        <blockquote className="mt-2 rounded-md bg-background px-4 py-3 text-sm italic">
+          {d.draft_message}
+        </blockquote>
+      )}
+      <Usage detail={d} />
+    </>
+  ),
+  "check_proposal:unavailable": () => <Title>Proposals are not available</Title>,
+  "approve:approved": (d) => (
+    <>
+      <Title>Approved by the owner</Title>
+      <p className="text-muted-foreground">{String(d.summary)}</p>
+    </>
+  ),
+  "reject:rejected": (d) => (
+    <>
+      <Title>Rejected by the owner</Title>
+      <p className="text-muted-foreground">{String(d.summary)}</p>
+    </>
+  ),
+  "execute:done": (d) => (
+    <>
+      <Title>{String(d.result)}</Title>
+      {typeof d.artifact === "string" && <p className="whitespace-pre-wrap text-sm">{d.artifact}</p>}
+      <p className="text-sm text-muted-foreground">{String(d.simulated)}</p>
+    </>
+  ),
+  "tool_limit:reached": (d) => <Title>Stopped after {String(d.limit)} tool calls</Title>,
+};
+
 function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
-  const d = step.detail ?? {};
+  const d = (step.detail ?? {}) as Detail;
+  const render = renderers[`${step.name}:${step.outcome}`];
 
-  switch (`${step.name}:${step.outcome}`) {
-    case "run_sql:proposed":
-      return (
-        <>
-          <Title>Proposed a query</Title>
-          {typeof d.purpose === "string" && <p className="text-muted-foreground">{d.purpose}</p>}
-          <Sql sql={String(d.sql ?? "")} />
-          <Usage detail={d} />
-        </>
-      );
-    case "guard:passed":
-      return (
-        <>
-          <Title>Guard passed</Title>
-          <Checks checks={d.checks} />
-          {typeof d.sql === "string" && (
-            <Collapsible className="mt-2">
-              <CollapsibleTrigger asChild>
-                <Button variant="link" size="sm" className="h-auto p-0 font-sans text-sm">
-                  Show the query as it ran
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <Sql sql={d.sql} />
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-        </>
-      );
-    case "guard:blocked":
-      return (
-        <>
-          <Title>Guard blocked it at “{String(d.blocked_by)}”</Title>
-          <p>{String(d.reason)}</p>
-          <Checks checks={d.checks} />
-        </>
-      );
-    case "execute:ok":
-      return (
-        <>
-          <Title>
-            Ran it: {count(Number(d.row_count ?? 0))} {Number(d.row_count) === 1 ? "row" : "rows"}{" "}
-            in {seconds(step.latency_ms)}
-          </Title>
-          <Rows detail={d} />
-        </>
-      );
-    case "execute:error":
-      return (
-        <>
-          <Title>The database rejected it</Title>
-          <p>{String(d.error)}</p>
-        </>
-      );
-    case "answer:answered":
-      return (
-        <>
-          <Title>Answered</Title>
-          <Answer text={String(d.text)} merchantId={merchantId} className="text-lg" />
-          <Usage detail={d} />
-        </>
-      );
-    case "decline:declined":
-      return (
-        <>
-          <Title>Declined</Title>
-          <Answer text={String(d.reason)} merchantId={merchantId} className="text-lg" />
-          <Usage detail={d} />
-        </>
-      );
-    case "respond:refusal":
-      return (
-        <>
-          <Title>The model refused</Title>
-          {typeof d.category === "string" && <p>Category: {d.category}.</p>}
-          <Usage detail={d} />
-        </>
-      );
-    case "search_policy:proposed":
-      return (
-        <>
-          <Title>Looked up the policy</Title>
-          <p className="text-muted-foreground">&ldquo;{String(d.query)}&rdquo;</p>
-          <Usage detail={d} />
-        </>
-      );
-    case "retrieve:unavailable":
-      return <Title>Policy search is not available</Title>;
-    case "citations:passed":
-      return (
-        <>
-          <Title>Citations checked</Title>
-          <p className="text-muted-foreground">
-            {Array.isArray(d.cited) && d.cited.length > 0
-              ? `Every section cited was one that was retrieved: ${(d.cited as string[]).join("; ")}.`
-              : "Nothing was retrieved and nothing was cited."}
-          </p>
-        </>
-      );
-    case "citations:failed":
-      return (
-        <>
-          <Title>Citations failed</Title>
-          <p>{String(d.reason)}.</p>
-          {Array.isArray(d.not_retrieved) && d.not_retrieved.length > 0 && (
-            <p className="text-muted-foreground">
-              Not retrieved: {(d.not_retrieved as string[]).join("; ")}
-            </p>
-          )}
-        </>
-      );
-    case "propose:proposed":
-      return (
-        <>
-          <Title>Proposed an action</Title>
-          <p>{String(d.summary)}</p>
-          {typeof d.reason === "string" && (
-            <Answer text={d.reason} merchantId={merchantId} className="text-sm text-muted-foreground" />
-          )}
-          {typeof d.draft_message === "string" && (
-            <blockquote className="mt-2 rounded-md bg-background px-4 py-3 text-sm italic">
-              {d.draft_message}
-            </blockquote>
-          )}
-          <Usage detail={d} />
-        </>
-      );
-    case "check_proposal:unavailable":
-      return <Title>Proposals are not available</Title>;
-    case "approve:approved":
-      return (
-        <>
-          <Title>Approved by the owner</Title>
-          <p className="text-muted-foreground">{String(d.summary)}</p>
-        </>
-      );
-    case "reject:rejected":
-      return (
-        <>
-          <Title>Rejected by the owner</Title>
-          <p className="text-muted-foreground">{String(d.summary)}</p>
-        </>
-      );
-    case "execute:done":
-      return (
-        <>
-          <Title>{String(d.result)}</Title>
-          {typeof d.artifact === "string" && (
-            <p className="whitespace-pre-wrap text-sm">{d.artifact}</p>
-          )}
-          <p className="text-sm text-muted-foreground">{String(d.simulated)}</p>
-        </>
-      );
-    case "respond:max_tokens":
-      return <Title>The model ran out of room before finishing</Title>;
-    case "respond:error":
-      return (
-        <>
-          <Title>The model call failed</Title>
-          <p className="break-words">{String(d.error)}</p>
-        </>
-      );
-    case "tool_limit:reached":
-      return <Title>Stopped after {String(d.limit)} tool calls</Title>;
-    default:
-      if (step.name === "retrieve") return <Retrieved step={step} />;
+  if (render) return <>{render(d, step, merchantId)}</>;
 
-      if (step.name === "check_proposal") return <Checked step={step} />;
+  if (step.name === "retrieve") return <Retrieved step={step} />;
 
-      return (
-        <>
-          <Title>
-            {step.name}: {step.outcome}
-          </Title>
-          {step.detail && (
-            <pre className="font-sql text-sm whitespace-pre-wrap">
-              {JSON.stringify(step.detail, null, 2)}
-            </pre>
-          )}
-        </>
-      );
-  }
+  if (step.name === "check_proposal") return <Checked step={step} />;
+
+  return <Unknown step={step} />;
+}
+
+function QueryAsRun({ sql }: { sql: string }) {
+  return (
+    <Collapsible className="mt-2">
+      <CollapsibleTrigger asChild>
+        <Button variant="link" size="sm" className="h-auto p-0 font-sans text-sm">
+          Show the query as it ran
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <Sql sql={sql} />
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+function Unknown({ step }: { step: Step }) {
+  return (
+    <>
+      <Title>
+        {step.name}: {step.outcome}
+      </Title>
+      {step.detail && (
+        <pre className="font-sql text-sm whitespace-pre-wrap">{JSON.stringify(step.detail, null, 2)}</pre>
+      )}
+    </>
+  );
 }
 
 function Checked({ step }: { step: Step }) {

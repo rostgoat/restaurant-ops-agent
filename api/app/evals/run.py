@@ -234,8 +234,7 @@ def regrade(path: Path, cases: dict[str, Any]) -> None:
     print(f"regraded {len(run['results'])} results: {summary['passed']}/{summary['scored']} pass")
 
 
-def main() -> None:
-    load_dotenv(ROOT / ".env")
+def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dsn", default=os.environ.get("EVAL_DATABASE_URL"))
     ap.add_argument("--only", action="append", default=[])
@@ -250,11 +249,88 @@ def main() -> None:
         action="store_true",
         help="keep the run file but leave the site's main run alone (comparison runs)",
     )
-    args = ap.parse_args()
+
+    return ap.parse_args()
+
+
+def harness_error(case: dict[str, Any], error: Exception, model: str) -> dict[str, Any]:
+    """The harness itself failed. Reported apart, never as a model failure."""
+
+    return {
+        "case": case,
+        "gold": None,
+        "grade": {
+            "outcome": "error",
+            "reasons": [f"harness: {error}"],
+            "expected": None,
+            "found": None,
+        },
+        "trace": {
+            "status": "error",
+            "cost_usd": 0.0,
+            "latency_ms": 0,
+            "steps": [],
+            "proposals": [],
+            "model": model,
+        },
+    }
+
+
+def print_result(case: dict[str, Any], r: dict[str, Any]) -> None:
+    g = r["grade"]
+    t = r["trace"]
+    secs = t["latency_ms"] / 1000
+    head = f"{case['id']:8} {g['outcome']:5} ${t['cost_usd']:.4f} {secs:5.1f}s"
+    print(f"{head}  {'; '.join(g['reasons'])[:110]}")
+
+
+def run_all(
+    selected: list[dict[str, Any]], reps: int, settings: Settings, **harness: Any
+) -> list[dict[str, Any]]:
+    results: list[dict[str, Any]] = []
+
+    for rep in range(reps):
+        for case in selected:
+            try:
+                r = run_case(case, settings=settings, **harness)
+            except Exception as e:
+                r = harness_error(case, e, settings.model)
+            r["rep"] = rep
+            results.append(r)
+            print_result(case, r)
+
+    return results
+
+
+def write_run(run: dict[str, Any], *, site_copy: bool) -> Path:
+    RUNS.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    path = RUNS / f"{stamp}.json"
+    path.write_text(json.dumps(run, indent=1) + "\n")
+
+    if site_copy:
+        SITE_COPY.write_text(json.dumps(run, indent=1) + "\n")
+
+    return path
+
+
+def print_summary(s: dict[str, Any], path: Path) -> None:
+    print(f"\n{s['passed']}/{s['scored']} passed, {s['errors']} errors")
+    print(f"${s['cost_total_usd']} total, median ${s['cost_per_answered_median_usd']} per answer")
+    print(f"p50 {s['latency_median_ms']} ms, p90 {s['latency_p90_ms']} ms")
+
+    for suite, v in s["suites"].items():
+        print(f"  {suite:8} {v['passed']}/{v['total']}")
+    print(f"  retrieval precision {s['retrieval']['precision']} recall {s['retrieval']['recall']}")
+    print(f"wrote {path}")
+
+
+def main() -> None:
+    load_dotenv(ROOT / ".env")
+    args = parse_args()
 
     if not args.dsn:
         sys.exit("set EVAL_DATABASE_URL or pass --dsn")
-
     cases = load_cases()
     selected = [c for c in cases["cases"] if not args.only or c["id"] in args.only]
 
@@ -268,72 +344,20 @@ def main() -> None:
         check_gold(runner, selected)
 
         return
-
     settings = Settings(model=args.model, effort=args.effort, retrieval_threshold=args.threshold)
-    client = anthropic.Anthropic()
-    policies = PostgresPolicySearch(args.dsn, OpenAIEmbedder(os.environ["OPENAI_API_KEY"]))
-    checker = ProposalChecker(load_limits(ROOT / "data" / "policies"), runner)
-    now = datetime.fromisoformat(cases["frozen_now"].replace("Z", "+00:00"))
-
-    results: list[dict[str, Any]] = []
-
-    for rep in range(args.reps):
-        for case in selected:
-            try:
-                r = run_case(
-                    case,
-                    client=client,
-                    runner=runner,
-                    policies=policies,
-                    checker=checker,
-                    settings=settings,
-                    now=now,
-                )
-            except Exception as e:  # the harness itself failed; never a model failure
-                r = {
-                    "case": case,
-                    "gold": None,
-                    "grade": {
-                        "outcome": "error",
-                        "reasons": [f"harness: {e}"],
-                        "expected": None,
-                        "found": None,
-                    },
-                    "trace": {
-                        "status": "error",
-                        "cost_usd": 0.0,
-                        "latency_ms": 0,
-                        "steps": [],
-                        "proposals": [],
-                        "model": settings.model,
-                    },
-                }
-            r["rep"] = rep
-            results.append(r)
-            g = r["grade"]
-            t = r["trace"]
-            secs = t["latency_ms"] / 1000
-            head = f"{case['id']:8} {g['outcome']:5} ${t['cost_usd']:.4f} {secs:5.1f}s"
-            print(f"{head}  {'; '.join(g['reasons'])[:110]}")
-
+    results = run_all(
+        selected,
+        args.reps,
+        settings,
+        client=anthropic.Anthropic(),
+        runner=runner,
+        policies=PostgresPolicySearch(args.dsn, OpenAIEmbedder(os.environ["OPENAI_API_KEY"])),
+        checker=ProposalChecker(load_limits(ROOT / "data" / "policies"), runner),
+        now=datetime.fromisoformat(cases["frozen_now"].replace("Z", "+00:00")),
+    )
     summary = summarise(results, cases, settings)
-    run = {"summary": summary, "results": results}
-    RUNS.mkdir(parents=True, exist_ok=True)
-    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-    path = RUNS / f"{stamp}.json"
-    path.write_text(json.dumps(run, indent=1) + "\n")
-
-    if not args.no_site_copy:
-        SITE_COPY.write_text(json.dumps(run, indent=1) + "\n")
-    s = summary
-    print(f"\n{s['passed']}/{s['scored']} passed, {s['errors']} errors")
-    print(f"${s['cost_total_usd']} total, median ${s['cost_per_answered_median_usd']} per answer")
-    print(f"p50 {s['latency_median_ms']} ms, p90 {s['latency_p90_ms']} ms")
-
-    for suite, v in s["suites"].items():
-        print(f"  {suite:8} {v['passed']}/{v['total']}")
-    print(f"  retrieval precision {s['retrieval']['precision']} recall {s['retrieval']['recall']}")
-    print(f"wrote {path}")
+    path = write_run({"summary": summary, "results": results}, site_copy=not args.no_site_copy)
+    print_summary(summary, path)
 
 
 if __name__ == "__main__":

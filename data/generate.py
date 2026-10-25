@@ -246,6 +246,27 @@ def build_customers(
     return np.array(ids_out)
 
 
+ORDER_COLUMNS = [
+    "id", "merchant_id", "customer_id", "created_at", "channel", "source_raw",
+    "fulfillment_type", "state", "item_count", "gross_sales_cents", "discount_cents",
+    "tax_cents", "tip_cents", "total_cents",
+]  # fmt: skip
+ORDER_ITEM_COLUMNS = [
+    "id",
+    "merchant_id",
+    "order_id",
+    "item_id",
+    "quantity",
+    "unit_price_cents",
+    "total_cents",
+]
+PAYMENT_COLUMNS = [
+    "id", "order_id", "merchant_id", "created_at", "amount_cents", "tip_cents",
+    "processing_fee_cents", "refunded_amount_cents", "card_brand", "entry_method", "status",
+]  # fmt: skip
+MARKETPLACE = ("doordash", "uber_eats", "grubhub")
+
+
 def generate_orders(
     profile: dict,
     ids: Ids,
@@ -256,202 +277,167 @@ def generate_orders(
     pool_p,
     customer_ids: np.ndarray,
 ):
-    tz = ZoneInfo(profile["timezone"])
-    mid = profile["id"]
+    """Every rng call happens in the same order as before, so seed 42 still
+    yields the same dataset. Keep it that way when editing."""
+    writers = (
+        w.table("orders", ORDER_COLUMNS),
+        w.table("order_items", ORDER_ITEM_COLUMNS),
+        w.table("payments", PAYMENT_COLUMNS),
+    )
+    channels = profile["channels"]
     hour_w = np.array(profile["hour_of_day_weights"], dtype=float)
     hour_p = hour_w / hour_w.sum()
-    dow_w = profile["day_of_week_weights"]
-    dow_mult = profile["day_of_week_value_multiplier"]
-    dp_mult = profile["daypart_value_multiplier"]
-    channels = profile["channels"]
-    ch_names = list(channels)
-    ch_p = np.array([channels[c]["share"] for c in ch_names])
-    ch_p = ch_p / ch_p.sum()
-    tax_rate = profile["tax_rate_bps"] / 10_000
-    disc = profile["discount"]
-    state_mix = profile["order_state_mix"]
-
-    ow = w.table(
-        "orders",
-        [
-            "id",
-            "merchant_id",
-            "customer_id",
-            "created_at",
-            "channel",
-            "source_raw",
-            "fulfillment_type",
-            "state",
-            "item_count",
-            "gross_sales_cents",
-            "discount_cents",
-            "tax_cents",
-            "tip_cents",
-            "total_cents",
-        ],
-    )
-    oiw = w.table(
-        "order_items",
-        ["id", "merchant_id", "order_id", "item_id", "quantity", "unit_price_cents", "total_cents"],
-    )
-    pw = w.table(
-        "payments",
-        [
-            "id",
-            "order_id",
-            "merchant_id",
-            "created_at",
-            "amount_cents",
-            "tip_cents",
-            "processing_fee_cents",
-            "refunded_amount_cents",
-            "card_brand",
-            "entry_method",
-            "status",
-        ],
-    )
-
-    per_month = profile["orders_per_month"]
-    dow_total = sum(dow_w.values())
-    pay = profile["payments"]
     regulars = (
         customer_ids[customer_ids % REGULAR_EVERY == 0] if len(customer_ids) else customer_ids
     )
-    marketplace = ("doordash", "uber_eats", "grubhub")
 
     for day in days:
-        dname = DOW[day.weekday()]
-        # orders_per_month spread over 52 weeks, then split by weekday weight.
-        share = dow_w[dname] / dow_total
-        expected = per_month * 12 * share / 52.0
-        n = int(rng.poisson(max(0.1, expected)))
+        n = _orders_on(rng, profile, day)
 
         if n == 0:
             continue
-
         hours = rng.choice(24, size=n, p=hour_p)
-        chans = pick(rng, {c: channels[c]["share"] for c in ch_names}, n)
+        chans = pick(rng, {c: channels[c]["share"] for c in channels}, n)
         baskets = np.maximum(1, from_percentiles(rng, profile["basket_size"], n).round()).astype(
             int
         )
 
         for k in range(n):
-            ch = channels[chans[k]]
-            hour = int(hours[k])
-            dp = daypart_of(hour)
-            created = datetime(
-                day.year,
-                day.month,
-                day.day,
-                hour,
-                int(rng.integers(0, 60)),
-                int(rng.integers(0, 60)),
-                tzinfo=tz,
-            )
+            _write_order(
+                profile, ids, rng, writers, pools, pool_p, customer_ids, regulars,
+                day, chans[k], int(hours[k]), int(baskets[k]),
+            )  # fmt: skip
 
-            size = int(baskets[k])
 
-            if "basket_size_override" in ch:
-                size = max(
-                    1,
-                    int(from_percentiles(rng, ch["basket_size_override"], 1)[0]),
-                )
-            # Moves ticket value, not basket size.
-            occasion = dp_mult.get(dp, 1.0) * dow_mult.get(dname, 1.0)
+def _orders_on(rng: np.random.Generator, profile: dict, day: date) -> int:
+    """orders_per_month spread over 52 weeks, then split by weekday weight."""
+    dow_w = profile["day_of_week_weights"]
+    share = dow_w[DOW[day.weekday()]] / sum(dow_w.values())
+    expected = profile["orders_per_month"] * 12 * share / 52.0
 
-            oid = ids.take("order")
-            gross = 0
-            lines = []
+    return int(rng.poisson(max(0.1, expected)))
 
-            for _ in range(size):
-                pi = rng.choice(len(pools), p=pool_p)
-                _, item_ids, prices = pools[pi]
-                j = int(rng.integers(0, len(item_ids)))
-                qty = 1 if rng.random() > 0.08 else 2
-                # The markup lives on unit price, which is how marketplaces
-                # actually price, so basket size stays flat across channels.
-                unit = int(round(prices[j] * ch["value_multiplier"] * occasion))
-                lines.append((int(item_ids[j]), qty, unit, unit * qty))
-                gross += unit * qty
 
-            discount = 0
+def _write_order(
+    profile, ids, rng, writers, pools, pool_p, customer_ids, regulars, day, chan, hour, size
+):
+    ow, oiw, pw = writers
+    ch = profile["channels"][chan]
+    dname = DOW[day.weekday()]
+    created = _created_at(rng, profile, day, hour)
 
-            if rng.random() < disc["attach_rate"]:
-                rate = float(from_percentiles(rng, disc["rate_pct"], 1)[0]) / 100
-                discount = min(gross, int(round(gross * min(1.0, rate))))
+    if "basket_size_override" in ch:
+        size = max(1, int(from_percentiles(rng, ch["basket_size_override"], 1)[0]))
+    # Moves ticket value, not basket size.
+    occasion = profile["daypart_value_multiplier"].get(daypart_of(hour), 1.0) * profile[
+        "day_of_week_value_multiplier"
+    ].get(dname, 1.0)
+    oid = ids.take("order")
+    lines, gross = _basket(rng, pools, pool_p, size, ch["value_multiplier"], occasion)
+    discount = _discount(rng, profile["discount"], gross)
+    taxable = gross - discount
+    tax_rate = profile["tax_rate_bps"] / 10_000
+    tax = int(round(taxable * tax_rate))
+    tip_int = _tip(rng, profile, ch, gross)
+    tip = str(tip_int) if tip_int else ""
+    total = taxable + tax + tip_int
+    state = pick(rng, profile["order_state_mix"], 1)[0]
+    fulfil = pick(rng, ch["fulfillment"], 1)[0]
+    raw = ch["source_raw"][int(rng.integers(0, len(ch["source_raw"])))]
+    cust = _customer(rng, profile, customer_ids, regulars)
+    mid = profile["id"]
+    ow.writerow(
+        [oid, mid, cust, created.isoformat(), chan, raw if raw is not None else "", fulfil,
+         state, size, gross, discount, tax, tip, total]
+    )  # fmt: skip
 
-            taxable = gross - discount
-            tax = int(round(taxable * tax_rate))
-            tip = ""
-            tip_int = 0
+    for item_id, qty, unit, line_total in lines:
+        oiw.writerow([ids.take("order_item"), mid, oid, item_id, qty, unit, line_total])
 
-            if ch["tips"] and rng.random() < ch.get("tip_attach_rate", 0.0):
-                rate = float(from_percentiles(rng, profile["tip_rate_pct"], 1)[0]) / 100
-                tip_int = int(round(gross * rate))
-                tip = str(tip_int)
-            total = taxable + tax + tip_int
+    if state == "completed":
+        _write_payment(pw, ids, rng, profile, chan, oid, created, total, tip, cust)
 
-            state = pick(rng, state_mix, 1)[0]
-            fulfil = pick(rng, ch["fulfillment"], 1)[0]
-            raw = ch["source_raw"][int(rng.integers(0, len(ch["source_raw"])))]
-            cust = ""
 
-            if len(customer_ids) and rng.random() < profile["customers"]["identified_order_rate"]:
-                from_regulars = rng.random() < profile["customers"]["regular_order_share"]
-                pool = regulars if len(regulars) and from_regulars else customer_ids
-                cust = str(int(rng.choice(pool)))
+def _created_at(rng: np.random.Generator, profile: dict, day: date, hour: int) -> datetime:
+    return datetime(
+        day.year,
+        day.month,
+        day.day,
+        hour,
+        int(rng.integers(0, 60)),
+        int(rng.integers(0, 60)),
+        tzinfo=ZoneInfo(profile["timezone"]),
+    )
 
-            ow.writerow(
-                [
-                    oid,
-                    mid,
-                    cust,
-                    created.isoformat(),
-                    chans[k],
-                    raw if raw is not None else "",
-                    fulfil,
-                    state,
-                    size,
-                    gross,
-                    discount,
-                    tax,
-                    tip,
-                    total,
-                ]
-            )
-            for item_id, qty, unit, line_total in lines:
-                oiw.writerow([ids.take("order_item"), mid, oid, item_id, qty, unit, line_total])
 
-            if state == "completed":
-                failed = rng.random() < pay["failure_rate"]
-                serial = cust != "" and int(cust) % SERIAL_REFUNDER_EVERY == 0
-                refund_rate = (
-                    profile["customers"]["serial_refund_rate"] if serial else pay["refund_rate"]
-                )
-                refunded = 0 if failed else (total if rng.random() < refund_rate else 0)
-                fee_rate = float(from_percentiles(rng, pay["processing_fee_rate_pct"], 1)[0]) / 100
-                if chans[k] in marketplace:
-                    brand, entry = "", ""
-                elif rng.random() < pay["cash_share"]:
-                    brand, entry = "", "CASH"
-                else:
-                    brand = pick(rng, pay["card_brand_mix"], 1)[0]
-                    entry = pick(rng, pay["entry_method_mix"], 1)[0]
-                pw.writerow(
-                    [
-                        ids.take("payment"),
-                        oid,
-                        mid,
-                        created.isoformat(),
-                        total,
-                        tip,
-                        int(round(total * fee_rate)),
-                        refunded,
-                        brand,
-                        entry,
-                        "failed" if failed else "completed",
-                    ]
-                )
+def _basket(rng, pools, pool_p, size: int, markup: float, occasion: float):
+    """The markup lives on unit price, which is how marketplaces actually
+    price, so basket size stays flat across channels."""
+    lines = []
+    gross = 0
+
+    for _ in range(size):
+        pi = rng.choice(len(pools), p=pool_p)
+        _, item_ids, prices = pools[pi]
+        j = int(rng.integers(0, len(item_ids)))
+        qty = 1 if rng.random() > 0.08 else 2
+        unit = int(round(prices[j] * markup * occasion))
+        lines.append((int(item_ids[j]), qty, unit, unit * qty))
+        gross += unit * qty
+
+    return lines, gross
+
+
+def _discount(rng: np.random.Generator, disc: dict, gross: int) -> int:
+    if rng.random() >= disc["attach_rate"]:
+        return 0
+    rate = float(from_percentiles(rng, disc["rate_pct"], 1)[0]) / 100
+
+    return min(gross, int(round(gross * min(1.0, rate))))
+
+
+def _tip(rng: np.random.Generator, profile: dict, ch: dict, gross: int) -> int:
+    if not ch["tips"] or rng.random() >= ch.get("tip_attach_rate", 0.0):
+        return 0
+    rate = float(from_percentiles(rng, profile["tip_rate_pct"], 1)[0]) / 100
+
+    return int(round(gross * rate))
+
+
+def _customer(rng, profile: dict, customer_ids: np.ndarray, regulars: np.ndarray) -> str:
+    c = profile["customers"]
+
+    if not len(customer_ids) or rng.random() >= c["identified_order_rate"]:
+        return ""
+    from_regulars = rng.random() < c["regular_order_share"]
+    pool = regulars if len(regulars) and from_regulars else customer_ids
+
+    return str(int(rng.choice(pool)))
+
+
+def _write_payment(pw, ids, rng, profile, chan, oid, created, total, tip, cust) -> None:
+    pay = profile["payments"]
+    failed = rng.random() < pay["failure_rate"]
+    serial = cust != "" and int(cust) % SERIAL_REFUNDER_EVERY == 0
+    refund_rate = profile["customers"]["serial_refund_rate"] if serial else pay["refund_rate"]
+    refunded = 0 if failed else (total if rng.random() < refund_rate else 0)
+    fee_rate = float(from_percentiles(rng, pay["processing_fee_rate_pct"], 1)[0]) / 100
+    brand, entry = _card(rng, pay, chan)
+    pw.writerow(
+        [ids.take("payment"), oid, profile["id"], created.isoformat(), total, tip,
+         int(round(total * fee_rate)), refunded, brand, entry, "failed" if failed else "completed"]
+    )  # fmt: skip
+
+
+def _card(rng: np.random.Generator, pay: dict, chan: str) -> tuple[str, str]:
+    """Blank for marketplace orders, which pay out in bulk, and for cash."""
+    if chan in MARKETPLACE:
+        return "", ""
+
+    if rng.random() < pay["cash_share"]:
+        return "", "CASH"
+
+    return pick(rng, pay["card_brand_mix"], 1)[0], pick(rng, pay["entry_method_mix"], 1)[0]
 
 
 LOAD_SQL = """-- Generated by data/generate.py. Run against a database created with schema.sql.
@@ -471,7 +457,7 @@ APPEND_SQL = """-- Generated by data/generate.py --append-day. Adds one day to a
 """
 
 
-def main() -> None:
+def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=Path("data/out"))
     ap.add_argument("--profiles", type=Path, default=Path("data/profiles"))
@@ -489,57 +475,73 @@ def main() -> None:
         help="A previous full run, read for item and customer ids when appending.",
     )
     ap.add_argument("--seed", type=int, default=42)
-    args = ap.parse_args()
 
+    return ap.parse_args()
+
+
+def appended_day(ids: Ids, day: date) -> list[date]:
+    """10,000 ids per day, counted from 2025-01-01, clears the backfill's ids."""
+    offset = (day - date(2025, 1, 1)).days * 10_000
+
+    for f in ("order", "order_item", "payment"):
+        setattr(ids, f, offset + 1)
+
+    return [day]
+
+
+def backfill_days(months: int) -> list[date]:
+    end = date.today()
+
+    return [end - timedelta(days=i) for i in range(months * 30, 0, -1)]
+
+
+def catalog_for_append(profile: dict, args: argparse.Namespace, day: date):
+    # Seeded by day as well, or every appended day would replay the same
+    # random stream and look alike.
+    rng = np.random.default_rng(args.seed + profile["id"] + day.toordinal())
+    pools, pool_p = read_catalog(profile, args.catalog)
+
+    return rng, pools, pool_p, read_customer_ids(profile, args.catalog)
+
+
+def catalog_for_backfill(profile: dict, args: argparse.Namespace, ids: Ids, w: Writer, mw):
+    rng = np.random.default_rng(args.seed + profile["id"])
+    mw.writerow([profile[k] for k in ("id", "name", "cuisine", "timezone", "opened_at")])
+    pools, pool_p = build_catalog(profile, ids, rng, w)
+    customers = build_customers(
+        profile,
+        ids,
+        rng,
+        w,
+        datetime.now(ZoneInfo(profile["timezone"])) - timedelta(days=365),
+        size=min(5000, profile["customers"]["directory_size"] // 20),
+    )
+
+    return rng, pools, pool_p, customers
+
+
+def main() -> None:
+    args = parse_args()
     append = args.append_day is not None
     w = Writer(args.out)
     ids = Ids()
 
     if append:
-        # 10,000 ids per day, counted from 2025-01-01, clears the backfill's ids.
         day = date.fromisoformat(args.append_day)
-        offset = (day - date(2025, 1, 1)).days * 10_000
-
-        for f in ("order", "order_item", "payment"):
-            setattr(ids, f, offset + 1)
-        days = [day]
+        days = appended_day(ids, day)
     else:
-        end = date.today()
-        days = [end - timedelta(days=i) for i in range(args.months * 30, 0, -1)]
+        days = backfill_days(args.months)
         mw = w.table("merchants", ["id", "name", "cuisine", "timezone", "opened_at"])
 
     for path in sorted(args.profiles.glob("merchant_*.json")):
         profile = json.loads(path.read_text())
 
         if append:
-            # Seeded by day as well, or every appended day would replay the
-            # same random stream and look alike.
-            rng = np.random.default_rng(args.seed + profile["id"] + day.toordinal())
-            pools, pool_p = read_catalog(profile, args.catalog)
-            customers = read_customer_ids(profile, args.catalog)
+            rng, pools, pool_p, customers = catalog_for_append(profile, args, day)
         else:
-            rng = np.random.default_rng(args.seed + profile["id"])
-            mw.writerow(
-                [
-                    profile["id"],
-                    profile["name"],
-                    profile["cuisine"],
-                    profile["timezone"],
-                    profile["opened_at"],
-                ]
-            )
-            pools, pool_p = build_catalog(profile, ids, rng, w)
-            customers = build_customers(
-                profile,
-                ids,
-                rng,
-                w,
-                datetime.now(ZoneInfo(profile["timezone"])) - timedelta(days=365),
-                size=min(5000, profile["customers"]["directory_size"] // 20),
-            )
+            rng, pools, pool_p, customers = catalog_for_backfill(profile, args, ids, w, mw)
         generate_orders(profile, ids, rng, w, days, pools, pool_p, customers)
         print(f"  {path.name}: {len(days)} days")
-
     w.close()
     (args.out / "load.sql").write_text(APPEND_SQL if append else LOAD_SQL)
     print(f"wrote {args.out}")

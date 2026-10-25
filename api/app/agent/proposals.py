@@ -121,22 +121,17 @@ class ProposalChecker:
 
     def _check_campaign(self, p: Proposal, limits: dict[str, Any], checks: list) -> None:
         sms = limits.get("sms", {})
-        cap = int(sms.get("discount_cap_pct", 0))
 
-        if p.discount_pct is not None and p.discount_pct > cap:
-            return _block(p, checks, "discount", f"{p.discount_pct}% is over the {cap}% cap")
-        checks.append(
-            {
-                "name": "discount",
-                "passed": True,
-                "detail": f"{p.discount_pct or 0}% within the {cap}% cap",
-            }
-        )
-        wording = str(sms.get("stop_wording", ""))
+        if not _discount_within_cap(p, sms, checks):
+            return
 
-        if wording and wording.lower() not in (p.draft_message or "").lower():
-            return _block(p, checks, "wording", f'the message must end with "{wording}"')
-        checks.append({"name": "wording", "passed": True, "detail": "opt-out wording present"})
+        if not _wording_present(p, sms, checks):
+            return
+        count = self._count_audience(p, sms, checks)
+        _audience_cap(p, sms, checks, count)
+
+    def _count_audience(self, p: Proposal, sms: dict[str, Any], checks: list) -> int:
+        """Counts who may be texted from the consent flags, whatever the model claimed."""
         days = int(sms.get("implied_consent_days", 0))
         consent = "c.sms_opt_in"
 
@@ -161,17 +156,8 @@ class ProposalChecker:
         if claimed is not None and claimed != count:
             detail += f"; the model said {claimed}"
         checks.append({"name": "audience", "passed": True, "detail": detail})
-        audience_cap = int(sms.get("audience_cap", 0))
 
-        if audience_cap and count > audience_cap:
-            checks.append(
-                {
-                    "name": "audience cap",
-                    "passed": True,
-                    "detail": f"{count} is over the {audience_cap} cap, so the owner must approve",
-                }
-            )
-            p.payload["needs_owner"] = True
+        return int(count)
 
     def _check_comp(self, p: Proposal, limits: dict[str, Any], checks: list) -> None:
         amount = _int(p.payload.get("amount_cents"))
@@ -198,6 +184,51 @@ class ProposalChecker:
                     "detail": f"${amount / 100:.2f} is within the ${limit / 100:.2f} manager limit",
                 }
             )
+
+
+def _discount_within_cap(p: Proposal, sms: dict[str, Any], checks: list) -> bool:
+    cap = int(sms.get("discount_cap_pct", 0))
+
+    if p.discount_pct is not None and p.discount_pct > cap:
+        _block(p, checks, "discount", f"{p.discount_pct}% is over the {cap}% cap")
+
+        return False
+    checks.append(
+        {
+            "name": "discount",
+            "passed": True,
+            "detail": f"{p.discount_pct or 0}% within the {cap}% cap",
+        }
+    )
+
+    return True
+
+
+def _wording_present(p: Proposal, sms: dict[str, Any], checks: list) -> bool:
+    wording = str(sms.get("stop_wording", ""))
+
+    if wording and wording.lower() not in (p.draft_message or "").lower():
+        _block(p, checks, "wording", f'the message must end with "{wording}"')
+
+        return False
+    checks.append({"name": "wording", "passed": True, "detail": "opt-out wording present"})
+
+    return True
+
+
+def _audience_cap(p: Proposal, sms: dict[str, Any], checks: list, count: int) -> None:
+    cap = int(sms.get("audience_cap", 0))
+
+    if not cap or count <= cap:
+        return
+    checks.append(
+        {
+            "name": "audience cap",
+            "passed": True,
+            "detail": f"{count} is over the {cap} cap, so the owner must approve",
+        }
+    )
+    p.payload["needs_owner"] = True
 
 
 def _block(p: Proposal, checks: list, name: str, reason: str) -> None:
