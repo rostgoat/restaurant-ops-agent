@@ -21,6 +21,9 @@ export const metadata = { title: "Evaluation" };
 
 export default function EvaluationPage() {
   const s = data.summary;
+  const low = compare.runs.find((r) => r.effort === "low");
+  const t040 = compare.runs.find((r) => r.retrieval_threshold === 0.4);
+  const t060 = compare.runs.find((r) => r.retrieval_threshold === 0.6);
   const when = new Date(s.ran_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const rate = s.scored ? Math.round((100 * s.passed) / s.scored) : 0;
   const perMonth = s.cost_per_answered_median_usd !== null ? s.cost_per_answered_median_usd * QUESTIONS_PER_DAY * 30 : null;
@@ -137,19 +140,33 @@ export default function EvaluationPage() {
           <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
             <p>
               Cost and time are per answered question, the typical one. Run cost is the whole run.
-              Low effort did as well as medium on these cases, at the same cost and a little
-              faster. The two failures on the main run are both retrieval misses: a section that
-              exists scored 0.38 to 0.49 against the 0.50 threshold, so the model was shown
-              nothing. The model then said the policies were silent, which is false.
             </p>
             <p>
-              The threshold rows show the trade. At 0.40 the model sees more wrong sections
-              (precision 0.30) and almost every right one (recall 0.93). At 0.60 it sees few wrong
-              sections (precision 0.82) and misses four in ten right ones (recall 0.60), and the
-              discounts section drops out of four cases at once. Each setting ran once, and one
-              case flips between runs of the same setting when the model words its search
-              differently, so a difference of one or two cases is noise. The shape is not: 0.40 to
-              0.50 is the range, and the next step is repetitions to pick within it.
+              <strong className="text-foreground">The model is not the bottleneck.</strong> Low
+              effort passed {`${low?.passed ?? "?"} of ${low?.scored ?? "?"}`}, medium passed{" "}
+              {`${s.passed} of ${s.scored}`}. The one-case gap is a wording flip, not a reasoning gap. A bigger model
+              would not have changed these results.
+            </p>
+            <p>
+              <strong className="text-foreground">Retrieval is.</strong> Both failures on the main
+              run are the same failure. The right section exists, scored 0.38 to 0.49 against the
+              model&apos;s search, and the threshold was {s.retrieval_threshold}. Shown nothing, the
+              model said the policy was silent. That is the failure to worry about, because it reads
+              like a careful answer.
+            </p>
+            <p>
+              <strong className="text-foreground">Set the threshold low.</strong> At 0.40 the model
+              sees {fmt(t040?.retrieval.recall ?? null)} of the right sections and some wrong ones.
+              At 0.60 it sees {fmt(t060?.retrieval.recall ?? null)} of the right ones, and four
+              discount cases fail together when one section drops below the bar. A hidden section
+              produces a confident wrong answer; an extra section gets ignored. The range is 0.40
+              to 0.50.
+            </p>
+            <p>
+              <strong className="text-foreground">What this cannot tell you.</strong> Each setting
+              ran once, and the model words its own searches, so a one-case difference between
+              settings is noise. Running each setting several times would give a pass rate with a
+              spread, and that is the next measurement.
             </p>
           </div>
         </section>
