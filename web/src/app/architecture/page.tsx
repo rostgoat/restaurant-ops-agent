@@ -1,4 +1,5 @@
 import { Separator } from "@/components/ui/separator";
+import { ArchitectureDiagram } from "@/components/architecture-diagram";
 import { Kicker } from "@/components/kicker";
 
 export const metadata = { title: "Architecture" };
@@ -13,6 +14,13 @@ export default function ArchitecturePage() {
         model did and which were done by ordinary code. The point of the split is that a wrong
         answer from the model cannot become a wrong action: code decides what is allowed to run.
       </p>
+
+      <figure className="my-14">
+        <ArchitectureDiagram />
+        <figcaption className="mt-4 text-base text-muted-foreground">
+          The request path. Each box is a step the trace records, in the colour the trace uses.
+        </figcaption>
+      </figure>
 
       <Separator className="my-14" />
       <h2 className="mb-3 text-2xl">The model proposes</h2>
