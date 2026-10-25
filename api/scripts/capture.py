@@ -9,10 +9,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def auth(headers: dict[str, str]) -> dict[str, str]:
+    """Adds the API token when the API is configured to require one."""
+    token = os.environ.get("API_TOKEN")
+
+    return headers | {"X-API-Token": token} if token else headers
 
 
 def main() -> None:
@@ -31,7 +39,9 @@ def main() -> None:
         req = urllib.request.Request(
             f"{args.api}/ask",
             data=json.dumps({"question": s["question"]}).encode(),
-            headers={"content-type": "application/json", "X-Merchant-Id": str(s["merchant_id"])},
+            headers=auth(
+                {"content-type": "application/json", "X-Merchant-Id": str(s["merchant_id"])}
+            ),
             method="POST",
         )
         with urllib.request.urlopen(req, timeout=300) as r:
@@ -41,7 +51,7 @@ def main() -> None:
         pending = [p for p in trace.get("proposals", []) if p["status"] == "pending"]
 
         if s.get("approve") and pending:
-            headers = {"X-Merchant-Id": str(s["merchant_id"])}
+            headers = auth({"X-Merchant-Id": str(s["merchant_id"])})
             urllib.request.urlopen(
                 urllib.request.Request(
                     f"{args.api}/proposals/{pending[0]['id']}/approve",

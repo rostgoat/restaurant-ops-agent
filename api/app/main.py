@@ -4,8 +4,9 @@ import os
 from contextlib import asynccontextmanager
 
 import anthropic
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app import config
 from app.agent.proposals import ProposalChecker, load_limits
@@ -19,6 +20,7 @@ from app.store import Store
 async def lifespan(app: FastAPI):
     cfg = config.load()
     app.state.settings = cfg.settings
+    app.state.api_token = cfg.api_token
     app.state.store = Store(cfg.database_url)
     app.state.store.open()
     app.state.runner = PostgresRunner(cfg.database_url)
@@ -42,11 +44,24 @@ async def lifespan(app: FastAPI):
         app.state.policies.close()
 
 
+async def require_token(request: Request, call_next):
+    """The site's server and the scripts send the token. Nothing else may ask."""
+    expected = getattr(request.app.state, "api_token", None)
+
+    required = bool(expected) and request.url.path != "/health"
+
+    if required and request.headers.get("X-API-Token") != expected:
+        return JSONResponse({"detail": "missing or wrong API token"}, status_code=401)
+
+    return await call_next(request)
+
+
 def create_app(lifespan=lifespan, web_origin: str = "http://localhost:3000") -> FastAPI:
     app = FastAPI(title="restaurant-ops-agent", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware, allow_origins=[web_origin], allow_methods=["*"], allow_headers=["*"]
     )
+    app.middleware("http")(require_token)
     app.include_router(merchants.router)
     app.include_router(ask.router)
     app.include_router(traces.router)

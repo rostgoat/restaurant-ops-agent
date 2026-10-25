@@ -190,3 +190,17 @@ def test_question_stats_count_every_time_this_restaurant_asked_it():
         ]
         == 0
     )
+
+
+def test_a_configured_token_is_required_on_everything_but_health():
+    api, _ = make()
+    api.app.state.api_token = "s3cret"
+    assert api.get("/health").status_code == 200
+    assert api.get("/merchants").status_code == 401
+    assert api.get("/merchants", headers={"X-API-Token": "wrong"}).status_code == 401
+    assert api.get("/merchants", headers={"X-API-Token": "s3cret"}).status_code == 200
+
+
+def test_without_a_token_the_api_is_open_for_local_work():
+    api, _ = make()
+    assert api.get("/merchants").status_code == 200

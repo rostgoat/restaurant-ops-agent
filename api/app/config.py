@@ -15,6 +15,8 @@ _DEFAULT_POLICIES = Path(__file__).resolve().parents[2] / "data" / "policies"
 class Config:
     database_url: str
     web_origin: str
+    # Required on every request but /health when set. Unset means open, for local work.
+    api_token: str | None
     openai_api_key: str | None
     policies_root: Path
     settings: Settings
@@ -26,6 +28,7 @@ def load() -> Config:
     return Config(
         database_url=os.environ["DATABASE_URL"],
         web_origin=os.environ.get("WEB_ORIGIN", "http://localhost:3000"),
+        api_token=os.environ.get("API_TOKEN") or None,
         openai_api_key=os.environ.get("OPENAI_API_KEY") or None,
         policies_root=Path(os.environ.get("POLICIES_ROOT", str(_DEFAULT_POLICIES))),
         settings=Settings(

@@ -6,6 +6,8 @@ export type Step = components["schemas"]["StepOut"];
 export type QuestionStats = components["schemas"]["QuestionStatsOut"];
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
+// The API requires this on every request when it is set on both sides.
+const API_TOKEN = process.env.API_TOKEN;
 
 export class ApiUnreachable extends Error {
   constructor() {
@@ -16,8 +18,12 @@ export class ApiUnreachable extends Error {
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response: Response;
 
+  const headers = new Headers(init.headers);
+
+  if (API_TOKEN) headers.set("X-API-Token", API_TOKEN);
+
   try {
-    response = await fetch(`${API_URL}${path}`, init);
+    response = await fetch(`${API_URL}${path}`, { ...init, headers });
   } catch {
     throw new ApiUnreachable();
   }

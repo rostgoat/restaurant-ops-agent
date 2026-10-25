@@ -34,7 +34,7 @@ infra/   Postgres init for docker compose.
 
 ```bash
 # the database and the API on :8000
-cp .env.example .env            # add ANTHROPIC_API_KEY and OPENAI_API_KEY
+cp .env.example .env            # add ANTHROPIC_API_KEY and OPENAI_API_KEY; API_TOKEN when deployed
 python data/generate.py --out data/out --months 12 --seed 42
 docker compose up -d --build --wait      # the api image builds from the repo root
 cd api && .venv/bin/python -m app.policies.index --dsn "$DATABASE_URL" --dsn "$EVAL_DATABASE_URL"
