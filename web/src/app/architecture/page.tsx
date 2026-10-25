@@ -71,7 +71,7 @@ export default function ArchitecturePage() {
         </h2>
         <p>
           The model gets the question and a description of the seven tables it may read. It has
-          four tools. <Code>run_sql</Code> writes one SELECT and says what it answers.{" "}
+          four tools. <Code>run_sql</Code> writes one <Code>SELECT</Code> and says what it answers.{" "}
           <Code>search_policy</Code> asks for the rules on a topic. <Code>propose</Code> drafts an
           action: a dispute, a text campaign, a comp or a note to the owner. <Code>decline</Code>{" "}
           turns the question down and says why. The model can call up
@@ -85,10 +85,10 @@ export default function ArchitecturePage() {
           The guard
         </h2>
         <p>
-          The guard takes the SQL apart with sqlglot into the parts the database would see, a
+          The guard takes the SQL apart with <Code>sqlglot</Code> into the parts the database would see, a
           parse tree, instead of reading it as text. A string match misses a write hidden behind a
           comment or odd casing. The parsed query does not. It runs eight
-          checks: the query parses, it is one statement, it is a SELECT, it contains no write, it
+          checks: the query parses, it is one statement, it is a <Code>SELECT</Code>, it contains no write, it
           calls no function that reads files or reaches the network, it reads only the seven
           allowed tables, it is scoped to one restaurant, and it fits under a row limit. The scope
           check adds the filter rather than looking for one. Every table in the query is replaced
@@ -116,7 +116,7 @@ export default function ArchitecturePage() {
         </h2>
         <p>
           Each restaurant has three policy documents written as a manual, with numbered sections.
-          Each section is stored with an embedding in Postgres, using pgvector. A search is
+          Each section is stored with an embedding in Postgres, using <Code>pgvector</Code>. A search is
           limited to the asking restaurant before any score is computed, the same way the guard
           limits a query. Up to four sections come back, and only those scoring above{" "}
           {s.retrieval_threshold.toFixed(2)}. Sections under the bar are written to the trace but
@@ -185,13 +185,13 @@ export default function ArchitecturePage() {
         </h2>
         <ul className="list-disc space-y-3 pl-6">
           <li>
-            <strong className="font-semibold">Python and sqlglot over Node.</strong> Validating
+            <strong className="font-semibold">Python and <Code>sqlglot</Code> over Node.</strong> Validating
             generated SQL as a parse tree is the whole enforcement layer, and the JavaScript
             parsers are weaker.
           </li>
           <li>
             <strong className="font-semibold">No ORM.</strong> The premise is running generated
-            SQL. An ORM would sit in the way. Queries go through psycopg directly.
+            SQL. An ORM would sit in the way. Queries go through <Code>psycopg</Code> directly.
           </li>
           <li>
             <strong className="font-semibold">Scoping by rewrite, not row-level security.</strong>{" "}
@@ -232,8 +232,9 @@ export default function ArchitecturePage() {
         </ul>
 
         <p className="mt-14 text-base text-muted-foreground">
-          FastAPI, psycopg, sqlglot, Postgres with pgvector, OpenAI text-embedding-3-small, Claude
-          Sonnet 5.5, Next.js. One docker compose file runs all of it.
+          <Code>FastAPI</Code>, <Code>psycopg</Code>, <Code>sqlglot</Code>, Postgres with{" "}
+          <Code>pgvector</Code>, OpenAI <Code>text-embedding-3-small</Code>, Claude Sonnet 5.5,{" "}
+          <Code>Next.js</Code>. One <Code>docker compose</Code> file runs all of it.
         </p>
       </article>
     </>
