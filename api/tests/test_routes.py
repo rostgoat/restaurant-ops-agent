@@ -42,10 +42,6 @@ class FakeStore:
         trace = self.traces.get(trace_id)
         return trace if trace and trace.merchant_id == merchant_id else None
 
-    def recent_traces(self, merchant_id, limit):
-        mine = [t for t in self.traces.values() if t.merchant_id == merchant_id]
-        return sorted(mine, key=lambda t: t.created_at, reverse=True)[:limit]
-
 
 @asynccontextmanager
 async def no_lifespan(app):
@@ -154,14 +150,8 @@ def test_a_trace_can_be_fetched_by_its_owner_only():
     assert api.get(f"/traces/{trace_id}", headers=as_merchant(2)).status_code == 404
 
 
-def test_recent_traces_are_scoped_to_the_caller():
-    api, _ = make(
-        FakeClient(reply(text("hi")), reply(text("hi")), reply(text("hi"))),
-    )
-    api.post("/ask", json={"question": "a"}, headers=as_merchant(1))
-    api.post("/ask", json={"question": "b"}, headers=as_merchant(1))
-    api.post("/ask", json={"question": "c"}, headers=as_merchant(2))
-
-    mine = api.get("/traces", headers=as_merchant(1)).json()
-    assert [t["question"] for t in mine] == ["b", "a"]
-    assert [t["question"] for t in api.get("/traces", headers=as_merchant(2)).json()] == ["c"]
+def test_a_trace_is_only_readable_by_the_restaurant_that_asked():
+    api, _ = make(FakeClient(reply(text("hi"))))
+    trace_id = api.post("/ask", json={"question": "a"}, headers=as_merchant(1)).json()["id"]
+    assert api.get(f"/traces/{trace_id}", headers=as_merchant(1)).status_code == 200
+    assert api.get(f"/traces/{trace_id}", headers=as_merchant(2)).status_code == 404

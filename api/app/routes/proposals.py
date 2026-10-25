@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, HTTPException, Request
 
 from app.agent.proposals import execute
 from app.agent.trace import Step
@@ -10,14 +10,6 @@ from app.tenancy.merchant import Merchant
 from .schemas import ProposalOut
 
 router = APIRouter()
-
-
-@router.get("/proposals", response_model=list[ProposalOut])
-def proposals(
-    merchant_id: Merchant, request: Request, limit: int = Query(20, ge=1, le=100)
-) -> list[ProposalOut]:
-    found = request.app.state.store.proposals(merchant_id, limit)
-    return [ProposalOut.model_validate(p, from_attributes=True) for p in found]
 
 
 @router.post("/proposals/{proposal_id}/approve", response_model=ProposalOut)
@@ -47,7 +39,10 @@ def _decide(proposal_id: UUID, merchant_id: int, request: Request, *, approve: b
     seq = len(trace.steps)
     steps: list[Step] = [
         Step(
-            seq + 1, "human", "approve" if approve else "reject", proposal.status,
+            seq + 1,
+            "human",
+            "approve" if approve else "reject",
+            proposal.status,
             {"proposal_id": str(proposal.id), "kind": proposal.kind, "summary": proposal.summary},
         )
     ]
@@ -56,7 +51,10 @@ def _decide(proposal_id: UUID, merchant_id: int, request: Request, *, approve: b
         proposal.payload["execution"] = result
         steps.append(
             Step(
-                seq + 2, "code", "execute", "done",
+                seq + 2,
+                "code",
+                "execute",
+                "done",
                 {"proposal_id": str(proposal.id), "kind": proposal.kind} | result,
             )
         )

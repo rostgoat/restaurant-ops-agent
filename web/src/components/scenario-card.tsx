@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
 import { MerchantBadge } from "@/components/merchant-badge";
-import { RerunScenario } from "@/components/rerun-scenario";
+import { RerunButton, RerunResult, useRerun } from "@/components/rerun-scenario";
 import type { Scenario } from "@/lib/scenarios";
 
 function toolsUsed(s: Scenario): string[] {
@@ -24,6 +24,12 @@ function toolsUsed(s: Scenario): string[] {
 
 export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?: string }) {
   const [open, setOpen] = useState(false);
+  const rerun = useRerun(scenario.slug);
+  const capturedOn = new Date(scenario.trace.created_at).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   const t = scenario.trace;
   return (
     <article id={scenario.slug} className="scroll-mt-10 border-t pt-8">
@@ -64,19 +70,28 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
       </div>
 
       <Collapsible open={open} onOpenChange={setOpen} className="mt-6">
-        <CollapsibleTrigger asChild>
-          <Button size="lg" variant={open ? "outline" : "default"} className="h-11 px-5 font-heading text-base">
-            {open ? "Hide the trace" : "Show the trace"}
-          </Button>
-        </CollapsibleTrigger>
+        <div className="flex flex-wrap items-center gap-3">
+          <CollapsibleTrigger asChild>
+            <Button size="lg" variant={open ? "outline" : "default"} className="h-11 px-5 font-heading text-base">
+              {open ? "Hide the trace" : "Show the trace"}
+            </Button>
+          </CollapsibleTrigger>
+          <RerunButton pending={rerun.pending} elapsed={rerun.elapsed} onClick={rerun.run} />
+        </div>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Captured on {capturedOn}. Asking again puts the same question to the agent live, for a few
+          cents and about ten seconds. Each run is kept so you can flip between them.
+        </p>
         <CollapsibleContent className="mt-8">
           <TraceLedger trace={t} />
         </CollapsibleContent>
       </Collapsible>
-      <RerunScenario
-        slug={scenario.slug}
+      <RerunResult
+        runs={rerun.runs}
+        shown={rerun.shown}
+        setShown={rerun.setShown}
+        error={rerun.error}
         merchantId={scenario.merchant_id}
-        capturedOn={new Date(t.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
       />
     </article>
   );

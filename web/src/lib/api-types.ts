@@ -55,23 +55,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/traces": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Recent Traces */
-        get: operations["recent_traces_traces_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/traces/{trace_id}": {
         parameters: {
             query?: never;
@@ -81,23 +64,6 @@ export interface paths {
         };
         /** Get Trace */
         get: operations["get_trace_traces__trace_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/proposals": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Proposals */
-        get: operations["proposals_proposals_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -373,39 +339,6 @@ export interface operations {
             };
         };
     };
-    recent_traces_traces_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header: {
-                "x-merchant-id": number;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TraceOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_trace_traces__trace_id__get: {
         parameters: {
             query?: never;
@@ -426,39 +359,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TraceOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    proposals_proposals_get: {
-        parameters: {
-            query?: {
-                limit?: number;
-            };
-            header: {
-                "x-merchant-id": number;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProposalOut"][];
                 };
             };
             /** @description Validation Error */
