@@ -21,6 +21,10 @@ const sections = [
   { slug: "gaps", title: "What it does not do" },
 ];
 
+function Code({ children }: { children: string }) {
+  return <code className="rounded-sm bg-muted px-1.5 py-0.5 font-sql text-[0.85em]">{children}</code>;
+}
+
 function File({ path }: { path: string }) {
   return (
     <a href={REPO + path} className="font-sql text-sm text-primary underline-offset-4 hover:underline">
@@ -67,9 +71,10 @@ export default function ArchitecturePage() {
         </h2>
         <p>
           The model gets the question and a description of the seven tables it may read. It has
-          four tools. run_sql writes one SELECT and says what it answers. search_policy asks for
-          the rules on a topic. propose drafts an action: a dispute, a text campaign, a comp or a
-          note to the owner. decline turns the question down and says why. The model can call up
+          four tools. <Code>run_sql</Code> writes one SELECT and says what it answers.{" "}
+          <Code>search_policy</Code> asks for the rules on a topic. <Code>propose</Code> drafts an
+          action: a dispute, a text campaign, a comp or a note to the owner. <Code>decline</Code>{" "}
+          turns the question down and says why. The model can call up
           to six tools in one request, in any order, or answer in plain text with none. I gave it
           no tool that changes anything, so there is nothing for a bad prompt to reach.{" "}
           <File path="api/app/agent/tools.py" />
