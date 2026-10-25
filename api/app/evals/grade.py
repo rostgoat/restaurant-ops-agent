@@ -9,6 +9,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from app.agent.loop import citations_in
 from app.agent.trace import Trace
 
 NUMBER = re.compile(r"(?<![\w.])\$?\s?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?\s?(%)?")
@@ -22,9 +23,22 @@ class Grade:
     found: Any = None
 
 
+WORDS = {
+    w: i
+    for i, w in enumerate(
+        [
+            "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
+            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen",
+            "seventeen", "eighteen", "nineteen", "twenty",
+        ]
+    )
+}  # fmt: skip
+NUMBER_WORD = re.compile(r"\b(" + "|".join(WORDS) + r")\b", re.IGNORECASE)
+
+
 def numbers_in(text: str) -> list[tuple[float, bool, bool]]:
-    """Every number in the text as (value, is_dollars, is_percent)."""
-    out = []
+    """Every number in the text as (value, is_dollars, is_percent), spelled-out ones included."""
+    out = [(float(WORDS[m.group(1).lower()]), False, False) for m in NUMBER_WORD.finditer(text)]
     for m in NUMBER.finditer(text):
         whole = m.group(1).replace(",", "")
         frac = m.group(2) or ""
@@ -162,10 +176,16 @@ def _grade_sql(case: dict[str, Any], trace: Trace, gold: Any) -> Grade:
 
 
 def _cited(trace: Trace) -> tuple[list[str], str | None]:
-    step = next((s for s in trace.steps if s.name == "citations"), None)
-    if step is None:
-        return [], None
-    return list((step.detail or {}).get("cited", [])), step.outcome
+    """Recomputed from the answer and the sections shown, so a regrade uses today's parser."""
+    cited = sorted(citations_in(trace.answer or ""))
+    if not any(s.name == "search_policy" for s in trace.steps):
+        return cited, None
+    retrieved = _used_labels(trace)
+    if not retrieved:
+        return cited, "failed" if cited else "passed"
+    if not cited or set(cited) - retrieved:
+        return cited, "failed"
+    return cited, "passed"
 
 
 def _used_labels(trace: Trace) -> set[str]:
@@ -253,9 +273,14 @@ def _grade_propose(case: dict[str, Any], trace: Trace) -> Grade:
                     "customers who have consented"
                 )
     elif want == "blocked_or_none" and "pending" in statuses:
-        reasons.append(
-            f"a {kind} proposal was left pending; it should have been blocked or never proposed"
-        )
+        pending = [p for p in proposals if p.status == "pending"]
+        cap = case.get("pending_ok_up_to_pct")
+        escalated = all(p.payload.get("needs_owner") for p in pending)
+        within = cap is not None and all((p.discount_pct or 0) <= cap for p in pending)
+        if not (escalated or within):
+            reasons.append(
+                f"a {kind} proposal was left pending; it should have been blocked or never proposed"
+            )
     for group in _mentions(trace.answer or "", case.get("must_mention", [])):
         reasons.append(f"answer does not mention {group}")
     return Grade("fail" if reasons else "pass", reasons, want, statuses)

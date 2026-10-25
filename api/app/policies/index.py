@@ -4,6 +4,7 @@ databases. Run after a policy changes, with the OpenAI key in the environment:
 
     .venv/bin/python -m app.policies.index --dsn $DATABASE_URL --dsn $EVAL_DATABASE_URL
 """
+
 from __future__ import annotations
 
 import argparse

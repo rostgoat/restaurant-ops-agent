@@ -3,6 +3,7 @@ Tests for policy chunking, the fake embedder, and the agent's use of policy
 search, with retrieval scripted. The scoped vector search itself is covered
 against a real database in test_postgres.
 """
+
 from __future__ import annotations
 
 import json
@@ -36,7 +37,11 @@ class FakeSearch:
 
 def ask(question, client, policies, settings=None):
     return answer(
-        question, 1, client=client, runner=FakeRunner(), policies=policies,
+        question,
+        1,
+        client=client,
+        runner=FakeRunner(),
+        policies=policies,
         settings=settings or Settings(),
     )
 
@@ -46,22 +51,34 @@ def ask(question, client, policies, settings=None):
 
 def test_a_document_splits_into_its_sections():
     markdown = (
-        "# House policy\n\nIntro.\n\n## Comps\n\nUp to $25.\n\n## Refunds\n\nWithin 7 days.\n"
+        "# House Policy\n\n## 1. Scope\n\nIntro.\n\n## 2. Comps\n\nUp to $25.\n\n"
+        "## 3. Refunds\n\nWithin 7 days.\n"
     )
     chunks = parse_document(1, "house", markdown)
-    assert [(c.section, c.body) for c in chunks] == [
-        ("Comps", "Up to $25."),
-        ("Refunds", "Within 7 days."),
+    assert [(c.document, c.section, c.body) for c in chunks] == [
+        ("House Policy", "1. Scope", "Intro."),
+        ("House Policy", "2. Comps", "Up to $25."),
+        ("House Policy", "3. Refunds", "Within 7 days."),
     ]
-    assert chunks[0].label == "house: Comps"
-    assert chunks[0].text.startswith("house: Comps\n")
+    chunks = chunks[1:]
+    assert chunks[0].label == "House Policy §2, Comps"
+    assert chunks[0].text.startswith("House Policy §2, Comps\n")
 
 
 def test_the_real_policies_read_cleanly():
     chunks = read_policies(POLICIES)
     by_merchant = {m: [c for c in chunks if c.merchant_id == m] for m in (1, 2)}
-    assert {c.document for c in by_merchant[1]} == {"house", "marketplace", "messaging"}
-    assert {c.document for c in by_merchant[2]} == {"house", "online-orders", "messaging"}
+    assert {c.document for c in by_merchant[1]} == {
+        "House Policy",
+        "Marketplace Terms",
+        "Customer Messaging Policy",
+    }
+    assert {c.document for c in by_merchant[2]} == {
+        "House Policy",
+        "Online Ordering and Loyalty Policy",
+        "Customer Messaging Policy",
+    }
+    assert all(c.label.split(" §")[1][0].isdigit() for c in chunks)
     assert all(c.body for c in chunks)
     assert len({c.label for c in by_merchant[1]}) == len(by_merchant[1])
 
@@ -90,12 +107,12 @@ def test_vectors_serialise_for_postgres():
 
 
 def test_hits_payload_marks_what_was_used():
-    hits = [Hit("house: Comps", "…", 0.52), Hit("house: Refunds", "…", 0.21)]
+    hits = [Hit("House Policy §2, Comps", "…", 0.52), Hit("House Policy §3, Refunds", "…", 0.21)]
     payload = hits_payload(hits, 0.30)
     assert payload["threshold"] == 0.30
     assert [(h["label"], h["used"]) for h in payload["hits"]] == [
-        ("house: Comps", True),
-        ("house: Refunds", False),
+        ("House Policy §2, Comps", True),
+        ("House Policy §3, Refunds", False),
     ]
 
 
@@ -104,12 +121,12 @@ def test_hits_payload_marks_what_was_used():
 
 def test_a_policy_question_retrieves_then_answers_with_a_checked_citation():
     hits = [
-        Hit("house: Comps", "A manager may comp up to $25.", 0.61),
-        Hit("house: Refunds", "…", 0.12),
+        Hit("House Policy §2, Comps", "A manager may comp up to $25.", 0.61),
+        Hit("House Policy §3, Refunds", "…", 0.12),
     ]
     client = FakeClient(
         reply(search_policy("manager comp limit")),
-        reply(text("A manager may comp up to $25 on one ticket [house: Comps].")),
+        reply(text("A manager may comp up to $25 on one ticket [House Policy §2, Comps].")),
     )
     search = FakeSearch(hits)
 
@@ -124,33 +141,38 @@ def test_a_policy_question_retrieves_then_answers_with_a_checked_citation():
     ]
     assert search.calls == [(1, "manager comp limit", 4)]
     retrieve = trace.steps[1].detail
-    assert retrieve["hits"][0] == {"label": "house: Comps", "score": 0.61, "used": True}
+    assert retrieve["hits"][0] == {"label": "House Policy §2, Comps", "score": 0.61, "used": True}
     assert retrieve["hits"][1]["used"] is False
     sent = json.loads(client.requests[1]["messages"][2]["content"][0]["content"])
     assert sent == {
-        "sections": [{"label": "house: Comps", "text": "A manager may comp up to $25."}]
+        "sections": [{"label": "House Policy §2, Comps", "text": "A manager may comp up to $25."}]
     }
 
 
 def test_citing_a_section_that_was_not_retrieved_fails_the_check():
     client = FakeClient(
         reply(search_policy("comp limit")),
-        reply(text("Up to $25 [house: Comps], and refunds within 7 days [house: Refunds].")),
+        reply(
+            text(
+                "Up to $25 [House Policy §2, Comps], and refunds within 7 days "
+                "[House Policy §3, Refunds]."
+            )
+        ),
     )
-    search = FakeSearch([Hit("house: Comps", "…", 0.61)])
+    search = FakeSearch([Hit("House Policy §2, Comps", "…", 0.61)])
 
     trace = ask("comp limit?", client, search)
 
     assert trace.status == "answered"
     check = trace.steps[-1]
     assert (check.name, check.outcome) == ("citations", "failed")
-    assert check.detail["not_retrieved"] == ["house: Refunds"]
+    assert check.detail["not_retrieved"] == ["House Policy §3, Refunds"]
 
 
 def test_using_policy_without_citing_fails_the_check():
     client = FakeClient(reply(search_policy("comp limit")), reply(text("Up to $25.")))
 
-    trace = ask("comp limit?", client, FakeSearch([Hit("house: Comps", "…", 0.61)]))
+    trace = ask("comp limit?", client, FakeSearch([Hit("House Policy §2, Comps", "…", 0.61)]))
 
     assert trace.steps[-1].outcome == "failed"
     assert "nothing was cited" in trace.steps[-1].detail["reason"]
@@ -161,7 +183,7 @@ def test_nothing_above_threshold_is_said_so_and_not_cited():
         reply(search_policy("health inspection rules")),
         reply(text("Your policies do not cover health inspections.")),
     )
-    search = FakeSearch([Hit("house: Allergies", "…", 0.18)])
+    search = FakeSearch([Hit("House Policy §7, Allergies", "…", 0.18)])
 
     trace = ask("what is the health inspection rule?", client, search)
 
@@ -174,17 +196,19 @@ def test_nothing_above_threshold_is_said_so_and_not_cited():
 
 
 def test_citing_when_nothing_was_retrieved_fails_the_check():
-    client = FakeClient(reply(search_policy("q")), reply(text("You must do X [house: Comps].")))
+    client = FakeClient(
+        reply(search_policy("q")), reply(text("You must do X [House Policy §2, Comps]."))
+    )
 
-    trace = ask("q", client, FakeSearch([Hit("house: Allergies", "…", 0.18)]))
+    trace = ask("q", client, FakeSearch([Hit("House Policy §7, Allergies", "…", 0.18)]))
 
     assert trace.steps[-1].outcome == "failed"
     assert "nothing was retrieved" in trace.steps[-1].detail["reason"]
 
 
 def test_the_threshold_is_a_setting():
-    client = FakeClient(reply(search_policy("q")), reply(text("ok [house: Comps].")))
-    search = FakeSearch([Hit("house: Comps", "…", 0.25)])
+    client = FakeClient(reply(search_policy("q")), reply(text("ok [House Policy §2, Comps].")))
+    search = FakeSearch([Hit("House Policy §2, Comps", "…", 0.25)])
 
     trace = ask("q", client, search, Settings(retrieval_threshold=0.2, retrieval_limit=2))
 
@@ -206,3 +230,17 @@ def test_a_data_question_never_runs_the_citation_check():
     client = FakeClient(reply(text("Hello.")))
     trace = ask("hi", client, FakeSearch([]))
     assert [s.name for s in trace.steps] == ["answer"]
+
+
+def test_two_sections_in_one_bracket_are_two_citations():
+    client = FakeClient(
+        reply(search_policy("q")),
+        reply(text("Yes [House Policy §2, Comps; House Policy §3, Refunds].")),
+    )
+    search = FakeSearch(
+        [Hit("House Policy §2, Comps", "…", 0.61), Hit("House Policy §3, Refunds", "…", 0.6)]
+    )
+    trace = ask("q", client, search)
+    check = next(s for s in trace.steps if s.name == "citations")
+    assert check.outcome == "passed"
+    assert check.detail["cited"] == ["House Policy §2, Comps", "House Policy §3, Refunds"]

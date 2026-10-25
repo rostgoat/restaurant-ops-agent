@@ -4,6 +4,7 @@ Tests for the HTTP layer, with the model, database, and store replaced.
 What they prove: the caller's merchant comes from the request and never from
 the model, and a trace is stored whichever way the request ends.
 """
+
 from __future__ import annotations
 
 from contextlib import asynccontextmanager

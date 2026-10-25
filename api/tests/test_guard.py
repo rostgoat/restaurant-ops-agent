@@ -5,6 +5,7 @@ Grouped by what they prove rather than by function, because the point of the
 suite is the claim "a bad model decision cannot become a bad query", and each
 group is one way that claim could fail.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -121,9 +122,7 @@ def test_system_schemas_are_blocked(schema):
 
 
 def test_join_onto_a_forbidden_table_is_blocked():
-    r = run(
-        "SELECT o.id FROM orders o JOIN request_traces t ON t.merchant_id = o.merchant_id"
-    )
+    r = run("SELECT o.id FROM orders o JOIN request_traces t ON t.merchant_id = o.merchant_id")
     assert not r.ok
 
 
@@ -153,18 +152,13 @@ def test_ordinary_aggregates_are_allowed():
 
 
 def test_scope_is_applied_to_both_sides_of_a_join():
-    r = run(
-        "SELECT o.id, p.amount_cents FROM orders o "
-        "JOIN payments p ON p.order_id = o.id"
-    )
+    r = run("SELECT o.id, p.amount_cents FROM orders o JOIN payments p ON p.order_id = o.id")
     assert r.ok, r.reason
     assert norm(r.sql).count("merchant_id = 1") == 2
 
 
 def test_scope_is_applied_inside_a_subquery():
-    r = run(
-        "SELECT id FROM orders WHERE customer_id IN (SELECT id FROM customers)"
-    )
+    r = run("SELECT id FROM orders WHERE customer_id IN (SELECT id FROM customers)")
     assert r.ok, r.reason
     assert norm(r.sql).count("merchant_id = 1") == 2
 

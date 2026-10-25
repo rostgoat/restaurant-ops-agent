@@ -13,15 +13,14 @@ import {
 import policies from "@/content/policies.json";
 import { cn } from "@/lib/utils";
 
-type Policies = Record<string, Record<string, { title: string; sections: Record<string, string> }>>;
+type Section = { document: string; number: number; section: string; body: string };
+type Policies = Record<string, Record<string, Section>>;
 const all = policies as Policies;
 
-const CITATION = /\[([a-z-]+): ([^\]]+)\]/g;
+const CITATION = /\[([^[\]]*§\s*\d+[^[\]]*)\]/g;
 
-function section(merchantId: number, document: string, name: string) {
-  const doc = all[String(merchantId)]?.[document];
-  const body = doc?.sections[name];
-  return body ? { title: doc.title, body } : null;
+function section(merchantId: number, label: string): Section | null {
+  return all[String(merchantId)]?.[label.replace(/\s+/g, " ").trim()] ?? null;
 }
 
 const prose =
@@ -36,13 +35,14 @@ export function Answer({
   merchantId: number;
   className?: string;
 }) {
-  const [open, setOpen] = useState<{ document: string; name: string } | null>(null);
-  const linked = text.replace(CITATION, (whole, document, name) =>
-    section(merchantId, document, name)
-      ? `[${document}: ${name}](#policy/${encodeURIComponent(document)}/${encodeURIComponent(name)})`
-      : whole
-  );
-  const current = open ? section(merchantId, open.document, open.name) : null;
+  const [open, setOpen] = useState<string | null>(null);
+  // "[A §1, X; B §2, Y]" cites two sections in one bracket.
+  const linked = text.replace(CITATION, (whole, inside: string) => {
+    const labels = inside.split(";").map((l) => l.trim()).filter(Boolean);
+    if (!labels.every((l) => section(merchantId, l))) return whole;
+    return labels.map((l) => `[${l}](#policy/${encodeURIComponent(l)})`).join(" ");
+  });
+  const current = open ? section(merchantId, open) : null;
   return (
     <>
       <div className={cn(prose, className)}>
@@ -50,14 +50,13 @@ export function Answer({
           remarkPlugins={[remarkGfm]}
           components={{
             a: ({ href, children }) => {
-              const m = href?.match(/^#policy\/([^/]+)\/(.+)$/);
+              const m = href?.match(/^#policy\/(.+)$/);
               if (!m) return <a href={href}>{children}</a>;
-              const document = decodeURIComponent(m[1]);
-              const name = decodeURIComponent(m[2]);
+              const label = decodeURIComponent(m[1]);
               return (
                 <button
                   type="button"
-                  onClick={() => setOpen({ document, name })}
+                  onClick={() => setOpen(label)}
                   className="rounded-sm bg-primary/10 px-1 font-heading text-[0.9em] text-primary underline-offset-4 hover:underline"
                 >
                   {children}
@@ -72,10 +71,12 @@ export function Answer({
       <Dialog open={open !== null} onOpenChange={(o) => !o && setOpen(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="font-heading text-xl">{open?.name}</DialogTitle>
+            <DialogTitle className="font-heading text-xl">
+              {current ? `§${current.number}. ${current.section}` : open}
+            </DialogTitle>
             <DialogDescription>
-              From {current?.title ?? open?.document}, this restaurant&apos;s own policy, as the
-              agent retrieved it.
+              From this restaurant&apos;s {current?.document ?? "policy"}, as the agent retrieved
+              it.
             </DialogDescription>
           </DialogHeader>
           <div className={cn(prose, "text-base")}>

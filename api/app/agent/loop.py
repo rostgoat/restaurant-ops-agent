@@ -38,7 +38,7 @@ class Settings:
 
 DEFAULT = Settings()
 
-_CITATION = re.compile(r"\[([a-z-]+: [^\]]+)\]")
+_CITATION = re.compile(r"\[([^\[\]]*§\s*\d+[^\[\]]*)\]")
 
 
 def answer(
@@ -165,7 +165,9 @@ def _run_sql(
     checks = [{"name": c.name, "passed": c.passed, "detail": c.detail} for c in verdict.checks]
     if not verdict.ok:
         trace.step(
-            "code", "guard", "blocked",
+            "code",
+            "guard",
+            "blocked",
             {"checks": checks, "blocked_by": verdict.blocked_by, "reason": verdict.reason},
             latency_ms=_ms(t0),
         )
@@ -220,8 +222,11 @@ def _search_policy(
         message = "No section of this restaurant's policies matches closely enough."
         return _tool_result(call.id, message), set()
     trace.step(
-        "code", "retrieve", f"{len(used)} {'section' if len(used) == 1 else 'sections'}",
-        detail, latency_ms=elapsed,
+        "code",
+        "retrieve",
+        f"{len(used)} {'section' if len(used) == 1 else 'sections'}",
+        detail,
+        latency_ms=elapsed,
     )
     payload = {"sections": [{"label": h.label, "text": h.body} for h in used]}
     return _tool_result(call.id, json.dumps(payload)), {h.label for h in used}
@@ -252,8 +257,18 @@ def _propose(
     return _tool_result(call.id, json.dumps(tool_message(proposal)))
 
 
+def citations_in(text: str) -> set[str]:
+    """Section labels cited in square brackets; "[A §1, X; B §2, Y]" cites two."""
+    return {
+        " ".join(part.split())
+        for found in _CITATION.findall(text)
+        for part in found.split(";")
+        if part.strip()
+    }
+
+
 def _check_citations(trace: Trace, text: str, retrieved: set[str]) -> None:
-    cited = set(_CITATION.findall(text))
+    cited = citations_in(text)
     missing = sorted(cited - retrieved)
     detail = {"cited": sorted(cited), "retrieved": sorted(retrieved), "not_retrieved": missing}
     if not retrieved:

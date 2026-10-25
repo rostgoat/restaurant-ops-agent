@@ -136,22 +136,19 @@ export default function EvaluationPage() {
           <Differences />
           <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
             <p>
-              What this says. Opus did not do better than Sonnet on these cases; it cost two and a
-              half times as much and failed four, two of them retrieval misses it had no way to
-              recover from, one a defensible reading of &ldquo;net&rdquo;, one a comp it rightly
-              declined to propose while wrongly saying the policies were silent. Low effort cost
-              about the same as medium and lost one case. So Sonnet at medium effort stays the
-              default, and there is no reason yet to route hard questions to Opus.
+              Low effort did as well as medium on these cases, at the same cost and a little
+              faster. The two failures on the main run are both retrieval misses: a section that
+              exists scored 0.38 to 0.49 against the 0.50 threshold, so the model was shown
+              nothing. The model then said the policies were silent, which is false.
             </p>
             <p>
-              The threshold sweep did not settle the threshold. Each threshold was run once, and
-              the policy cases swing by two or three results between two runs of the same setting,
-              because the model words its searches differently each time and a section that scores
-              0.60 on one wording scores 0.48 on another. That swing is as large as the difference
-              between thresholds, so these single runs cannot rank them. What they do show is the
-              shape: lower thresholds show the model more wrong sections (precision falls from 0.71
-              at 0.60 to 0.36 at 0.40) and higher ones start to hide right ones (recall falls to
-              0.71 at 0.60). Repetitions at each setting are the next measurement.
+              The threshold rows show the trade. At 0.40 the model sees more wrong sections
+              (precision 0.30) and almost every right one (recall 0.93). At 0.60 it sees few wrong
+              sections (precision 0.82) and misses four in ten right ones (recall 0.60), and the
+              discounts section drops out of four cases at once. Each setting ran once, and one
+              case flips between runs of the same setting when the model words its search
+              differently, so a difference of one or two cases is noise. The shape is not: 0.40 to
+              0.50 is the range, and the next step is repetitions to pick within it.
             </p>
           </div>
         </section>

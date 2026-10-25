@@ -1,5 +1,6 @@
 // Copies the policy documents into the site as content, one section per
-// entry, so a citation in an answer can open the section it refers to.
+// entry keyed by the label the model cites, so a citation in an answer can
+// open the section it refers to.
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -9,13 +10,15 @@ for (const dir of readdirSync(root).filter((d) => d.startsWith("merchant_"))) {
   const merchantId = dir.replace(/\D/g, "");
   out[merchantId] = {};
   for (const file of readdirSync(join(root, dir)).filter((f) => f.endsWith(".md"))) {
-    const document = file.replace(/\.md$/, "");
-    const sections = {};
-    let title = document;
+    let title = file.replace(/\.md$/, "");
     let section = null;
     let lines = [];
     const flush = () => {
-      if (section && lines.join("\n").trim()) sections[section] = lines.join("\n").trim();
+      const body = lines.join("\n").trim();
+      const m = section?.match(/^(\d+)\. (.+)$/);
+      if (m && body) {
+        out[merchantId][`${title} §${m[1]}, ${m[2]}`] = { document: title, number: Number(m[1]), section: m[2], body };
+      }
     };
     for (const line of readFileSync(join(root, dir, file), "utf8").split("\n")) {
       if (line.startsWith("## ")) {
@@ -29,8 +32,7 @@ for (const dir of readdirSync(root).filter((d) => d.startsWith("merchant_"))) {
       }
     }
     flush();
-    out[merchantId][document] = { title, sections };
   }
 }
 writeFileSync(join(import.meta.dirname, "..", "src", "content", "policies.json"), JSON.stringify(out, null, 2) + "\n");
-console.log(`wrote policies for ${Object.keys(out).length} merchants`);
+console.log(`wrote ${Object.values(out).reduce((n, m) => n + Object.keys(m).length, 0)} sections`);

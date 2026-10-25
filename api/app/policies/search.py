@@ -5,6 +5,7 @@ from typing import Any, Protocol
 
 from psycopg_pool import ConnectionPool
 
+from .chunks import label_for
 from .embed import Embedder
 
 
@@ -41,7 +42,7 @@ class PostgresPolicySearch:
                 _NEAREST, {"q": as_vector(vector), "merchant_id": merchant_id, "limit": limit}
             ).fetchall()
         return [
-            Hit(f"{document}: {section}", body, float(score))
+            Hit(label_for(document, section), body, float(score))
             for document, section, body, score in rows
         ]
 

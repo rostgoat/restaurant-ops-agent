@@ -1,70 +1,252 @@
 {
   "1": {
-    "house": {
-      "title": "House policy",
-      "sections": {
-        "Comps": "A manager may comp up to $25 on a single ticket to resolve a complaint\nabout food quality or a long wait. Anything above $25 needs the owner, who\ncan be reached by text during service.\n\nComps for friends, family, or staff are not permitted at any amount. Staff\nmeals are handled separately under the staff meal rule below.\n\nTotal comps in a week should stay under 1% of that week's gross sales. If\na week runs over, the owner reviews every comp from that week.",
-        "Refunds on in-store and online orders": "A customer with a receipt may have an in-store or Square Online order\nrefunded to the original payment method within 7 days of purchase. Cash\norders are refunded in cash; card orders are refunded to the card and never\nin cash.\n\nWithout a receipt, offer a remake or a credit for the same amount, not a\nrefund. Credits expire after 60 days.\n\nOrders placed through a marketplace are never refunded by us directly; see\nthe marketplace terms.",
-        "Discounts": "Staff may apply the standard discounts on the register: 10% for students\nand seniors with ID, and 15% for first responders in uniform. Any discount\nabove 15% on a single order needs a manager. Any discount above 30% needs\nthe owner, including on catering.\n\nDiscounts are not combined. The largest applicable discount applies.",
-        "Staff meals": "Each staff member on a shift of five hours or more may have one meal from\nthe Noodle Soups, Rice Dishes, or Sandwiches categories at no charge, rung\nin as a staff meal, not a comp. Specialty drinks and catering items are not\nincluded.",
-        "Catering": "Catering orders need 48 hours' notice and a 25% deposit at the time of\norder. A catering order cancelled more than 24 hours before pickup gets the\ndeposit back. Cancelled within 24 hours, the deposit is kept. Catering\norders over $500 need the owner to confirm the kitchen can take them.",
-        "Allergies": "Any order noting a nut, shellfish, or gluten allergy is made by the lead\ncook and checked by a manager before it leaves the kitchen. We do not\nguarantee any dish is free of these allergens and staff must say so when\nasked."
-      }
+    "House Policy §1, Scope and Authority": {
+      "document": "House Policy",
+      "number": 1,
+      "section": "Scope and Authority",
+      "body": "Rules for staff at Mekong Noodle House on comps, refunds, discounts, and\ncatering. \"Manager\" means a shift manager on duty. \"Owner\" means Linh."
     },
-    "marketplace": {
-      "title": "Marketplace terms",
-      "sections": {
-        "Commission and pricing": "DoorDash takes 25% of the menu subtotal on delivery orders and 15% on pickup.\nUber Eats takes 30% on delivery and 15% on pickup. Grubhub takes 20% on\ndelivery plus a 5% marketing fee, and 10% on pickup.\n\nMenu prices on the marketplaces may be set up to 25% above our in-store\nprice to offset commission. They may not be set higher than that, and the\nsame item must carry the same price on all three platforms. Price changes go\nthrough the owner.",
-        "Missing or incorrect items": "When a customer reports a missing or incorrect item, the platform refunds the\ncustomer directly and charges the cost back to us by default.\n\nWe can dispute the chargeback if we have a packing photo showing the item in\nthe bag. Photos are taken at the pass for every marketplace order over $40.\nDispute windows: DoorDash 7 days from the order date, Uber Eats 30 days,\nGrubhub 14 days. A dispute filed after the window is rejected automatically.\n\nIf the order was over $40 and no packing photo exists, do not dispute; accept\nthe chargeback and log it as a packing miss.",
-        "Late, cold, or damaged deliveries": "Delays and damage after the courier picks up are the platform's cost, not\nours. If a customer complains to us about a late or cold delivery, refer them\nto the platform's support and do not issue a refund or a credit from our\nside. The exception is a Grubhub order where we marked it ready more than 10\nminutes before it actually was; that is counted as our delay and we accept\nthe chargeback.",
-        "Cancellations": "An order cancelled by the customer before we confirm it costs nothing. An\norder cancelled after we confirm it is paid to us in full by the platform,\nexcept on Uber Eats, where orders cancelled within 2 minutes of confirmation\nare not paid.\n\nIf we cancel an order because we are out of an item, we are not paid and the\nplatform may lower our ranking. Offer a substitution first; cancel only when\nthe customer declines.",
-        "Promotions": "Platform promotions we fund ourselves (for example \"$5 off orders over $30\")\nneed owner approval if the expected cost is over $200 in a calendar month.\nPromotions funded by the platform need no approval. Never run a funded\npromotion on Grubhub, where the marketing fee already applies.",
-        "Repeat disputes": "A customer with three or more refunded marketplace orders in the last 90\ndays is flagged. For flagged customers, every missing-item claim is disputed\nregardless of order value, and the owner is told."
-      }
+    "House Policy §2, Comps": {
+      "document": "House Policy",
+      "number": 2,
+      "section": "Comps",
+      "body": "A manager may comp up to $25 on a single ticket to resolve a complaint\nabout food quality or a long wait. Anything above $25 needs the owner, who\ncan be reached by text during service.\n\nComps for friends, family, or staff are not permitted at any amount. Staff\nmeals are handled separately under the staff meal rule below.\n\nTotal comps in a week should stay under 1% of that week's gross sales. If\na week runs over, the owner reviews every comp from that week."
     },
-    "messaging": {
-      "title": "Customer messaging policy",
-      "sections": {
-        "Who may receive marketing texts": "A marketing text may only go to a customer who has verified SMS consent on\nfile, meaning they texted a keyword to our number or ticked the box on the\nSquare Online checkout and confirmed. Implied consent, meaning the customer\ngave us a phone number when ordering but never opted in, is not enough for\nmarketing.\n\nImplied consent does allow transactional texts: order ready, order delayed,\ncatering confirmation. Nothing promotional may be added to a transactional\ntext.\n\nAnyone who has unsubscribed is never texted again for any reason, including\ntransactional messages, until they opt in again.",
-        "Quiet hours": "No text of any kind between 8pm and 9am in the customer's local time. For\ncustomers without a known local time, use Central time.",
-        "Frequency": "At most four marketing texts to any one customer in a calendar month. Email\nhas no frequency cap but every email must carry an unsubscribe link.",
-        "Offers in messages": "A discount offered by text or email may not exceed 15% or $10, whichever is\nlower, without the owner's approval. Offers must state an expiry date no\nmore than 14 days out and must say \"one per customer\".",
-        "Required wording": "Every marketing text must end with \"Reply STOP to opt out\". Every message\nmust name the restaurant.",
-        "Audience size": "A single campaign may go to at most 500 customers without owner approval.\nCampaigns to customers who have not ordered in more than 180 days need owner\napproval regardless of size."
-      }
+    "House Policy §3, Refunds on In-Store and Online Orders": {
+      "document": "House Policy",
+      "number": 3,
+      "section": "Refunds on In-Store and Online Orders",
+      "body": "A customer with a receipt may have an in-store or Square Online order\nrefunded to the original payment method within 7 days of purchase. Cash\norders are refunded in cash; card orders are refunded to the card and never\nin cash.\n\nWithout a receipt, offer a remake or a credit for the same amount, not a\nrefund. Credits expire after 60 days.\n\nOrders placed through a marketplace are never refunded by us directly; see\nthe marketplace terms."
+    },
+    "House Policy §4, Discounts": {
+      "document": "House Policy",
+      "number": 4,
+      "section": "Discounts",
+      "body": "Staff may apply the standard discounts on the register: 10% for students\nand seniors with ID, and 15% for first responders in uniform. Any discount\nabove 15% on a single order needs a manager. Any discount above 30% needs\nthe owner, including on catering.\n\nDiscounts are not combined. The largest applicable discount applies."
+    },
+    "House Policy §5, Staff Meals": {
+      "document": "House Policy",
+      "number": 5,
+      "section": "Staff Meals",
+      "body": "Each staff member on a shift of five hours or more may have one meal from\nthe Noodle Soups, Rice Dishes, or Sandwiches categories at no charge, rung\nin as a staff meal, not a comp. Specialty drinks and catering items are not\nincluded."
+    },
+    "House Policy §6, Catering": {
+      "document": "House Policy",
+      "number": 6,
+      "section": "Catering",
+      "body": "Catering orders need 48 hours' notice and a 25% deposit at the time of\norder. A catering order cancelled more than 24 hours before pickup gets the\ndeposit back. Cancelled within 24 hours, the deposit is kept. Catering\norders over $500 need the owner to confirm the kitchen can take them."
+    },
+    "House Policy §7, Allergies": {
+      "document": "House Policy",
+      "number": 7,
+      "section": "Allergies",
+      "body": "Any order noting a nut, shellfish, or gluten allergy is made by the lead\ncook and checked by a manager before it leaves the kitchen. We do not\nguarantee any dish is free of these allergens and staff must say so when\nasked."
+    },
+    "Marketplace Terms §1, Scope and Authority": {
+      "document": "Marketplace Terms",
+      "number": 1,
+      "section": "Scope and Authority",
+      "body": "Mekong Noodle House lists on DoorDash, Uber Eats, and Grubhub. These are the\nterms we operate under across the three platforms. Where a platform differs,\nit is called out. Manager-level staff may act on anything here. Anything\nmarked \"owner\" needs Linh."
+    },
+    "Marketplace Terms §2, Commission and Pricing": {
+      "document": "Marketplace Terms",
+      "number": 2,
+      "section": "Commission and Pricing",
+      "body": "DoorDash takes 25% of the menu subtotal on delivery orders and 15% on pickup.\nUber Eats takes 30% on delivery and 15% on pickup. Grubhub takes 20% on\ndelivery plus a 5% marketing fee, and 10% on pickup.\n\nMenu prices on the marketplaces may be set up to 25% above our in-store\nprice to offset commission. They may not be set higher than that, and the\nsame item must carry the same price on all three platforms. Price changes go\nthrough the owner."
+    },
+    "Marketplace Terms §3, Missing or Incorrect Items": {
+      "document": "Marketplace Terms",
+      "number": 3,
+      "section": "Missing or Incorrect Items",
+      "body": "When a customer reports a missing or incorrect item, the platform refunds the\ncustomer directly and charges the cost back to us by default.\n\nWe can dispute the chargeback if we have a packing photo showing the item in\nthe bag. Photos are taken at the pass for every marketplace order over $40.\nDispute windows: DoorDash 7 days from the order date, Uber Eats 30 days,\nGrubhub 14 days. A dispute filed after the window is rejected automatically.\n\nIf the order was over $40 and no packing photo exists, do not dispute; accept\nthe chargeback and log it as a packing miss."
+    },
+    "Marketplace Terms §4, Late, Cold, or Damaged Deliveries": {
+      "document": "Marketplace Terms",
+      "number": 4,
+      "section": "Late, Cold, or Damaged Deliveries",
+      "body": "Delays and damage after the courier picks up are the platform's cost, not\nours. If a customer complains to us about a late or cold delivery, refer them\nto the platform's support and do not issue a refund or a credit from our\nside. The exception is a Grubhub order where we marked it ready more than 10\nminutes before it actually was; that is counted as our delay and we accept\nthe chargeback."
+    },
+    "Marketplace Terms §5, Cancellations": {
+      "document": "Marketplace Terms",
+      "number": 5,
+      "section": "Cancellations",
+      "body": "An order cancelled by the customer before we confirm it costs nothing. An\norder cancelled after we confirm it is paid to us in full by the platform,\nexcept on Uber Eats, where orders cancelled within 2 minutes of confirmation\nare not paid.\n\nIf we cancel an order because we are out of an item, we are not paid and the\nplatform may lower our ranking. Offer a substitution first; cancel only when\nthe customer declines."
+    },
+    "Marketplace Terms §6, Promotions": {
+      "document": "Marketplace Terms",
+      "number": 6,
+      "section": "Promotions",
+      "body": "Platform promotions we fund ourselves (for example \"$5 off orders over $30\")\nneed owner approval if the expected cost is over $200 in a calendar month.\nPromotions funded by the platform need no approval. Never run a funded\npromotion on Grubhub, where the marketing fee already applies."
+    },
+    "Marketplace Terms §7, Repeat Disputes": {
+      "document": "Marketplace Terms",
+      "number": 7,
+      "section": "Repeat Disputes",
+      "body": "A customer with three or more refunded marketplace orders in the last 90\ndays is flagged. For flagged customers, every missing-item claim is disputed\nregardless of order value, and the owner is told."
+    },
+    "Customer Messaging Policy §1, Scope": {
+      "document": "Customer Messaging Policy",
+      "number": 1,
+      "section": "Scope",
+      "body": "How Mekong Noodle House may contact customers by text and email. These\nrules exist because marketing texts are regulated and because the\nmarketplaces do not share customer contact details with us."
+    },
+    "Customer Messaging Policy §2, Who May Receive Marketing Texts": {
+      "document": "Customer Messaging Policy",
+      "number": 2,
+      "section": "Who May Receive Marketing Texts",
+      "body": "A marketing text may only go to a customer who has verified SMS consent on\nfile, meaning they texted a keyword to our number or ticked the box on the\nSquare Online checkout and confirmed. Implied consent, meaning the customer\ngave us a phone number when ordering but never opted in, is not enough for\nmarketing.\n\nImplied consent does allow transactional texts: order ready, order delayed,\ncatering confirmation. Nothing promotional may be added to a transactional\ntext.\n\nAnyone who has unsubscribed is never texted again for any reason, including\ntransactional messages, until they opt in again."
+    },
+    "Customer Messaging Policy §3, Quiet Hours": {
+      "document": "Customer Messaging Policy",
+      "number": 3,
+      "section": "Quiet Hours",
+      "body": "No text of any kind between 8pm and 9am in the customer's local time. For\ncustomers without a known local time, use Central time."
+    },
+    "Customer Messaging Policy §4, Frequency": {
+      "document": "Customer Messaging Policy",
+      "number": 4,
+      "section": "Frequency",
+      "body": "At most four marketing texts to any one customer in a calendar month. Email\nhas no frequency cap but every email must carry an unsubscribe link."
+    },
+    "Customer Messaging Policy §5, Offers in Messages": {
+      "document": "Customer Messaging Policy",
+      "number": 5,
+      "section": "Offers in Messages",
+      "body": "A discount offered by text or email may not exceed 15% or $10, whichever is\nlower, without the owner's approval. Offers must state an expiry date no\nmore than 14 days out and must say \"one per customer\"."
+    },
+    "Customer Messaging Policy §6, Required Wording": {
+      "document": "Customer Messaging Policy",
+      "number": 6,
+      "section": "Required Wording",
+      "body": "Every marketing text must end with \"Reply STOP to opt out\". Every message\nmust name the restaurant."
+    },
+    "Customer Messaging Policy §7, Audience Size": {
+      "document": "Customer Messaging Policy",
+      "number": 7,
+      "section": "Audience Size",
+      "body": "A single campaign may go to at most 500 customers without owner approval.\nCampaigns to customers who have not ordered in more than 180 days need owner\napproval regardless of size."
     }
   },
   "2": {
-    "house": {
-      "title": "House policy",
-      "sections": {
-        "Remakes and comps": "Any barista may remake a drink the customer is unhappy with, no questions\nasked, and may comp a drink or pastry up to $10 to fix a mistake we made.\nA lead may comp up to $20 on a single order. Anything above $20 needs the\nowner.\n\nComps are for our mistakes and for service problems. We do not comp for\nfriends or family. Staff drinks are free during a shift and are rung in as\nstaff drinks, not comps.\n\nComps for the week should stay under 2% of the week's gross sales. The\nowner gets a weekly comp report either way.",
-        "Refunds": "A customer who is unhappy and still here gets a remake first. If they would\nrather have their money back, refund to the original payment method the\nsame day. After the customer has left, a refund is available within 48\nhours with the receipt or the order number from the Square Online\nconfirmation. Card refunds go back to the card; we do not give cash for\ncard payments.\n\nNo refunds on merchandise once opened, or on flights once the first cup\nhas been poured.",
-        "Discounts": "Standard discounts: 10% for students with ID, 10% for hospital staff with a\nbadge, and the loyalty reward of one free drink after nine stamps. A free\nloyalty drink is not a discount and may be combined with a standard\ndiscount on the rest of the order.\n\nAny other discount above 10% needs a lead. Any discount above 20% needs the\nowner. Seasonal Specials are never discounted.",
-        "Online orders": "Square Online orders are pickup only. An order not collected within 30\nminutes of its ready time is discarded and charged in full. If we were\nlate making it, the customer is not charged and the order is remade on\nrequest.",
-        "Catering": "Catering orders need 72 hours' notice and a 50% deposit. The deposit is\nrefundable up to 48 hours before pickup and kept after that. Catering orders\nover $300 need the owner's confirmation. We do not deliver catering; it is\npickup only.",
-        "Allergies": "We cannot guarantee any drink or pastry is free of dairy, nuts, or gluten\nand staff must say so when asked. Oat and almond milk are prepared on the\nsame equipment as dairy."
-      }
+    "House Policy §1, Scope and Authority": {
+      "document": "House Policy",
+      "number": 1,
+      "section": "Scope and Authority",
+      "body": "Rules for staff at Ridgeline Coffee on remakes, refunds, comps, discounts,\nand catering. \"Lead\" means the shift lead. \"Owner\" means Dana."
     },
-    "messaging": {
-      "title": "Customer messaging policy",
-      "sections": {
-        "Who may receive texts": "A customer who has ordered in the last 90 days and gave us a phone number\nhas an existing relationship with us and may receive up to two marketing\ntexts in a calendar month on that basis, without a separate opt-in. Anyone\noutside the 90-day window needs verified SMS consent, meaning they texted a\nkeyword to our number or ticked the box at checkout.\n\nLoyalty messages, meaning a stamp balance or a free drink reward, are not\nmarketing and may go to any customer with a phone number on file. They must\nnot include an offer.\n\nAnyone who has unsubscribed receives nothing, including loyalty messages,\nuntil they opt in again.",
-        "Quiet hours": "No text between 9pm and 8am Mountain time. We assume all customers are\nlocal.",
-        "Frequency": "Two marketing texts a month under the existing-relationship rule. Four a\nmonth for customers with verified consent. Email once a week at most.",
-        "Offers in messages": "A discount in a text or email may not exceed 20% without the owner's\napproval. Seasonal Specials may never be discounted in a message. Offers\nexpire within 7 days and apply once per customer.",
-        "Required wording": "Every marketing text ends with \"Text STOP to stop\". Every message names\nRidgeline Coffee.",
-        "Audience size": "A single campaign may go to at most 300 customers without owner approval.\nCampaigns to customers who have not ordered in over 90 days need owner\napproval, and may only go to customers with verified consent."
-      }
+    "House Policy §2, Remakes and Comps": {
+      "document": "House Policy",
+      "number": 2,
+      "section": "Remakes and Comps",
+      "body": "Any barista may remake a drink the customer is unhappy with, no questions\nasked, and may comp a drink or pastry up to $10 to fix a mistake we made.\nA lead may comp up to $20 on a single order. Anything above $20 needs the\nowner.\n\nComps are for our mistakes and for service problems. We do not comp for\nfriends or family. Staff drinks are free during a shift and are rung in as\nstaff drinks, not comps.\n\nComps for the week should stay under 2% of the week's gross sales. The\nowner gets a weekly comp report either way."
     },
-    "online-orders": {
-      "title": "Online ordering and loyalty",
-      "sections": {
-        "Pickup orders": "Online orders are prepared in the order they arrive and marked ready in\nthe app. Peak mornings run 10 to 15 minutes from order to ready; the app\nshows the current estimate and customers are told to trust it.\n\nAn order not collected within 30 minutes of being marked ready is discarded\nand charged in full. If the order was marked ready late by more than 10\nminutes, the customer is not charged and may have it remade.\n\nDrinks that were wrong are remade on the spot. We do not refund an online\norder once the customer has taken it from the counter, except under the\n48-hour refund rule in the house policy.",
-        "Loyalty program": "Customers earn one stamp per drink purchased, in store or online, when they\ngive their phone number at checkout. Nine stamps earn a free drink of any\nsize from Signature Drinks, House Favorites, or Matcha. Seasonal Specials,\nFlights, and Bubble Tea are excluded from the free drink.\n\nStamps expire 12 months after they are earned. A free drink reward expires\n60 days after it is issued. Stamps are never transferred between phone\nnumbers.\n\nGiving a phone number for loyalty is not consent to marketing texts; see\nthe messaging policy.",
-        "Gift cards": "Gift cards are sold in any amount from $10 to $200 and never expire. They\ncannot be redeemed for cash, and a card with a remaining balance under $5\nmay be cashed out at the customer's request where state law requires it.\nLost cards are replaced only if the original purchase receipt is shown.",
-        "Order problems we cannot fix online": "Allergy notes, custom milk ratios, and extra-hot requests placed through\nthe app are best-effort. If an order comes out wrong because of a note the\napp did not pass through, it is remade and not charged."
-      }
+    "House Policy §3, Refunds": {
+      "document": "House Policy",
+      "number": 3,
+      "section": "Refunds",
+      "body": "A customer who is unhappy and still here gets a remake first. If they would\nrather have their money back, refund to the original payment method the\nsame day. After the customer has left, a refund is available within 48\nhours with the receipt or the order number from the Square Online\nconfirmation. Card refunds go back to the card; we do not give cash for\ncard payments.\n\nNo refunds on merchandise once opened, or on flights once the first cup\nhas been poured."
+    },
+    "House Policy §4, Discounts": {
+      "document": "House Policy",
+      "number": 4,
+      "section": "Discounts",
+      "body": "Standard discounts: 10% for students with ID, 10% for hospital staff with a\nbadge, and the loyalty reward of one free drink after nine stamps. A free\nloyalty drink is not a discount and may be combined with a standard\ndiscount on the rest of the order.\n\nAny other discount above 10% needs a lead. Any discount above 20% needs the\nowner. Seasonal Specials are never discounted."
+    },
+    "House Policy §5, Online Orders": {
+      "document": "House Policy",
+      "number": 5,
+      "section": "Online Orders",
+      "body": "Square Online orders are pickup only. An order not collected within 30\nminutes of its ready time is discarded and charged in full. If we were\nlate making it, the customer is not charged and the order is remade on\nrequest."
+    },
+    "House Policy §6, Catering": {
+      "document": "House Policy",
+      "number": 6,
+      "section": "Catering",
+      "body": "Catering orders need 72 hours' notice and a 50% deposit. The deposit is\nrefundable up to 48 hours before pickup and kept after that. Catering orders\nover $300 need the owner's confirmation. We do not deliver catering; it is\npickup only."
+    },
+    "House Policy §7, Allergies": {
+      "document": "House Policy",
+      "number": 7,
+      "section": "Allergies",
+      "body": "We cannot guarantee any drink or pastry is free of dairy, nuts, or gluten\nand staff must say so when asked. Oat and almond milk are prepared on the\nsame equipment as dairy."
+    },
+    "Customer Messaging Policy §1, Scope": {
+      "document": "Customer Messaging Policy",
+      "number": 1,
+      "section": "Scope",
+      "body": "How Ridgeline Coffee may contact customers by text and email. Most of our\ncustomers are regulars who gave a phone number for loyalty stamps, so the\ndistinction between loyalty contact and marketing matters here."
+    },
+    "Customer Messaging Policy §2, Who May Receive Texts": {
+      "document": "Customer Messaging Policy",
+      "number": 2,
+      "section": "Who May Receive Texts",
+      "body": "A customer who has ordered in the last 90 days and gave us a phone number\nhas an existing relationship with us and may receive up to two marketing\ntexts in a calendar month on that basis, without a separate opt-in. Anyone\noutside the 90-day window needs verified SMS consent, meaning they texted a\nkeyword to our number or ticked the box at checkout.\n\nLoyalty messages, meaning a stamp balance or a free drink reward, are not\nmarketing and may go to any customer with a phone number on file. They must\nnot include an offer.\n\nAnyone who has unsubscribed receives nothing, including loyalty messages,\nuntil they opt in again."
+    },
+    "Customer Messaging Policy §3, Quiet Hours": {
+      "document": "Customer Messaging Policy",
+      "number": 3,
+      "section": "Quiet Hours",
+      "body": "No text between 9pm and 8am Mountain time. We assume all customers are\nlocal."
+    },
+    "Customer Messaging Policy §4, Frequency": {
+      "document": "Customer Messaging Policy",
+      "number": 4,
+      "section": "Frequency",
+      "body": "Two marketing texts a month under the existing-relationship rule. Four a\nmonth for customers with verified consent. Email once a week at most."
+    },
+    "Customer Messaging Policy §5, Offers in Messages": {
+      "document": "Customer Messaging Policy",
+      "number": 5,
+      "section": "Offers in Messages",
+      "body": "A discount in a text or email may not exceed 20% without the owner's\napproval. Seasonal Specials may never be discounted in a message. Offers\nexpire within 7 days and apply once per customer."
+    },
+    "Customer Messaging Policy §6, Required Wording": {
+      "document": "Customer Messaging Policy",
+      "number": 6,
+      "section": "Required Wording",
+      "body": "Every marketing text ends with \"Text STOP to stop\". Every message names\nRidgeline Coffee."
+    },
+    "Customer Messaging Policy §7, Audience Size": {
+      "document": "Customer Messaging Policy",
+      "number": 7,
+      "section": "Audience Size",
+      "body": "A single campaign may go to at most 300 customers without owner approval.\nCampaigns to customers who have not ordered in over 90 days need owner\napproval, and may only go to customers with verified consent."
+    },
+    "Online Ordering and Loyalty Policy §1, Scope": {
+      "document": "Online Ordering and Loyalty Policy",
+      "number": 1,
+      "section": "Scope",
+      "body": "How Ridgeline Coffee handles Square Online orders, the loyalty program, and\ngift cards."
+    },
+    "Online Ordering and Loyalty Policy §2, Delivery Marketplaces": {
+      "document": "Online Ordering and Loyalty Policy",
+      "number": 2,
+      "section": "Delivery Marketplaces",
+      "body": "Ridgeline Coffee does not list on any delivery marketplace. Anyone asking\nabout DoorDash, Uber Eats, or Grubhub should be told we are not on them."
+    },
+    "Online Ordering and Loyalty Policy §3, Pickup Orders": {
+      "document": "Online Ordering and Loyalty Policy",
+      "number": 3,
+      "section": "Pickup Orders",
+      "body": "Online orders are prepared in the order they arrive and marked ready in\nthe app. Peak mornings run 10 to 15 minutes from order to ready; the app\nshows the current estimate and customers are told to trust it.\n\nAn order not collected within 30 minutes of being marked ready is discarded\nand charged in full. If the order was marked ready late by more than 10\nminutes, the customer is not charged and may have it remade.\n\nDrinks that were wrong are remade on the spot. We do not refund an online\norder once the customer has taken it from the counter, except under the\n48-hour refund rule in the house policy."
+    },
+    "Online Ordering and Loyalty Policy §4, Loyalty Program": {
+      "document": "Online Ordering and Loyalty Policy",
+      "number": 4,
+      "section": "Loyalty Program",
+      "body": "Customers earn one stamp per drink purchased, in store or online, when they\ngive their phone number at checkout. Nine stamps earn a free drink of any\nsize from Signature Drinks, House Favorites, or Matcha. Seasonal Specials,\nFlights, and Bubble Tea are excluded from the free drink.\n\nStamps expire 12 months after they are earned. A free drink reward expires\n60 days after it is issued. Stamps are never transferred between phone\nnumbers.\n\nGiving a phone number for loyalty is not consent to marketing texts; see\nthe messaging policy."
+    },
+    "Online Ordering and Loyalty Policy §5, Gift Cards": {
+      "document": "Online Ordering and Loyalty Policy",
+      "number": 5,
+      "section": "Gift Cards",
+      "body": "Gift cards are sold in any amount from $10 to $200 and never expire. They\ncannot be redeemed for cash, and a card with a remaining balance under $5\nmay be cashed out at the customer's request where state law requires it.\nLost cards are replaced only if the original purchase receipt is shown."
+    },
+    "Online Ordering and Loyalty Policy §6, Order Problems We Cannot Fix Online": {
+      "document": "Online Ordering and Loyalty Policy",
+      "number": 6,
+      "section": "Order Problems We Cannot Fix Online",
+      "body": "Allergy notes, custom milk ratios, and extra-hot requests placed through\nthe app are best-effort. If an order comes out wrong because of a note the\napp did not pass through, it is remade and not charged."
     }
   }
 }

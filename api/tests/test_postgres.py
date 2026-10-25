@@ -3,6 +3,7 @@ Tests that need a real database. Skipped unless TEST_DATABASE_URL is set.
 
     TEST_DATABASE_URL=postgresql://ops:ops@127.0.0.1:5432/ops_demo pytest
 """
+
 from __future__ import annotations
 
 import os
@@ -66,8 +67,10 @@ def test_tenants_see_disjoint_rows_that_add_up(runner):
 
 def test_the_connection_refuses_writes_even_without_the_guard(runner):
     with pytest.raises(QueryError) as e:
-        runner.run("INSERT INTO merchants (id, name, cuisine, timezone, opened_at) "
-                   "VALUES (9, 'x', 'x', 'UTC', '2026-01-01')")
+        runner.run(
+            "INSERT INTO merchants (id, name, cuisine, timezone, opened_at) "
+            "VALUES (9, 'x', 'x', 'UTC', '2026-01-01')"
+        )
     assert "read-only" in str(e.value)
 
 
@@ -94,10 +97,19 @@ def test_merchants_come_from_the_database(store):
 
 def test_a_trace_survives_the_round_trip(store):
     trace = Trace(
-        id=uuid4(), merchant_id=1, question="how many orders?",
-        created_at=datetime.now(UTC), model="claude-opus-5-5", status="answered",
-        answer="412.", usage=Usage(1000, 500, 300, 250), cost_usd=0.0096,
-        latency_ms=1200, model_ms=1100, tool_ms=40, retries=1,
+        id=uuid4(),
+        merchant_id=1,
+        question="how many orders?",
+        created_at=datetime.now(UTC),
+        model="claude-opus-5-5",
+        status="answered",
+        answer="412.",
+        usage=Usage(1000, 500, 300, 250),
+        cost_usd=0.0096,
+        latency_ms=1200,
+        model_ms=1100,
+        tool_ms=40,
+        retries=1,
     )
     trace.step("model", "run_sql", "proposed", {"sql": "SELECT 1", "usage": {"input_tokens": 1}})
     trace.step("code", "guard", "passed", {"checks": [{"name": "parses", "passed": True}]})

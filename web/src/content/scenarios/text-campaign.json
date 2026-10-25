@@ -9,23 +9,23 @@
     "Code recounts the audience from the consent flags itself, checks the discount and the wording, and the proposal waits for a person."
   ],
   "trace": {
-    "id": "6d4b2af7-9c7b-4609-a0fc-4f39f7bf3a02",
+    "id": "28c6be62-3588-4448-a864-b0c6c7865b0d",
     "merchant_id": 2,
     "question": "Text everyone who ordered this month 15% off matcha tomorrow morning.",
-    "created_at": "2026-10-24T13:58:39.519446Z",
+    "created_at": "2026-10-25T00:22:58.455497Z",
     "model": "claude-sonnet-5-5",
     "status": "answered",
-    "answer": "I proposed the matcha text campaign, but it is pending and nothing has been sent. A person has to approve it first. I also can't schedule sends. Someone will need to send it tomorrow, 2026-10-25, after 8am Mountain, because texts are not allowed between 9pm and 8am [messaging: Quiet hours].\n\nMy query found 18 customers who ordered this month (October 2026, completed orders). They have a phone number on file and haven't unsubscribed. None of them has verified SMS consent, but all qualify under the existing-relationship rule because they ordered within 90 days [messaging: Who may receive texts].\n\nThe system's check counted 51 eligible customers. That figure covers everyone with a phone who ordered in the last 90 days or has verified consent. It is wider than the 18 you asked for. The approver should confirm the send goes only to this month's 18 orderers.\n\nThe draft reads: \"Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Text STOP to stop\"\n\nMy first draft was blocked because it didn't end with the required \"Text STOP to stop\" wording, so I fixed that. The discount is under the 20% cap. Matcha is its own category, not a Seasonal Special, and the offer expires within 7 days and is once per customer [messaging: Offers in messages].\n\nEach customer can get only two marketing texts a month under this rule [messaging: Frequency]. I can't see past texts, so check that these 18 haven't already had two this month.",
+    "answer": "I proposed the campaign, but nothing has been sent or scheduled. A person has to approve it first.\n\n**Audience:** 76 customers ordered this month (October 2026, completed orders). I counted 18 who have a phone number and haven't unsubscribed. The code check counted 51 eligible customers instead. Its count includes people with verified consent or an order in the last 90 days, so it is wider than my October-only count. The proposal now shows 51, so check which group you want before approving.\n\n**Message:** \"Ridgeline Coffee: Thanks for stopping by this month! Enjoy 15% off any matcha drink, one use per customer, through Sunday 11/1. Text STOP to stop\"\n\n**Timing:** I proposed sending tomorrow (10/26) at 9am Mountain. Texts can't go out before 8am [Customer Messaging Policy \u00a73, Quiet Hours].\n\n**Checks that passed:**\n- 15% is under the 20% cap.\n- The message has the opt-out wording.\n- Matcha is a regular category, not a Seasonal Special.\n- The offer expires within 7 days [Customer Messaging Policy \u00a75, Offers in Messages].\n- The message names the restaurant and ends with \"Text STOP to stop\" [Customer Messaging Policy \u00a76, Required Wording].\n- Recent orderers with a phone number may be texted without a separate opt-in [Customer Messaging Policy \u00a72, Who May Receive Texts].\n\n**Still open:** Each customer can get at most two marketing texts a month. I can't see how many each person has already received this month, so please confirm that before approving.",
     "usage": {
-      "input_tokens": 9313,
-      "cache_read_tokens": 16080,
+      "input_tokens": 6642,
+      "cache_read_tokens": 13425,
       "cache_write_tokens": 0,
-      "output_tokens": 2182
+      "output_tokens": 1745
     },
-    "cost_usd": 0.043662,
-    "latency_ms": 24233,
-    "model_ms": 23516,
-    "tool_ms": 705,
+    "cost_usd": 0.033419,
+    "latency_ms": 15252,
+    "model_ms": 14863,
+    "tool_ms": 372,
     "retries": 0,
     "steps": [
       {
@@ -34,15 +34,15 @@
         "name": "search_policy",
         "outcome": "proposed",
         "detail": {
-          "query": "text message campaign consent, quiet hours, discount offers",
+          "query": "text message campaign consent, quiet hours, discount offers, opt-out wording",
           "usage": {
             "input_tokens": 116,
-            "cache_read_tokens": 2680,
+            "cache_read_tokens": 2685,
             "cache_write_tokens": 0,
-            "output_tokens": 214
+            "output_tokens": 224
           }
         },
-        "latency_ms": 5226
+        "latency_ms": 2658
       },
       {
         "seq": 2,
@@ -50,33 +50,33 @@
         "name": "retrieve",
         "outcome": "4 sections",
         "detail": {
-          "query": "text message campaign consent, quiet hours, discount offers",
+          "query": "text message campaign consent, quiet hours, discount offers, opt-out wording",
           "merchant_id": 2,
           "threshold": 0.5,
           "hits": [
             {
-              "label": "messaging: Offers in messages",
-              "score": 0.6461,
+              "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+              "score": 0.6281,
               "used": true
             },
             {
-              "label": "messaging: Quiet hours",
-              "score": 0.6331,
+              "label": "Customer Messaging Policy \u00a76, Required Wording",
+              "score": 0.6026,
               "used": true
             },
             {
-              "label": "messaging: Who may receive texts",
-              "score": 0.5873,
+              "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+              "score": 0.5939,
               "used": true
             },
             {
-              "label": "messaging: Frequency",
-              "score": 0.5642,
+              "label": "Customer Messaging Policy \u00a72, Who May Receive Texts",
+              "score": 0.5816,
               "used": true
             }
           ]
         },
-        "latency_ms": 654
+        "latency_ms": 310
       },
       {
         "seq": 3,
@@ -84,109 +84,19 @@
         "name": "run_sql",
         "outcome": "proposed",
         "detail": {
-          "purpose": "Audience: customers with completed orders this month, phone, not unsubscribed",
-          "sql": "select count(distinct c.id) as audience, count(distinct c.id) filter (where c.sms_opt_in) as verified from customers c join orders o on o.customer_id=c.id where o.state='completed' and o.created_at >= '2026-10-01' and c.has_phone and c.unsubscribed_at is null",
+          "purpose": "Check matcha items and categories",
+          "sql": "select i.name, c.name as category, i.is_active from items i left join categories c on c.id=i.category_id where i.name ilike '%matcha%'",
           "usage": {
-            "input_tokens": 796,
-            "cache_read_tokens": 2680,
+            "input_tokens": 851,
+            "cache_read_tokens": 2685,
             "cache_write_tokens": 0,
-            "output_tokens": 252
+            "output_tokens": 158
           }
         },
-        "latency_ms": 2859
+        "latency_ms": 1615
       },
       {
         "seq": 4,
-        "actor": "code",
-        "name": "guard",
-        "outcome": "passed",
-        "detail": {
-          "checks": [
-            {
-              "name": "parses",
-              "passed": true,
-              "detail": null
-            },
-            {
-              "name": "single statement",
-              "passed": true,
-              "detail": null
-            },
-            {
-              "name": "select only",
-              "passed": true,
-              "detail": null
-            },
-            {
-              "name": "no writes",
-              "passed": true,
-              "detail": null
-            },
-            {
-              "name": "no unsafe functions",
-              "passed": true,
-              "detail": null
-            },
-            {
-              "name": "allowed tables",
-              "passed": true,
-              "detail": "customers, orders"
-            },
-            {
-              "name": "tenant scope",
-              "passed": true,
-              "detail": "merchant_id=2 on customers.merchant_id, orders.merchant_id"
-            },
-            {
-              "name": "row limit",
-              "passed": true,
-              "detail": "injected 500"
-            }
-          ],
-          "sql": "SELECT COUNT(DISTINCT c.id) AS audience, COUNT(DISTINCT c.id) FILTER(WHERE c.sms_opt_in) AS verified FROM (SELECT * FROM customers WHERE merchant_id = 2) AS c JOIN (SELECT * FROM orders WHERE merchant_id = 2) AS o ON o.customer_id = c.id WHERE o.state = 'completed' AND o.created_at >= '2026-10-01' AND c.has_phone AND c.unsubscribed_at IS NULL LIMIT 500"
-        },
-        "latency_ms": 5
-      },
-      {
-        "seq": 5,
-        "actor": "code",
-        "name": "execute",
-        "outcome": "ok",
-        "detail": {
-          "columns": [
-            "audience",
-            "verified"
-          ],
-          "row_count": 1,
-          "rows": [
-            [
-              18,
-              0
-            ]
-          ],
-          "truncated": false
-        },
-        "latency_ms": 21
-      },
-      {
-        "seq": 6,
-        "actor": "model",
-        "name": "run_sql",
-        "outcome": "proposed",
-        "detail": {
-          "purpose": "Check matcha items and categories",
-          "sql": "select i.name, c.name as category, i.price_cents, i.is_active from items i join categories c on c.id=i.category_id where i.name ilike '%matcha%'",
-          "usage": {
-            "input_tokens": 1097,
-            "cache_read_tokens": 2680,
-            "cache_write_tokens": 0,
-            "output_tokens": 131
-          }
-        },
-        "latency_ms": 2778
-      },
-      {
-        "seq": 7,
         "actor": "code",
         "name": "guard",
         "outcome": "passed",
@@ -233,12 +143,12 @@
               "detail": "injected 500"
             }
           ],
-          "sql": "SELECT i.name, c.name AS category, i.price_cents, i.is_active FROM (SELECT * FROM items WHERE merchant_id = 2) AS i JOIN (SELECT * FROM categories WHERE merchant_id = 2) AS c ON c.id = i.category_id WHERE i.name ILIKE '%matcha%' LIMIT 500"
+          "sql": "SELECT i.name, c.name AS category, i.is_active FROM (SELECT * FROM items WHERE merchant_id = 2) AS i LEFT JOIN (SELECT * FROM categories WHERE merchant_id = 2) AS c ON c.id = i.category_id WHERE i.name ILIKE '%matcha%' LIMIT 500"
         },
-        "latency_ms": 2
+        "latency_ms": 5
       },
       {
-        "seq": 8,
+        "seq": 5,
         "actor": "code",
         "name": "execute",
         "outcome": "ok",
@@ -246,7 +156,6 @@
           "columns": [
             "name",
             "category",
-            "price_cents",
             "is_active"
           ],
           "row_count": 21,
@@ -254,127 +163,106 @@
             [
               "Matcha 1",
               "Matcha",
-              700,
               true
             ],
             [
               "Matcha 2",
               "Matcha",
-              850,
               true
             ],
             [
               "Matcha 3",
               "Matcha",
-              780,
               true
             ],
             [
               "Matcha 4",
               "Matcha",
-              770,
               true
             ],
             [
               "Matcha 5",
               "Matcha",
-              850,
               true
             ],
             [
               "Matcha 6",
               "Matcha",
-              760,
               true
             ],
             [
               "Matcha 7",
               "Matcha",
-              840,
               true
             ],
             [
               "Matcha 8",
               "Matcha",
-              700,
               true
             ],
             [
               "Matcha 9",
               "Matcha",
-              720,
               true
             ],
             [
               "Matcha 10",
               "Matcha",
-              770,
               true
             ],
             [
               "Matcha 11",
               "Matcha",
-              820,
               true
             ],
             [
               "Matcha 12",
               "Matcha",
-              830,
               true
             ],
             [
               "Matcha 13",
               "Matcha",
-              700,
               true
             ],
             [
               "Matcha 14",
               "Matcha",
-              700,
               true
             ],
             [
               "Matcha 15",
               "Matcha",
-              850,
               true
             ],
             [
               "Matcha 16",
               "Matcha",
-              850,
               true
             ],
             [
               "Matcha 17",
               "Matcha",
-              700,
               true
             ],
             [
               "Matcha 18",
               "Matcha",
-              710,
               true
             ],
             [
               "Matcha 19",
               "Matcha",
-              700,
               true
             ],
             [
               "Matcha 20",
               "Matcha",
-              800,
               true
             ],
             [
               "Matcha 21",
               "Matcha",
-              710,
               true
             ]
           ],
@@ -383,90 +271,128 @@
         "latency_ms": 6
       },
       {
+        "seq": 6,
+        "actor": "model",
+        "name": "run_sql",
+        "outcome": "proposed",
+        "detail": {
+          "purpose": "Count October customers reachable by text",
+          "sql": "select count(distinct c.id) total, count(distinct c.id) filter (where c.has_phone and c.unsubscribed_at is null) reachable from orders o join customers c on c.id=o.customer_id where o.state='completed' and (o.created_at at time zone (select timezone from merchants)) >= '2026-10-01'",
+          "usage": {
+            "input_tokens": 1411,
+            "cache_read_tokens": 2685,
+            "cache_write_tokens": 0,
+            "output_tokens": 270
+          }
+        },
+        "latency_ms": 2565
+      },
+      {
+        "seq": 7,
+        "actor": "code",
+        "name": "guard",
+        "outcome": "passed",
+        "detail": {
+          "checks": [
+            {
+              "name": "parses",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "single statement",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "select only",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no writes",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "no unsafe functions",
+              "passed": true,
+              "detail": null
+            },
+            {
+              "name": "allowed tables",
+              "passed": true,
+              "detail": "customers, merchants, orders"
+            },
+            {
+              "name": "tenant scope",
+              "passed": true,
+              "detail": "merchant_id=2 on customers.merchant_id, merchants.id, orders.merchant_id"
+            },
+            {
+              "name": "row limit",
+              "passed": true,
+              "detail": "injected 500"
+            }
+          ],
+          "sql": "SELECT COUNT(DISTINCT c.id) AS total, COUNT(DISTINCT c.id) FILTER(WHERE c.has_phone AND c.unsubscribed_at IS NULL) AS reachable FROM (SELECT * FROM orders WHERE merchant_id = 2) AS o JOIN (SELECT * FROM customers WHERE merchant_id = 2) AS c ON c.id = o.customer_id WHERE o.state = 'completed' AND (o.created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 2) AS merchants)) >= '2026-10-01' LIMIT 500"
+        },
+        "latency_ms": 5
+      },
+      {
+        "seq": 8,
+        "actor": "code",
+        "name": "execute",
+        "outcome": "ok",
+        "detail": {
+          "columns": [
+            "total",
+            "reachable"
+          ],
+          "row_count": 1,
+          "rows": [
+            [
+              76,
+              18
+            ]
+          ],
+          "truncated": false
+        },
+        "latency_ms": 19
+      },
+      {
         "seq": 9,
         "actor": "model",
         "name": "propose",
         "outcome": "proposed",
         "detail": {
           "kind": "sms_campaign",
-          "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
-          "reason": "Recipients ordered within 90 days with a phone number, so they qualify under [messaging: Who may receive texts]; 15% is under the 20% cap, matcha is not a Seasonal Special, and the offer expires within 7 days and is once per customer [messaging: Offers in messages]; send time must be after 8am Mountain [messaging: Quiet hours]; max two marketing texts this month [messaging: Frequency].",
+          "summary": "Text 18 customers who ordered in October (with a phone, not unsubscribed) 15% off matcha, sent 2026-10-26 at 9am Mountain.",
+          "reason": "Recipients ordered within 90 days and have a phone, so they have an existing relationship [Customer Messaging Policy \u00a72, Who May Receive Texts]; unsubscribed customers excluded. 15% is under the 20% cap, Matcha is a regular category not a Seasonal Special, offer expires within 7 days [Customer Messaging Policy \u00a75, Offers in Messages]. Send after 8am Mountain [Customer Messaging Policy \u00a73, Quiet Hours]. Includes restaurant name and STOP wording [Customer Messaging Policy \u00a76, Required Wording]. Max two marketing texts per month per customer must be confirmed.",
           "order_id": null,
           "customer_id": null,
           "amount_cents": null,
           "discount_pct": 15,
           "audience_size": 18,
-          "draft_message": "Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Reply STOP to opt out.",
+          "draft_message": "Ridgeline Coffee: Thanks for stopping by this month! Enjoy 15% off any matcha drink, one use per customer, through Sunday 11/1. Text STOP to stop",
           "usage": {
-            "input_tokens": 1699,
-            "cache_read_tokens": 2680,
+            "input_tokens": 1730,
+            "cache_read_tokens": 2685,
             "cache_write_tokens": 0,
-            "output_tokens": 553
+            "output_tokens": 568
           }
         },
-        "latency_ms": 4327
+        "latency_ms": 3823
       },
       {
         "seq": 10,
         "actor": "code",
         "name": "check_proposal",
-        "outcome": "blocked",
-        "detail": {
-          "proposal_id": "8c27c83a-6218-46db-bcf8-93f56a556d4a",
-          "kind": "sms_campaign",
-          "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
-          "checks": [
-            {
-              "name": "discount",
-              "passed": true,
-              "detail": "15% within the 20% cap"
-            },
-            {
-              "name": "wording",
-              "passed": false,
-              "detail": "the message must end with \"Text STOP to stop\""
-            }
-          ],
-          "blocked_reason": "the message must end with \"Text STOP to stop\"",
-          "audience_size": null,
-          "due_by": null,
-          "needs_owner": false
-        },
-        "latency_ms": 0
-      },
-      {
-        "seq": 11,
-        "actor": "model",
-        "name": "propose",
-        "outcome": "proposed",
-        "detail": {
-          "kind": "sms_campaign",
-          "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
-          "reason": "Recipients ordered within 90 days with a phone number [messaging: Who may receive texts]; 15% is under the 20% cap, matcha is not a Seasonal Special, offer expires within 7 days, once per customer [messaging: Offers in messages]; send after 8am Mountain [messaging: Quiet hours]; max two marketing texts this month [messaging: Frequency].",
-          "order_id": null,
-          "customer_id": null,
-          "amount_cents": null,
-          "discount_pct": 15,
-          "audience_size": 18,
-          "draft_message": "Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Text STOP to stop",
-          "usage": {
-            "input_tokens": 2453,
-            "cache_read_tokens": 2680,
-            "cache_write_tokens": 0,
-            "output_tokens": 465
-          }
-        },
-        "latency_ms": 3077
-      },
-      {
-        "seq": 12,
-        "actor": "code",
-        "name": "check_proposal",
         "outcome": "pending",
         "detail": {
-          "proposal_id": "e996f958-47ec-47c2-80cf-f35b4f5258a6",
+          "proposal_id": "1e4a9664-c987-4ac6-9fe7-05ca52473cf9",
           "kind": "sms_campaign",
-          "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
+          "summary": "Text 18 customers who ordered in October (with a phone, not unsubscribed) 15% off matcha, sent 2026-10-26 at 9am Mountain.",
           "checks": [
             {
               "name": "discount",
@@ -489,41 +415,41 @@
           "due_by": null,
           "needs_owner": false
         },
-        "latency_ms": 24
+        "latency_ms": 37
       },
       {
-        "seq": 13,
+        "seq": 11,
         "actor": "model",
         "name": "answer",
         "outcome": "answered",
         "detail": {
-          "text": "I proposed the matcha text campaign, but it is pending and nothing has been sent. A person has to approve it first. I also can't schedule sends. Someone will need to send it tomorrow, 2026-10-25, after 8am Mountain, because texts are not allowed between 9pm and 8am [messaging: Quiet hours].\n\nMy query found 18 customers who ordered this month (October 2026, completed orders). They have a phone number on file and haven't unsubscribed. None of them has verified SMS consent, but all qualify under the existing-relationship rule because they ordered within 90 days [messaging: Who may receive texts].\n\nThe system's check counted 51 eligible customers. That figure covers everyone with a phone who ordered in the last 90 days or has verified consent. It is wider than the 18 you asked for. The approver should confirm the send goes only to this month's 18 orderers.\n\nThe draft reads: \"Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Text STOP to stop\"\n\nMy first draft was blocked because it didn't end with the required \"Text STOP to stop\" wording, so I fixed that. The discount is under the 20% cap. Matcha is its own category, not a Seasonal Special, and the offer expires within 7 days and is once per customer [messaging: Offers in messages].\n\nEach customer can get only two marketing texts a month under this rule [messaging: Frequency]. I can't see past texts, so check that these 18 haven't already had two this month.",
+          "text": "I proposed the campaign, but nothing has been sent or scheduled. A person has to approve it first.\n\n**Audience:** 76 customers ordered this month (October 2026, completed orders). I counted 18 who have a phone number and haven't unsubscribed. The code check counted 51 eligible customers instead. Its count includes people with verified consent or an order in the last 90 days, so it is wider than my October-only count. The proposal now shows 51, so check which group you want before approving.\n\n**Message:** \"Ridgeline Coffee: Thanks for stopping by this month! Enjoy 15% off any matcha drink, one use per customer, through Sunday 11/1. Text STOP to stop\"\n\n**Timing:** I proposed sending tomorrow (10/26) at 9am Mountain. Texts can't go out before 8am [Customer Messaging Policy \u00a73, Quiet Hours].\n\n**Checks that passed:**\n- 15% is under the 20% cap.\n- The message has the opt-out wording.\n- Matcha is a regular category, not a Seasonal Special.\n- The offer expires within 7 days [Customer Messaging Policy \u00a75, Offers in Messages].\n- The message names the restaurant and ends with \"Text STOP to stop\" [Customer Messaging Policy \u00a76, Required Wording].\n- Recent orderers with a phone number may be texted without a separate opt-in [Customer Messaging Policy \u00a72, Who May Receive Texts].\n\n**Still open:** Each customer can get at most two marketing texts a month. I can't see how many each person has already received this month, so please confirm that before approving.",
           "usage": {
-            "input_tokens": 3152,
-            "cache_read_tokens": 2680,
+            "input_tokens": 2534,
+            "cache_read_tokens": 2685,
             "cache_write_tokens": 0,
-            "output_tokens": 567
+            "output_tokens": 525
           }
         },
-        "latency_ms": 5249
+        "latency_ms": 4202
       },
       {
-        "seq": 14,
+        "seq": 12,
         "actor": "code",
         "name": "citations",
         "outcome": "passed",
         "detail": {
           "cited": [
-            "messaging: Frequency",
-            "messaging: Offers in messages",
-            "messaging: Quiet hours",
-            "messaging: Who may receive texts"
+            "Customer Messaging Policy \u00a72, Who May Receive Texts",
+            "Customer Messaging Policy \u00a73, Quiet Hours",
+            "Customer Messaging Policy \u00a75, Offers in Messages",
+            "Customer Messaging Policy \u00a76, Required Wording"
           ],
           "retrieved": [
-            "messaging: Frequency",
-            "messaging: Offers in messages",
-            "messaging: Quiet hours",
-            "messaging: Who may receive texts"
+            "Customer Messaging Policy \u00a72, Who May Receive Texts",
+            "Customer Messaging Policy \u00a73, Quiet Hours",
+            "Customer Messaging Policy \u00a75, Offers in Messages",
+            "Customer Messaging Policy \u00a76, Required Wording"
           ],
           "not_retrieved": []
         },
@@ -532,54 +458,20 @@
     ],
     "proposals": [
       {
-        "id": "8c27c83a-6218-46db-bcf8-93f56a556d4a",
+        "id": "1e4a9664-c987-4ac6-9fe7-05ca52473cf9",
         "merchant_id": 2,
-        "trace_id": "6d4b2af7-9c7b-4609-a0fc-4f39f7bf3a02",
-        "created_at": "2026-10-24T13:58:39.519446Z",
+        "trace_id": "28c6be62-3588-4448-a864-b0c6c7865b0d",
+        "created_at": "2026-10-25T00:22:58.455497Z",
         "kind": "sms_campaign",
-        "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
-        "status": "blocked",
-        "payload": {
-          "kind": "sms_campaign",
-          "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
-          "reason": "Recipients ordered within 90 days with a phone number, so they qualify under [messaging: Who may receive texts]; 15% is under the 20% cap, matcha is not a Seasonal Special, and the offer expires within 7 days and is once per customer [messaging: Offers in messages]; send time must be after 8am Mountain [messaging: Quiet hours]; max two marketing texts this month [messaging: Frequency].",
-          "discount_pct": 15,
-          "audience_size": 18,
-          "draft_message": "Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Reply STOP to opt out.",
-          "checks": [
-            {
-              "name": "discount",
-              "passed": true,
-              "detail": "15% within the 20% cap"
-            },
-            {
-              "name": "wording",
-              "passed": false,
-              "detail": "the message must end with \"Text STOP to stop\""
-            }
-          ]
-        },
-        "blocked_reason": "the message must end with \"Text STOP to stop\"",
-        "audience_size": null,
-        "discount_pct": 15,
-        "draft_message": "Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Reply STOP to opt out.",
-        "decided_at": null
-      },
-      {
-        "id": "e996f958-47ec-47c2-80cf-f35b4f5258a6",
-        "merchant_id": 2,
-        "trace_id": "6d4b2af7-9c7b-4609-a0fc-4f39f7bf3a02",
-        "created_at": "2026-10-24T13:58:39.519446Z",
-        "kind": "sms_campaign",
-        "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
+        "summary": "Text 18 customers who ordered in October (with a phone, not unsubscribed) 15% off matcha, sent 2026-10-26 at 9am Mountain.",
         "status": "pending",
         "payload": {
           "kind": "sms_campaign",
-          "summary": "Text 18 customers who ordered in October (phone on file, not unsubscribed) 15% off matcha, to be sent after 8am Mountain on 2026-10-25.",
-          "reason": "Recipients ordered within 90 days with a phone number [messaging: Who may receive texts]; 15% is under the 20% cap, matcha is not a Seasonal Special, offer expires within 7 days, once per customer [messaging: Offers in messages]; send after 8am Mountain [messaging: Quiet hours]; max two marketing texts this month [messaging: Frequency].",
+          "summary": "Text 18 customers who ordered in October (with a phone, not unsubscribed) 15% off matcha, sent 2026-10-26 at 9am Mountain.",
+          "reason": "Recipients ordered within 90 days and have a phone, so they have an existing relationship [Customer Messaging Policy \u00a72, Who May Receive Texts]; unsubscribed customers excluded. 15% is under the 20% cap, Matcha is a regular category not a Seasonal Special, offer expires within 7 days [Customer Messaging Policy \u00a75, Offers in Messages]. Send after 8am Mountain [Customer Messaging Policy \u00a73, Quiet Hours]. Includes restaurant name and STOP wording [Customer Messaging Policy \u00a76, Required Wording]. Max two marketing texts per month per customer must be confirmed.",
           "discount_pct": 15,
           "audience_size": 18,
-          "draft_message": "Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Text STOP to stop",
+          "draft_message": "Ridgeline Coffee: Thanks for stopping by this month! Enjoy 15% off any matcha drink, one use per customer, through Sunday 11/1. Text STOP to stop",
           "checks": [
             {
               "name": "discount",
@@ -601,7 +493,7 @@
         "blocked_reason": null,
         "audience_size": 51,
         "discount_pct": 15,
-        "draft_message": "Thanks for ordering with us this month! Enjoy 15% off any matcha drink through 10/31. One use per customer. Text STOP to stop",
+        "draft_message": "Ridgeline Coffee: Thanks for stopping by this month! Enjoy 15% off any matcha drink, one use per customer, through Sunday 11/1. Text STOP to stop",
         "decided_at": null
       }
     ]

@@ -5,6 +5,7 @@ Grouped by the claim each group proves: the trace shows what happened, the
 guard sits between the model and the database, and every way the loop can end
 is recorded as the right status.
 """
+
 from __future__ import annotations
 
 import json
@@ -92,7 +93,10 @@ def test_the_model_is_shown_the_rows_and_its_own_prior_turn():
     assert result["tool_use_id"] == "toolu_1"
     assert "is_error" not in result
     assert json.loads(result["content"]) == {
-        "columns": ["n"], "row_count": 1, "rows": [[412]], "truncated": False,
+        "columns": ["n"],
+        "row_count": 1,
+        "rows": [[412]],
+        "truncated": False,
     }
 
 
@@ -336,7 +340,9 @@ def test_running_out_of_tokens_is_an_error():
 
 
 def test_an_api_failure_is_an_error_not_an_exception():
-    boom = anthropic.APIConnectionError(request=httpx2.Request("POST", "https://api.anthropic.com/v1/messages"))
+    boom = anthropic.APIConnectionError(
+        request=httpx2.Request("POST", "https://api.anthropic.com/v1/messages")
+    )
     client = FakeClient(boom)
 
     trace = ask(client=client)
@@ -382,8 +388,10 @@ def test_database_errors_past_the_query_limit_are_an_error():
 
 def test_tokens_and_cost_add_up_across_calls():
     first = Usage(
-        input_tokens=1000, output_tokens=200,
-        cache_read_input_tokens=500, cache_creation_input_tokens=300,
+        input_tokens=1000,
+        output_tokens=200,
+        cache_read_input_tokens=500,
+        cache_creation_input_tokens=300,
     )
     second = Usage(input_tokens=100, output_tokens=50)
     client = FakeClient(

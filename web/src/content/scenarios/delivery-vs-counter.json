@@ -8,23 +8,23 @@
     "Says which week the figures cover and how it defined delivery and counter."
   ],
   "trace": {
-    "id": "2f85186c-6f49-48a0-aafe-f91446c674aa",
+    "id": "a297a0ae-4fec-424a-a5bf-66a78c3f4fcc",
     "merchant_id": 1,
     "question": "How did delivery compare with the counter last week?",
-    "created_at": "2026-10-24T01:28:44.733934Z",
+    "created_at": "2026-10-25T00:22:28.966445Z",
     "model": "claude-sonnet-5-5",
     "status": "answered",
-    "answer": "Last week (Monday Oct 12 to Sunday Oct 18, 2026, local time, completed orders only), delivery was far bigger than the counter.\n\n| | Delivery | Counter (in-store) |\n|---|---|---|\n| Orders | 883 | 113 |\n| Gross sales | $28,047.59 | $2,267.01 |\n| Average order | about $31.76 | about $20.06 |\n| Discounts | $1,367.59 | $127.02 |\n| Items sold | 2,096 | 250 |\n\nDelivery brought in roughly 12 times the gross sales of the counter, on about 8 times as many orders. Each delivery order was also about $11.70 larger on average.\n\nI took \"delivery\" to mean orders with a fulfillment type of delivery, and \"the counter\" to mean in-store orders. I also read \"last week\" as the previous Monday-to-Sunday week.",
+    "answer": "For the week of Monday Oct 12 to Sunday Oct 18, 2026, the delivery marketplaces sold more than the counter. I counted completed orders only, in the restaurant's local time. \"Delivery\" here means DoorDash, Uber Eats and Grubhub. \"Counter\" means the in_store channel.\n\n- **Delivery marketplaces:** 832 orders and $26,484 in gross sales, which is about $31.83 per order. Discounts were $1,276. Uber Eats was the largest at 428 orders and $14,046. DoorDash had 351 orders and $10,767, and Grubhub had 53 orders and $1,670.\n- **Counter:** 639 orders and $14,136 in gross sales, which is about $22.12 per order. Discounts were $711.\n\nSo delivery brought in about 30% more orders and about 87% more sales. Each order was about $9.70 larger.\n\nTips aren't comparable. The marketplaces pass no tip data through, while counter orders averaged about $3.35 in tips.\n\nSquare Online delivery isn't in the delivery figures. That channel had 125 delivery orders and $3,959 in gross sales. If you want it counted as delivery, tell me and I'll rerun the comparison.",
     "usage": {
-      "input_tokens": 926,
-      "cache_read_tokens": 4064,
-      "cache_write_tokens": 0,
-      "output_tokens": 891
+      "input_tokens": 1173,
+      "cache_read_tokens": 2685,
+      "cache_write_tokens": 2685,
+      "output_tokens": 1246
     },
-    "cost_usd": 0.011575,
-    "latency_ms": 7855,
-    "model_ms": 7820,
-    "tool_ms": 26,
+    "cost_usd": 0.022055,
+    "latency_ms": 10745,
+    "model_ms": 10656,
+    "tool_ms": 33,
     "retries": 0,
     "steps": [
       {
@@ -33,16 +33,16 @@
         "name": "run_sql",
         "outcome": "proposed",
         "detail": {
-          "purpose": "Compare delivery vs in-store completed orders, Oct 12-18 2026 local time",
-          "sql": "SELECT fulfillment_type, count(*) orders, sum(gross_sales_cents) gross, sum(discount_cents) disc, round(avg(gross_sales_cents)) avg_gross, sum(item_count) items FROM orders WHERE state='completed' AND fulfillment_type IN ('delivery','in_store') AND (created_at AT TIME ZONE (SELECT timezone FROM merchants))::date BETWEEN '2026-10-12' AND '2026-10-18' GROUP BY 1",
+          "purpose": "Compare delivery vs in-store completed sales for 2026-10-12 to 10-18 local",
+          "sql": "select channel, fulfillment_type, count(*) orders, sum(gross_sales_cents) gross, sum(discount_cents) disc, round(avg(gross_sales_cents)) avg_gross, round(avg(tip_cents)) avg_tip from orders where state='completed' and (created_at AT TIME ZONE (SELECT timezone FROM merchants))>='2026-10-12' and (created_at AT TIME ZONE (SELECT timezone FROM merchants))<'2026-10-19' group by 1,2 order by 1,2",
           "usage": {
             "input_tokens": 104,
-            "cache_read_tokens": 2032,
-            "cache_write_tokens": 0,
-            "output_tokens": 599
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 2685,
+            "output_tokens": 572
           }
         },
-        "latency_ms": 5112
+        "latency_ms": 4929
       },
       {
         "seq": 2,
@@ -92,9 +92,9 @@
               "detail": "injected 500"
             }
           ],
-          "sql": "SELECT fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross, SUM(discount_cents) AS disc, ROUND(AVG(gross_sales_cents)) AS avg_gross, SUM(item_count) AS items FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE state = 'completed' AND fulfillment_type IN ('delivery', 'in_store') AND CAST((created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) AS DATE) BETWEEN '2026-10-12' AND '2026-10-18' GROUP BY 1 LIMIT 500"
+          "sql": "SELECT channel, fulfillment_type, COUNT(*) AS orders, SUM(gross_sales_cents) AS gross, SUM(discount_cents) AS disc, ROUND(AVG(gross_sales_cents)) AS avg_gross, ROUND(AVG(tip_cents)) AS avg_tip FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE state = 'completed' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) >= '2026-10-12' AND (created_at AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants)) < '2026-10-19' GROUP BY 1, 2 ORDER BY 1, 2 LIMIT 500"
         },
-        "latency_ms": 8
+        "latency_ms": 54
       },
       {
         "seq": 3,
@@ -103,35 +103,110 @@
         "outcome": "ok",
         "detail": {
           "columns": [
+            "channel",
             "fulfillment_type",
             "orders",
             "gross",
             "disc",
             "avg_gross",
-            "items"
+            "avg_tip"
           ],
-          "row_count": 2,
+          "row_count": 10,
           "rows": [
             [
-              "delivery",
-              883,
-              2804759,
-              136759,
-              3176.0,
-              2096
+              "in_store",
+              "pickup",
+              526,
+              1186871,
+              58394,
+              2256.0,
+              345.0
             ],
             [
+              "in_store",
               "in_store",
               113,
               226701,
               12702,
               2006.0,
-              250
+              313.0
+            ],
+            [
+              "square_online",
+              "pickup",
+              368,
+              1184864,
+              93702,
+              3220.0,
+              498.0
+            ],
+            [
+              "square_online",
+              "delivery",
+              125,
+              395940,
+              20836,
+              3168.0,
+              537.0
+            ],
+            [
+              "doordash",
+              "pickup",
+              44,
+              133486,
+              5696,
+              3034.0,
+              null
+            ],
+            [
+              "doordash",
+              "delivery",
+              307,
+              943239,
+              45443,
+              3072.0,
+              null
+            ],
+            [
+              "uber_eats",
+              "pickup",
+              28,
+              94342,
+              5040,
+              3369.0,
+              null
+            ],
+            [
+              "uber_eats",
+              "delivery",
+              400,
+              1310302,
+              61914,
+              3276.0,
+              null
+            ],
+            [
+              "grubhub",
+              "pickup",
+              2,
+              11742,
+              972,
+              5871.0,
+              null
+            ],
+            [
+              "grubhub",
+              "delivery",
+              51,
+              155278,
+              8566,
+              3045.0,
+              null
             ]
           ],
           "truncated": false
         },
-        "latency_ms": 26
+        "latency_ms": 33
       },
       {
         "seq": 4,
@@ -139,15 +214,15 @@
         "name": "answer",
         "outcome": "answered",
         "detail": {
-          "text": "Last week (Monday Oct 12 to Sunday Oct 18, 2026, local time, completed orders only), delivery was far bigger than the counter.\n\n| | Delivery | Counter (in-store) |\n|---|---|---|\n| Orders | 883 | 113 |\n| Gross sales | $28,047.59 | $2,267.01 |\n| Average order | about $31.76 | about $20.06 |\n| Discounts | $1,367.59 | $127.02 |\n| Items sold | 2,096 | 250 |\n\nDelivery brought in roughly 12 times the gross sales of the counter, on about 8 times as many orders. Each delivery order was also about $11.70 larger on average.\n\nI took \"delivery\" to mean orders with a fulfillment type of delivery, and \"the counter\" to mean in-store orders. I also read \"last week\" as the previous Monday-to-Sunday week.",
+          "text": "For the week of Monday Oct 12 to Sunday Oct 18, 2026, the delivery marketplaces sold more than the counter. I counted completed orders only, in the restaurant's local time. \"Delivery\" here means DoorDash, Uber Eats and Grubhub. \"Counter\" means the in_store channel.\n\n- **Delivery marketplaces:** 832 orders and $26,484 in gross sales, which is about $31.83 per order. Discounts were $1,276. Uber Eats was the largest at 428 orders and $14,046. DoorDash had 351 orders and $10,767, and Grubhub had 53 orders and $1,670.\n- **Counter:** 639 orders and $14,136 in gross sales, which is about $22.12 per order. Discounts were $711.\n\nSo delivery brought in about 30% more orders and about 87% more sales. Each order was about $9.70 larger.\n\nTips aren't comparable. The marketplaces pass no tip data through, while counter orders averaged about $3.35 in tips.\n\nSquare Online delivery isn't in the delivery figures. That channel had 125 delivery orders and $3,959 in gross sales. If you want it counted as delivery, tell me and I'll rerun the comparison.",
           "usage": {
-            "input_tokens": 822,
-            "cache_read_tokens": 2032,
+            "input_tokens": 1069,
+            "cache_read_tokens": 2685,
             "cache_write_tokens": 0,
-            "output_tokens": 292
+            "output_tokens": 674
           }
         },
-        "latency_ms": 2708
+        "latency_ms": 5727
       }
     ],
     "proposals": []

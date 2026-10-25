@@ -1,10 +1,12 @@
-# Customer messaging policy
+# Customer Messaging Policy
+
+## 1. Scope
 
 How Ridgeline Coffee may contact customers by text and email. Most of our
 customers are regulars who gave a phone number for loyalty stamps, so the
 distinction between loyalty contact and marketing matters here.
 
-## Who may receive texts
+## 2. Who May Receive Texts
 
 A customer who has ordered in the last 90 days and gave us a phone number
 has an existing relationship with us and may receive up to two marketing
@@ -19,28 +21,28 @@ not include an offer.
 Anyone who has unsubscribed receives nothing, including loyalty messages,
 until they opt in again.
 
-## Quiet hours
+## 3. Quiet Hours
 
 No text between 9pm and 8am Mountain time. We assume all customers are
 local.
 
-## Frequency
+## 4. Frequency
 
 Two marketing texts a month under the existing-relationship rule. Four a
 month for customers with verified consent. Email once a week at most.
 
-## Offers in messages
+## 5. Offers in Messages
 
 A discount in a text or email may not exceed 20% without the owner's
 approval. Seasonal Specials may never be discounted in a message. Offers
 expire within 7 days and apply once per customer.
 
-## Required wording
+## 6. Required Wording
 
 Every marketing text ends with "Text STOP to stop". Every message names
 Ridgeline Coffee.
 
-## Audience size
+## 7. Audience Size
 
 A single campaign may go to at most 300 customers without owner approval.
 Campaigns to customers who have not ordered in over 90 days need owner

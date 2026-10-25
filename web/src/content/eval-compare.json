@@ -2,56 +2,9 @@
   "runs": [
     {
       "label": "Sonnet 5.5, medium effort, threshold 0.50",
-      "file": "20261024T150316Z.json",
+      "file": "20261025T002751Z.json",
       "model": "claude-sonnet-5-5",
       "effort": "medium",
-      "retrieval_threshold": 0.5,
-      "cases": 52,
-      "scored": 52,
-      "passed": 51,
-      "errors": 0,
-      "suites": {
-        "sql": {
-          "passed": 19,
-          "total": 19
-        },
-        "policy": {
-          "passed": 15,
-          "total": 16
-        },
-        "refuse": {
-          "passed": 3,
-          "total": 3
-        },
-        "tenant": {
-          "passed": 1,
-          "total": 1
-        },
-        "answer": {
-          "passed": 4,
-          "total": 4
-        },
-        "propose": {
-          "passed": 9,
-          "total": 9
-        }
-      },
-      "cost_total_usd": 0.3975,
-      "cost_per_answered_median_usd": 0.0058,
-      "latency_median_ms": 4498,
-      "latency_p90_ms": 10355,
-      "retrieval": {
-        "precision": 0.481,
-        "recall": 0.929,
-        "sections_shown": 27,
-        "sections_expected": 14
-      }
-    },
-    {
-      "label": "Sonnet 5.5, low effort",
-      "file": "20261024T150825Z.json",
-      "model": "claude-sonnet-5-5",
-      "effort": "low",
       "retrieval_threshold": 0.5,
       "cases": 52,
       "scored": 52,
@@ -83,34 +36,34 @@
           "total": 9
         }
       },
-      "cost_total_usd": 0.3861,
-      "cost_per_answered_median_usd": 0.0052,
-      "latency_median_ms": 3852,
-      "latency_p90_ms": 10073,
+      "cost_total_usd": 0.3946,
+      "cost_per_answered_median_usd": 0.0054,
+      "latency_median_ms": 3779,
+      "latency_p90_ms": 8391,
       "retrieval": {
-        "precision": 0.52,
-        "recall": 0.929,
-        "sections_shown": 25,
-        "sections_expected": 14
+        "precision": 0.542,
+        "recall": 0.867,
+        "sections_shown": 24,
+        "sections_expected": 15
       }
     },
     {
-      "label": "Opus 5.5, medium effort",
-      "file": "20261024T150925Z.json",
-      "model": "claude-opus-5-5",
-      "effort": "medium",
+      "label": "Sonnet 5.5, low effort",
+      "file": "20261025T002741Z.json",
+      "model": "claude-sonnet-5-5",
+      "effort": "low",
       "retrieval_threshold": 0.5,
       "cases": 52,
       "scored": 52,
-      "passed": 48,
+      "passed": 51,
       "errors": 0,
       "suites": {
         "sql": {
-          "passed": 18,
+          "passed": 19,
           "total": 19
         },
         "policy": {
-          "passed": 14,
+          "passed": 15,
           "total": 16
         },
         "refuse": {
@@ -126,24 +79,24 @@
           "total": 4
         },
         "propose": {
-          "passed": 8,
+          "passed": 9,
           "total": 9
         }
       },
-      "cost_total_usd": 1.0013,
-      "cost_per_answered_median_usd": 0.0127,
-      "latency_median_ms": 6210,
-      "latency_p90_ms": 13606,
+      "cost_total_usd": 0.3711,
+      "cost_per_answered_median_usd": 0.0052,
+      "latency_median_ms": 3605,
+      "latency_p90_ms": 8395,
       "retrieval": {
-        "precision": 0.565,
-        "recall": 0.929,
-        "sections_shown": 23,
-        "sections_expected": 14
+        "precision": 0.538,
+        "recall": 0.933,
+        "sections_shown": 26,
+        "sections_expected": 15
       }
     },
     {
       "label": "Threshold 0.40, policy cases",
-      "file": "20261024T150543Z.json",
+      "file": "20261025T002458Z.json",
       "model": "claude-sonnet-5-5",
       "effort": "medium",
       "retrieval_threshold": 0.4,
@@ -157,47 +110,47 @@
           "total": 16
         }
       },
-      "cost_total_usd": 0.1,
-      "cost_per_answered_median_usd": 0.0054,
-      "latency_median_ms": 4116,
-      "latency_p90_ms": 8870,
+      "cost_total_usd": 0.1157,
+      "cost_per_answered_median_usd": 0.0059,
+      "latency_median_ms": 3775,
+      "latency_p90_ms": 6732,
       "retrieval": {
-        "precision": 0.359,
-        "recall": 1.0,
-        "sections_shown": 39,
-        "sections_expected": 14
+        "precision": 0.298,
+        "recall": 0.933,
+        "sections_shown": 47,
+        "sections_expected": 15
       }
     },
     {
       "label": "Threshold 0.45, policy cases",
-      "file": "20261024T150654Z.json",
+      "file": "20261025T002617Z.json",
       "model": "claude-sonnet-5-5",
       "effort": "medium",
       "retrieval_threshold": 0.45,
       "cases": 16,
       "scored": 16,
-      "passed": 12,
+      "passed": 14,
       "errors": 0,
       "suites": {
         "policy": {
-          "passed": 12,
+          "passed": 14,
           "total": 16
         }
       },
-      "cost_total_usd": 0.094,
-      "cost_per_answered_median_usd": 0.0052,
-      "latency_median_ms": 4080,
-      "latency_p90_ms": 5132,
+      "cost_total_usd": 0.1106,
+      "cost_per_answered_median_usd": 0.0056,
+      "latency_median_ms": 4131,
+      "latency_p90_ms": 9788,
       "retrieval": {
-        "precision": 0.382,
-        "recall": 0.929,
+        "precision": 0.412,
+        "recall": 0.933,
         "sections_shown": 34,
-        "sections_expected": 14
+        "sections_expected": 15
       }
     },
     {
       "label": "Threshold 0.55, policy cases",
-      "file": "20261024T150811Z.json",
+      "file": "20261025T002734Z.json",
       "model": "claude-sonnet-5-5",
       "effort": "medium",
       "retrieval_threshold": 0.55,
@@ -211,42 +164,42 @@
           "total": 16
         }
       },
-      "cost_total_usd": 0.0927,
-      "cost_per_answered_median_usd": 0.0048,
-      "latency_median_ms": 4036,
-      "latency_p90_ms": 6882,
+      "cost_total_usd": 0.1053,
+      "cost_per_answered_median_usd": 0.0051,
+      "latency_median_ms": 3629,
+      "latency_p90_ms": 8475,
       "retrieval": {
         "precision": 0.684,
-        "recall": 0.929,
+        "recall": 0.867,
         "sections_shown": 19,
-        "sections_expected": 14
+        "sections_expected": 15
       }
     },
     {
       "label": "Threshold 0.60, policy cases",
-      "file": "20261024T150935Z.json",
+      "file": "20261025T002857Z.json",
       "model": "claude-sonnet-5-5",
       "effort": "medium",
       "retrieval_threshold": 0.6,
       "cases": 16,
       "scored": 16,
-      "passed": 11,
+      "passed": 10,
       "errors": 0,
       "suites": {
         "policy": {
-          "passed": 11,
+          "passed": 10,
           "total": 16
         }
       },
-      "cost_total_usd": 0.1002,
-      "cost_per_answered_median_usd": 0.0051,
-      "latency_median_ms": 3730,
-      "latency_p90_ms": 10832,
+      "cost_total_usd": 0.1106,
+      "cost_per_answered_median_usd": 0.0052,
+      "latency_median_ms": 4220,
+      "latency_p90_ms": 11394,
       "retrieval": {
-        "precision": 0.714,
-        "recall": 0.714,
-        "sections_shown": 14,
-        "sections_expected": 14
+        "precision": 0.818,
+        "recall": 0.6,
+        "sections_shown": 11,
+        "sections_expected": 15
       }
     }
   ],
@@ -259,17 +212,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.010554
+          "cost_usd": 0.004398
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004462
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.021028
+          "cost_usd": 0.004222
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -286,17 +234,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004618
+          "cost_usd": 0.004904
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004622
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.01052
+          "cost_usd": 0.004944
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -313,17 +256,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00554
+          "cost_usd": 0.006872
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005104
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.016236
+          "cost_usd": 0.00505
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -340,17 +278,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004716
+          "cost_usd": 0.004708
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00475
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.010896
+          "cost_usd": 0.004624
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -367,17 +300,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004292
+          "cost_usd": 0.004464
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004378
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.008596
+          "cost_usd": 0.00422
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -394,17 +322,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006408
+          "cost_usd": 0.005312
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005458
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.011304
+          "cost_usd": 0.00606
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -421,17 +344,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00585
+          "cost_usd": 0.005862
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00565
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.014892
+          "cost_usd": 0.005662
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -448,17 +366,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004356
+          "cost_usd": 0.004424
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004296
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.008204
+          "cost_usd": 0.004338
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -475,17 +388,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.007038
+          "cost_usd": 0.00682
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006636
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.016084
+          "cost_usd": 0.006802
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -502,17 +410,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00524
+          "cost_usd": 0.004894
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004682
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.010328
+          "cost_usd": 0.005158
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -529,17 +432,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.0054
+          "cost_usd": 0.005326
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004966
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.012572
+          "cost_usd": 0.004962
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -556,17 +454,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004278
+          "cost_usd": 0.00451
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004214
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.008984
+          "cost_usd": 0.004014
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -583,17 +476,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005838
+          "cost_usd": 0.007242
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005222
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.012916
+          "cost_usd": 0.005536
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -610,17 +498,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00544
+          "cost_usd": 0.00547
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005328
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.013436
+          "cost_usd": 0.005614
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -637,17 +520,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.007388
+          "cost_usd": 0.00748
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005934
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.01584
+          "cost_usd": 0.00607
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -664,17 +542,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005458
+          "cost_usd": 0.00546
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005984
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.01622
+          "cost_usd": 0.005822
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -691,17 +564,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005112
+          "cost_usd": 0.004954
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
           "cost_usd": 0.005036
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.013264
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -718,17 +586,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004528
+          "cost_usd": 0.004872
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004698
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.0118
+          "cost_usd": 0.00463
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -745,26 +608,19 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.012042
+          "cost_usd": 0.011881
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00965
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "fail",
-          "reasons": [
-            "no figure within 2% of 29686.2; saw [2026.0, 27651.1, 1236.0, 39581.63, 2035.12, 37546.51, 39581.63, 9895.41]"
-          ],
-          "cost_usd": 0.0291
+          "cost_usd": 0.009849
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
         "Threshold 0.55, policy cases": null,
         "Threshold 0.60, policy cases": null
       },
-      "differs": true
+      "differs": false
     },
     {
       "id": "pol-01",
@@ -774,44 +630,34 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004846
+          "cost_usd": 0.004914
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006514
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "fail",
-          "reasons": [
-            "did not cite ['house: Comps']; cited []",
-            "answer does not mention $25"
-          ],
-          "cost_usd": 0.011384
+          "cost_usd": 0.004878
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00507
+          "cost_usd": 0.011853
         },
         "Threshold 0.45, policy cases": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.004936
+          "outcome": "fail",
+          "reasons": [
+            "answer does not mention owner"
+          ],
+          "cost_usd": 0.010477
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004756
+          "cost_usd": 0.004918
         },
         "Threshold 0.60, policy cases": {
-          "outcome": "fail",
-          "reasons": [
-            "did not cite ['house: Comps']; cited []",
-            "answer does not mention $25",
-            "answer does not mention owner"
-          ],
-          "cost_usd": 0.005444
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.004774
         }
       },
       "differs": true
@@ -824,49 +670,41 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "fail",
           "reasons": [
-            "did not cite ['house: Remakes and comps']; cited []",
+            "did not cite ['House Policy \u00a72, Remakes and Comps']; cited []",
             "answer does not mention $20"
           ],
-          "cost_usd": 0.006938
+          "cost_usd": 0.005439
         },
         "Sonnet 5.5, low effort": {
           "outcome": "fail",
           "reasons": [
-            "did not cite ['house: Remakes and comps']; cited []",
+            "did not cite ['House Policy \u00a72, Remakes and Comps']; cited []",
             "answer does not mention $20"
           ],
-          "cost_usd": 0.005094
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.01196
+          "cost_usd": 0.005177
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004372
+          "cost_usd": 0.008808
         },
         "Threshold 0.45, policy cases": {
-          "outcome": "fail",
-          "reasons": [
-            "did not cite ['house: Remakes and comps']; cited []",
-            "answer does not mention $20"
-          ],
-          "cost_usd": 0.005194
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.00826
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00784
+          "cost_usd": 0.007902
         },
         "Threshold 0.60, policy cases": {
           "outcome": "fail",
           "reasons": [
-            "did not cite ['house: Remakes and comps']; cited []",
+            "did not cite ['House Policy \u00a72, Remakes and Comps']; cited []",
             "answer does not mention $20"
           ],
-          "cost_usd": 0.006738
+          "cost_usd": 0.007124
         }
       },
       "differs": true
@@ -879,37 +717,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004676
+          "cost_usd": 0.004984
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005118
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.01302
+          "cost_usd": 0.004944
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006272
+          "cost_usd": 0.006492
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006062
+          "cost_usd": 0.005346
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004572
+          "cost_usd": 0.004644
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00425
+          "cost_usd": 0.004664
         }
       },
       "differs": false
@@ -920,47 +753,47 @@
       "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
       "outcomes": {
         "Sonnet 5.5, medium effort, threshold 0.50": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.005774
+          "outcome": "fail",
+          "reasons": [
+            "did not cite ['Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces']; cited []",
+            "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
+          ],
+          "cost_usd": 0.005719
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005646
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.011416
+          "cost_usd": 0.006073
         },
         "Threshold 0.40, policy cases": {
           "outcome": "fail",
           "reasons": [
-            "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
+            "did not cite ['Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces']; cited ['House Policy \u00a75, Online Orders']"
           ],
-          "cost_usd": 0.005872
+          "cost_usd": 0.006233
         },
         "Threshold 0.45, policy cases": {
           "outcome": "fail",
           "reasons": [
-            "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
+            "did not cite ['Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces']; cited []"
           ],
-          "cost_usd": 0.005768
+          "cost_usd": 0.005581
         },
         "Threshold 0.55, policy cases": {
           "outcome": "fail",
           "reasons": [
+            "did not cite ['Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces']; cited []",
             "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
           ],
-          "cost_usd": 0.005656
+          "cost_usd": 0.005391
         },
         "Threshold 0.60, policy cases": {
           "outcome": "fail",
           "reasons": [
+            "did not cite ['Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces']; cited []",
             "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
           ],
-          "cost_usd": 0.005514
+          "cost_usd": 0.005795
         }
       },
       "differs": true
@@ -973,37 +806,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00606
+          "cost_usd": 0.006182
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005414
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.0124
+          "cost_usd": 0.006226
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00646
+          "cost_usd": 0.007158
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00597
+          "cost_usd": 0.007102
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003834
+          "cost_usd": 0.005116
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004028
+          "cost_usd": 0.00408
         }
       },
       "differs": false
@@ -1016,37 +844,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004106
+          "cost_usd": 0.004364
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004116
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.009124
+          "cost_usd": 0.003944
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005286
+          "cost_usd": 0.005232
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004808
+          "cost_usd": 0.004504
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004206
+          "cost_usd": 0.003944
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004016
+          "cost_usd": 0.004264
         }
       },
       "differs": false
@@ -1059,40 +882,38 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003164
+          "cost_usd": 0.003452
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003024
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.006396
+          "cost_usd": 0.003042
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00322
+          "cost_usd": 0.003514
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00338
+          "cost_usd": 0.003524
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003154
+          "cost_usd": 0.003232
         },
         "Threshold 0.60, policy cases": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.003234
+          "outcome": "fail",
+          "reasons": [
+            "did not cite ['House Policy \u00a74, Discounts']; cited []",
+            "answer does not mention 10%"
+          ],
+          "cost_usd": 0.003028
         }
       },
-      "differs": false
+      "differs": true
     },
     {
       "id": "pol-08",
@@ -1102,37 +923,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003134
+          "cost_usd": 0.0032
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003134
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.006424
+          "cost_usd": 0.00309
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003384
+          "cost_usd": 0.003316
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.002988
+          "cost_usd": 0.00308
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003108
+          "cost_usd": 0.00309
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003058
+          "cost_usd": 0.00314
         }
       },
       "differs": false
@@ -1145,40 +961,38 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003746
+          "cost_usd": 0.003756
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003544
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.007012
+          "cost_usd": 0.003732
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00345
+          "cost_usd": 0.003998
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003794
+          "cost_usd": 0.003866
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003798
+          "cost_usd": 0.003866
         },
         "Threshold 0.60, policy cases": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.003514
+          "outcome": "fail",
+          "reasons": [
+            "did not cite ['House Policy \u00a74, Discounts']; cited []",
+            "answer does not mention 15%"
+          ],
+          "cost_usd": 0.005265
         }
       },
-      "differs": false
+      "differs": true
     },
     {
       "id": "pol-10",
@@ -1188,40 +1002,37 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005576
+          "cost_usd": 0.003992
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005226
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.008212
+          "cost_usd": 0.004242
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00568
+          "cost_usd": 0.005828
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00556
+          "cost_usd": 0.005948
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003924
+          "cost_usd": 0.004102
         },
         "Threshold 0.60, policy cases": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.003828
+          "outcome": "fail",
+          "reasons": [
+            "did not cite ['House Policy \u00a74, Discounts']; cited []"
+          ],
+          "cost_usd": 0.005599
         }
       },
-      "differs": false
+      "differs": true
     },
     {
       "id": "pol-11",
@@ -1231,37 +1042,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005226
+          "cost_usd": 0.005414
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00492
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.010876
+          "cost_usd": 0.004942
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00558
+          "cost_usd": 0.005658
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005276
+          "cost_usd": 0.005834
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00507
+          "cost_usd": 0.005182
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005096
+          "cost_usd": 0.005672
         }
       },
       "differs": false
@@ -1274,37 +1080,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005812
+          "cost_usd": 0.005002
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004538
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.010328
+          "cost_usd": 0.005608
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005352
+          "cost_usd": 0.005936
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005402
+          "cost_usd": 0.005492
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00475
+          "cost_usd": 0.005098
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00502
+          "cost_usd": 0.005156
         }
       },
       "differs": false
@@ -1317,41 +1118,34 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005256
+          "cost_usd": 0.004982
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005096
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.029376
+          "cost_usd": 0.005196
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.012198
+          "cost_usd": 0.005286
         },
         "Threshold 0.45, policy cases": {
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.005336
+        },
+        "Threshold 0.55, policy cases": {
           "outcome": "fail",
           "reasons": [
             "answer does not mention owner / Linh"
           ],
-          "cost_usd": 0.005136
-        },
-        "Threshold 0.55, policy cases": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.005496
+          "cost_usd": 0.011143
         },
         "Threshold 0.60, policy cases": {
-          "outcome": "fail",
-          "reasons": [
-            "did not cite ['house: Comps']; cited ['house: Discounts']"
-          ],
-          "cost_usd": 0.013142
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.015229
         }
       },
       "differs": true
@@ -1364,48 +1158,35 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.020678
+          "cost_usd": 0.022316
         },
         "Sonnet 5.5, low effort": {
-          "outcome": "fail",
-          "reasons": [
-            "answer does not mention owner / Linh"
-          ],
-          "cost_usd": 0.021516
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "fail",
-          "reasons": [
-            "answer does not mention owner / Linh"
-          ],
-          "cost_usd": 0.071192
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.019986
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.017994
+          "cost_usd": 0.025175
         },
         "Threshold 0.45, policy cases": {
-          "outcome": "fail",
-          "reasons": [
-            "answer does not mention owner / Linh"
-          ],
-          "cost_usd": 0.020022
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.022438
         },
         "Threshold 0.55, policy cases": {
-          "outcome": "fail",
-          "reasons": [
-            "answer does not mention owner / Linh"
-          ],
-          "cost_usd": 0.018782
+          "outcome": "pass",
+          "reasons": [],
+          "cost_usd": 0.025071
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.020962
+          "cost_usd": 0.024669
         }
       },
-      "differs": true
+      "differs": false
     },
     {
       "id": "pol-15",
@@ -1415,43 +1196,38 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006822
+          "cost_usd": 0.004754
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004434
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.010564
+          "cost_usd": 0.005014
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004398
+          "cost_usd": 0.00525
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004708
+          "cost_usd": 0.008065
         },
         "Threshold 0.55, policy cases": {
           "outcome": "fail",
           "reasons": [
-            "did not cite ['house: Discounts']; cited ['house: Catering']",
+            "did not cite ['House Policy \u00a74, Discounts']; cited []",
             "answer does not mention 20%"
           ],
-          "cost_usd": 0.008604
+          "cost_usd": 0.007152
         },
         "Threshold 0.60, policy cases": {
           "outcome": "fail",
           "reasons": [
-            "did not cite ['house: Discounts']; cited []",
+            "did not cite ['House Policy \u00a74, Discounts']; cited []",
             "answer does not mention 20%"
           ],
-          "cost_usd": 0.007222
+          "cost_usd": 0.007252
         }
       },
       "differs": true
@@ -1464,37 +1240,32 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.004594
+          "cost_usd": 0.005826
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005134
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.011676
+          "cost_usd": 0.005196
         },
         "Threshold 0.40, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005374
+          "cost_usd": 0.005986
         },
         "Threshold 0.45, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005018
+          "cost_usd": 0.005704
         },
         "Threshold 0.55, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005168
+          "cost_usd": 0.005426
         },
         "Threshold 0.60, policy cases": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005148
+          "cost_usd": 0.004928
         }
       },
       "differs": false
@@ -1507,17 +1278,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001988
+          "cost_usd": 0.001819
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001968
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.0033
+          "cost_usd": 0.001899
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1534,17 +1300,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001706
+          "cost_usd": 0.001717
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001656
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.002896
+          "cost_usd": 0.001657
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1561,17 +1322,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001878
+          "cost_usd": 0.001689
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001758
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.00296
+          "cost_usd": 0.001739
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1588,17 +1344,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.009542
+          "cost_usd": 0.009539
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.009352
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.017684
+          "cost_usd": 0.008905
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1615,17 +1366,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003548
+          "cost_usd": 0.003549
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.003868
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.01118
+          "cost_usd": 0.003879
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1642,17 +1388,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.006186
+          "cost_usd": 0.006276
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.005822
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.012672
+          "cost_usd": 0.005336
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1669,17 +1410,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.007348
+          "cost_usd": 0.006484
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.007094
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.016592
+          "cost_usd": 0.006508
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1696,17 +1432,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001238
+          "cost_usd": 0.001249
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.001058
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.00166
+          "cost_usd": 0.001029
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1723,17 +1454,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.016374
+          "cost_usd": 0.016126
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.015802
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.037108
+          "cost_usd": 0.01588
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1750,17 +1476,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.010598
+          "cost_usd": 0.009127
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.016922
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.023768
+          "cost_usd": 0.010759
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1777,17 +1498,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.026672
+          "cost_usd": 0.026274
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.023568
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.074948
+          "cost_usd": 0.02593
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1804,17 +1520,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.02398
+          "cost_usd": 0.030241
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.034072
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.103272
+          "cost_usd": 0.023466
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1831,17 +1542,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.016114
+          "cost_usd": 0.015966
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.0162
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.038272
+          "cost_usd": 0.015574
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1858,17 +1564,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.00874
+          "cost_usd": 0.009735
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.008412
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.022124
+          "cost_usd": 0.008255
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1885,17 +1586,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.02041
+          "cost_usd": 0.024052
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.020282
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.07366
+          "cost_usd": 0.022378
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1912,17 +1608,12 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.008018
+          "cost_usd": 0.00927
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.007408
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "pass",
-          "reasons": [],
-          "cost_usd": 0.019872
+          "cost_usd": 0.008346
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
@@ -1939,27 +1630,19 @@
         "Sonnet 5.5, medium effort, threshold 0.50": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.022672
+          "cost_usd": 0.017336
         },
         "Sonnet 5.5, low effort": {
           "outcome": "pass",
           "reasons": [],
-          "cost_usd": 0.017314
-        },
-        "Opus 5.5, medium effort": {
-          "outcome": "fail",
-          "reasons": [
-            "answer does not mention $25",
-            "answer does not mention owner / Linh"
-          ],
-          "cost_usd": 0.035748
+          "cost_usd": 0.015692
         },
         "Threshold 0.40, policy cases": null,
         "Threshold 0.45, policy cases": null,
         "Threshold 0.55, policy cases": null,
         "Threshold 0.60, policy cases": null
       },
-      "differs": true
+      "differs": false
     }
   ]
 }

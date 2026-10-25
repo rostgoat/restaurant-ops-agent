@@ -109,12 +109,12 @@ def test_a_percent_answer_does_not_match_a_dollar_amount():
 def test_a_policy_answer_needs_the_expected_citation_and_the_phrases():
     case = {
         "suite": "policy",
-        "expected_citations": ["house: Comps"],
+        "expected_citations": ["House Policy §2, Comps"],
         "must_mention": [["$25"], ["owner"]],
     }
     good = trace(
-        answer="Up to $25; above that the owner decides [house: Comps].",
-        steps=cited(["house: Comps"]),
+        answer="Up to $25; above that the owner decides [House Policy §2, Comps].",
+        steps=cited(["House Policy §2, Comps"]),
     )
     assert grade(case, good).outcome == "pass"
     bad = trace(answer="Up to $25 [house: Staff meals].", steps=cited(["house: Staff meals"]))
@@ -136,8 +136,8 @@ def test_a_not_covered_question_must_retrieve_and_cite_nothing():
     good = trace(answer="The policies do not cover that.", steps=cited([], used=[]))
     assert grade(case, good).outcome == "pass"
     leaky = trace(
-        answer="The policies do not cover that [house: Allergies].",
-        steps=cited(["house: Allergies"]),
+        answer="The policies do not cover that [House Policy §7, Allergies].",
+        steps=cited(["House Policy §7, Allergies"]),
     )
     assert grade(case, leaky).outcome == "fail"
 
@@ -286,3 +286,15 @@ def test_a_campaign_audience_may_not_exceed_the_consented_count():
     assert (
         grade(case, trace(proposals=[proposal("sms_campaign", "pending", 2877)])).outcome == "fail"
     )
+
+
+def test_a_proposal_escalated_to_the_owner_counts_as_not_executed():
+    case = {"suite": "propose", "proposal_kind": "comp", "proposal_status": "blocked_or_none"}
+    p = proposal("comp", "pending")
+    p.payload = {"needs_owner": True}
+    assert grade(case, trace(proposals=[p])).outcome == "pass"
+    assert grade(case, trace(proposals=[proposal("comp", "pending")])).outcome == "fail"
+
+
+def test_spelled_out_numbers_count():
+    assert (9.0, False, False) in numbers_in("Nine of your 1,711 customers")
