@@ -1,11 +1,8 @@
 import "server-only";
-import { cacheLife } from "next/cache";
 import type { components } from "./api-types";
 
 export type Trace = components["schemas"]["TraceOut"];
 export type Step = components["schemas"]["StepOut"];
-export type Merchant = components["schemas"]["MerchantOut"];
-export type Proposal = components["schemas"]["ProposalOut"];
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
 
@@ -28,48 +25,10 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await response.json()) as T;
 }
 
-function asMerchant(merchantId: number): HeadersInit {
-  return { "X-Merchant-Id": String(merchantId) };
-}
-
-export async function getMerchants(): Promise<Merchant[]> {
-  "use cache";
-  cacheLife("hours");
-  return call<Merchant[]>("/merchants");
-}
-
-export async function getRecentTraces(merchantId: number, limit = 10): Promise<Trace[]> {
-  return call<Trace[]>(`/traces?limit=${limit}`, { headers: asMerchant(merchantId) });
-}
-
-export async function getTrace(id: string, merchantId: number): Promise<Trace | null> {
-  try {
-    return await call<Trace>(`/traces/${id}`, { headers: asMerchant(merchantId) });
-  } catch (e) {
-    if (e instanceof Error && e.message.endsWith("404")) return null;
-    throw e;
-  }
-}
-
-export async function getProposals(merchantId: number, limit = 20): Promise<Proposal[]> {
-  return call<Proposal[]>(`/proposals?limit=${limit}`, { headers: asMerchant(merchantId) });
-}
-
-export async function decideProposal(
-  merchantId: number,
-  id: string,
-  decision: "approve" | "reject"
-): Promise<Proposal> {
-  return call<Proposal>(`/proposals/${id}/${decision}`, {
-    method: "POST",
-    headers: asMerchant(merchantId),
-  });
-}
-
 export async function ask(merchantId: number, question: string): Promise<Trace> {
   return call<Trace>("/ask", {
     method: "POST",
-    headers: { ...asMerchant(merchantId), "content-type": "application/json" },
+    headers: { "X-Merchant-Id": String(merchantId), "content-type": "application/json" },
     body: JSON.stringify({ question }),
   });
 }

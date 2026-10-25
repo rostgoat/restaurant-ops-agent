@@ -9,7 +9,6 @@ export const pages = [
   { href: "/scenarios", label: "Scenarios" },
   { href: "/evaluation", label: "Evaluation" },
   { href: "/architecture", label: "Architecture" },
-  { href: "/ask", label: "Ask" },
 ];
 
 export function currentPage(pathname: string) {

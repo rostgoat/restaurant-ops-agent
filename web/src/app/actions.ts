@@ -1,45 +1,21 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { ApiUnreachable, ask, decideProposal, type Trace } from "@/lib/api";
-import { currentMerchant, setCurrentMerchant } from "@/lib/merchant";
+import { ApiUnreachable, ask, type Trace } from "@/lib/api";
+import { scenarios } from "@/lib/scenarios";
 
-export type AskState = {
-  question?: string;
-  trace?: Trace;
-  error?: string;
-};
+export type RerunState = { trace?: Trace; error?: string };
 
-export async function askAction(_prev: AskState, formData: FormData): Promise<AskState> {
-  const question = String(formData.get("question") ?? "").trim();
-  if (!question) return { error: "Type a question first." };
-  const merchantId = await currentMerchant();
+// Asks a scenario's question again, live, as the same restaurant. The
+// question and the restaurant come from the captured scenario, never from
+// the browser, so the only thing a visitor can spend is one of five known
+// questions.
+export async function rerunScenario(slug: string): Promise<RerunState> {
+  const scenario = scenarios.find((s) => s.slug === slug);
+  if (!scenario) return { error: "No such scenario." };
   try {
-    const trace = await ask(merchantId, question);
-    revalidatePath("/");
-    return { question, trace };
+    return { trace: await ask(scenario.merchant_id, scenario.question) };
   } catch (e) {
-    if (e instanceof ApiUnreachable) {
-      return { question, error: `${e.message} Start it with: cd api && .venv/bin/uvicorn app.main:app` };
-    }
-    return { question, error: "The question could not be sent. Try again." };
+    if (e instanceof ApiUnreachable) return { error: "The agent is not running right now." };
+    return { error: "The question could not be sent. Try again." };
   }
-}
-
-export async function switchMerchant(id: number): Promise<void> {
-  if (Number.isInteger(id) && id > 0) {
-    await setCurrentMerchant(id);
-    revalidatePath("/");
-    revalidatePath("/ask");
-  }
-}
-
-export async function approveProposal(formData: FormData): Promise<void> {
-  const p = await decideProposal(await currentMerchant(), String(formData.get("id")), "approve");
-  revalidatePath(`/traces/${p.trace_id}`);
-}
-
-export async function rejectProposal(formData: FormData): Promise<void> {
-  const p = await decideProposal(await currentMerchant(), String(formData.get("id")), "reject");
-  revalidatePath(`/traces/${p.trace_id}`);
 }

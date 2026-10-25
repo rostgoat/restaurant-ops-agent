@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
 import { MerchantBadge } from "@/components/merchant-badge";
+import { RerunScenario } from "@/components/rerun-scenario";
 import type { Scenario } from "@/lib/scenarios";
 
 function toolsUsed(s: Scenario): string[] {
@@ -72,6 +73,11 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
           <TraceLedger trace={t} />
         </CollapsibleContent>
       </Collapsible>
+      <RerunScenario
+        slug={scenario.slug}
+        merchantId={scenario.merchant_id}
+        capturedOn={new Date(t.created_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+      />
     </article>
   );
 }

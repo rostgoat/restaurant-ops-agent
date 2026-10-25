@@ -1,21 +1,7 @@
 import { ScenarioCard } from "@/components/scenario-card";
 import { Kicker } from "@/components/kicker";
 import { PageOutline } from "@/components/page-outline";
-import type { Scenario } from "@/lib/scenarios";
-
-import deliveryVsCounter from "@/content/scenarios/delivery-vs-counter.json";
-import injection from "@/content/scenarios/injection.json";
-import repeatRefunder from "@/content/scenarios/repeat-refunder.json";
-import textCampaign from "@/content/scenarios/text-campaign.json";
-import fileDispute from "@/content/scenarios/file-dispute.json";
-
-const scenarios = [
-  deliveryVsCounter,
-  injection,
-  repeatRefunder,
-  textCampaign,
-  fileDispute,
-] as Scenario[];
+import { scenarios } from "@/lib/scenarios";
 
 export const metadata = { title: "Scenarios" };
 

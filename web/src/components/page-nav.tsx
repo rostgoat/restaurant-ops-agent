@@ -14,14 +14,13 @@ const order = [
   {
     href: "/evaluation",
     label: "Evaluation",
-    blurb: "Thirty cases with a written right answer, and every failure named.",
+    blurb: "Every question with a written right answer, and every failure named.",
   },
   {
     href: "/architecture",
     label: "Architecture",
     blurb: "How a question becomes an answer, and what stops it.",
   },
-  { href: "/ask", label: "Ask", blurb: "Put your own question to either restaurant." },
 ];
 
 export function PageNav() {
