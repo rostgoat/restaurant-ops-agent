@@ -45,16 +45,13 @@ export default function ArchitecturePage() {
 
         <ul className="mt-8 list-disc space-y-2 pl-6">
           <li>The model writes SQL, searches the policies and drafts actions. It never executes anything.</li>
-          <li>Code checks every query as a parse tree, adds the restaurant filter and runs it read-only.</li>
+          <li>Code takes every query apart before it runs: no writes, one restaurant&apos;s rows only, read-only.</li>
           <li>
             Policy search is limited to one restaurant and to sections above a score threshold.
             Citations are checked.
           </li>
           <li>An action waits for a person. Approval produces a simulated record, not a real send.</li>
-          <li>
-            Every step is traced with its cost and time. {s.cases} graded cases, {s.passed} pass, and the
-            failures are published.
-          </li>
+          <li>Every step is recorded with who did it, what it cost and how long it took.</li>
         </ul>
 
         <figure className="my-14">
@@ -83,8 +80,9 @@ export default function ArchitecturePage() {
           The guard
         </h2>
         <p>
-          The guard reads the SQL as a parse tree with sqlglot, not as text. A string match misses
-          a write hidden behind a comment or odd casing. A parse tree does not. It runs eight
+          The guard takes the SQL apart with sqlglot into the parts the database would see, a
+          parse tree, instead of reading it as text. A string match misses a write hidden behind a
+          comment or odd casing. The parsed query does not. It runs eight
           checks: the query parses, it is one statement, it is a SELECT, it contains no write, it
           calls no function that reads files or reaches the network, it reads only the seven
           allowed tables, it is scoped to one restaurant, and it fits under a row limit. The scope
