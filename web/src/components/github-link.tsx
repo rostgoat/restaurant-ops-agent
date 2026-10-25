@@ -13,7 +13,7 @@ function GitHubMark({ className }: { className?: string }) {
 export function GitHubLink({ variant = "outline" }: { variant?: "outline" | "ghost" }) {
   return (
     <Button asChild variant={variant} size="icon" aria-label="Source on GitHub">
-      <a href={REPO}>
+      <a href={REPO} target="_blank" rel="noopener noreferrer">
         <GitHubMark className="size-4" />
       </a>
     </Button>

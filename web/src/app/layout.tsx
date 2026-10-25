@@ -43,8 +43,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </Link>
             <ul className="flex items-center gap-4">
               <NavLinks />
-              <li aria-hidden className="mx-2 h-5 w-px bg-border" />
-              <li>
+              <li aria-hidden className="mx-1 h-5 w-px bg-border" />
+              <li className="-mr-1">
                 <GitHubLink variant="ghost" />
               </li>
               <li>
