@@ -5,7 +5,7 @@ export type Trace = components["schemas"]["TraceOut"];
 export type Step = components["schemas"]["StepOut"];
 export type QuestionStats = components["schemas"]["QuestionStatsOut"];
 
-const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
+const API_URL = (process.env.API_URL ?? "http://127.0.0.1:8000").replace(/\/+$/, "");
 // The API requires this on every request when it is set on both sides.
 const API_TOKEN = process.env.API_TOKEN;
 
@@ -51,7 +51,10 @@ export async function questionStats(merchantId: number, question: string): Promi
       cache: "no-store",
       signal: AbortSignal.timeout(2000),
     });
-  } catch {
+  } catch (e) {
+    // Visible in the host's function logs when the site cannot reach the API.
+    console.error("questionStats:", e instanceof Error ? e.message : e);
+
     return null;
   }
 }
