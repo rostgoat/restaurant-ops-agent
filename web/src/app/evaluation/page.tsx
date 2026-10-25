@@ -13,7 +13,7 @@ import { FailureCard } from "@/components/failure-card";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { StatusBadge } from "@/components/trace";
 import { count, dollars, seconds } from "@/lib/format";
-import { compare, data, describeExpectation, diagnosis, errors, failures, suiteTitle } from "@/lib/evaluation";
+import { compare, data, describeExpectation, diagnosis, errors, failures, suiteTitle, type Compare } from "@/lib/evaluation";
 
 const QUESTIONS_PER_DAY = 20;
 
@@ -106,15 +106,15 @@ export default function EvaluationPage() {
                 <TableHead className="text-right">Policy</TableHead>
                 <TableHead className="text-right">Proposals</TableHead>
                 <TableHead className="text-right">Retrieval P / R</TableHead>
-                <TableHead className="text-right">Typical cost</TableHead>
-                <TableHead className="text-right">Typical time</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Cost</TableHead>
+                <TableHead className="text-right">Time</TableHead>
+                <TableHead className="text-right">Run cost</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {compare.runs.map((r) => (
                 <TableRow key={r.label}>
-                  <TableCell className="whitespace-nowrap">{r.label}</TableCell>
+                  <TableCell className="whitespace-nowrap">{runName(r)}</TableCell>
                   <TableCell className="text-right font-sql">
                     {r.passed}/{r.scored}
                   </TableCell>
@@ -136,6 +136,7 @@ export default function EvaluationPage() {
           <Differences />
           <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
             <p>
+              Cost and time are per answered question, the typical one. Run cost is the whole run.
               Low effort did as well as medium on these cases, at the same cost and a little
               faster. The two failures on the main run are both retrieval misses: a section that
               exists scored 0.38 to 0.49 against the 0.50 threshold, so the model was shown
@@ -286,73 +287,113 @@ function suiteCell(v: { passed: number; total: number } | undefined) {
   return v ? `${v.passed}/${v.total}` : "–";
 }
 
-function shortLabel(label: string) {
-  return label
-    .replace("Sonnet 5.5, medium effort, threshold 0.50", "Sonnet, medium")
-    .replace("Sonnet 5.5, low effort", "Sonnet, low")
-    .replace("Opus 5.5, medium effort", "Opus, medium")
-    .replace("Threshold ", "")
-    .replace(", policy cases", "");
-}
-
 function Differences() {
-  const rows = compare.cases.filter((c) => c.differs);
-  if (rows.length === 0) {
-    return (
-      <p className="mt-4 text-sm text-muted-foreground">
-        No case passed on one run and failed on another.
-      </p>
-    );
-  }
-  const labels = compare.runs.map((r) => r.label);
+  const main = compare.runs[0];
+  const models = compare.runs.filter((r) => r.retrieval_threshold === main.retrieval_threshold);
+  const thresholds = compare.runs
+    .filter((r) => r.model === main.model && r.effort === main.effort)
+    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
   return (
-    <div className="mt-10">
-      <h3 className="mb-4 text-xl">Where the runs disagree</h3>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Case</TableHead>
-            {labels.map((l) => (
-              <TableHead key={l} className="px-2 text-center whitespace-nowrap">
-                {shortLabel(l)}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((c) => (
-            <TableRow key={c.id}>
-              <TableCell className="w-[52%] whitespace-normal py-4 align-top">
-                <p className="text-base leading-relaxed">
-                  <Link href={`/evaluation/${c.id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
-                    {c.id}
-                  </Link>{" "}
-                  {c.question}
-                </p>
-                {diagnosis[c.id] && (
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {diagnosis[c.id]}
-                  </p>
-                )}
-              </TableCell>
-              {labels.map((l) => {
-                const o = c.outcomes[l];
-                return (
-                  <TableCell key={l} className="px-2 text-center align-top">
-                    {o ? (
-                      <OutcomeBadge outcome={o.outcome} />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">not run</span>
-                    )}
-                  </TableCell>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <div className="mt-10 space-y-12">
+      <h3 className="text-2xl">Where the runs disagree</h3>
+      <DisagreementTable
+        title="Model and effort"
+        intro="Each column is one run of every case with a different model or effort, all at the 0.50 threshold. Only cases with mixed results are listed."
+        runs={models}
+        header={(r) => `${modelName(r.model)}, ${r.effort} effort`}
+      />
+      <DisagreementTable
+        title="Retrieval threshold"
+        intro="Each column is one run of the policy cases on Sonnet 5.5 at medium effort with a different threshold. Only cases with mixed results are listed."
+        runs={thresholds}
+        header={(r) => `threshold ${r.retrieval_threshold.toFixed(2)}`}
+      />
     </div>
   );
+}
+
+function DisagreementTable({
+  title,
+  intro,
+  runs,
+  header,
+}: {
+  title: string;
+  intro: string;
+  runs: Compare["runs"];
+  header: (r: Compare["runs"][number]) => string;
+}) {
+  const labels = runs.map((r) => r.label);
+  const rows = compare.cases.filter((c) => {
+    const seen = new Set(labels.map((l) => c.outcomes[l]?.outcome).filter(Boolean));
+    return seen.size > 1;
+  });
+  return (
+    <div>
+      <h3 className="mb-2 text-xl">{title}</h3>
+      <p className="mb-4 text-base text-muted-foreground">
+        {intro}
+        {rows.length === 0 && " None here: every case had the same result in every column."}
+      </p>
+      {rows.length > 0 && (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Case</TableHead>
+              {runs.map((r) => (
+                <TableHead key={r.label} className="px-2 text-center whitespace-nowrap">
+                  {header(r)}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.map((c) => (
+              <TableRow key={c.id}>
+                <TableCell className="w-[52%] whitespace-normal py-4 align-top">
+                  <p className="text-base leading-relaxed">
+                    <Link href={`/evaluation/${c.id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
+                      {c.id}
+                    </Link>{" "}
+                    {c.question}
+                  </p>
+                  {diagnosis[c.id] && (
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {diagnosis[c.id]}
+                    </p>
+                  )}
+                </TableCell>
+                {runs.map((r) => {
+                  const o = c.outcomes[r.label];
+                  return (
+                    <TableCell key={r.label} className="px-2 text-center align-top">
+                      {o ? (
+                        <OutcomeBadge outcome={o.outcome} />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">not run</span>
+                      )}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </div>
+  );
+}
+
+function runName(r: Compare["runs"][number]): string {
+  const main = compare.runs[0];
+  if (r.retrieval_threshold !== main.retrieval_threshold) {
+    return `threshold ${r.retrieval_threshold.toFixed(2)}, policy cases`;
+  }
+  return `${modelName(r.model)}, ${r.effort} effort${r === main ? `, threshold ${r.retrieval_threshold.toFixed(2)}` : ""}`;
+}
+
+function modelName(id: string): string {
+  return id.replace("claude-", "").replace("-5-5", " 5.5").replace(/^\w/, (c) => c.toUpperCase());
 }
 
 function OutcomeBadge({ outcome }: { outcome: string }) {
