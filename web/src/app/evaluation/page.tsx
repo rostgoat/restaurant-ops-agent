@@ -36,6 +36,19 @@ const outline = [
 export default function EvaluationPage() {
   const s = data.summary;
   const low = compare.runs.find((r) => r.effort === "low");
+  const opus = compare.runs.find((r) => r.model === "claude-opus-5-5");
+  const repeated = compare.runs
+    .filter((r) => (r.reps?.length ?? 1) > 1)
+    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
+  const repsText = repeated
+    .map((r) => `${r.reps!.join(", ")} at ${r.retrieval_threshold.toFixed(2)}`)
+    .join("; ");
+  const repsSpread = Math.max(...repeated.map((r) => Math.max(...r.reps!) - Math.min(...r.reps!)));
+  const repsMeans = repeated
+    .map((r) => `${(r.reps!.reduce((a, b) => a + b, 0) / r.reps!.length).toFixed(1)} at ${r.retrieval_threshold.toFixed(2)}`)
+    .join(", ");
+  const repsAsks = repeated.length ? repeated[0].scored : 0;
+  const opusCostRatio = opus ? (opus.cost_total_usd / s.cost_total_usd).toFixed(1) : null;
   const t040 = compare.runs.find((r) => r.retrieval_threshold === 0.4);
   const t060 = compare.runs.find((r) => r.retrieval_threshold === 0.6);
   const when = new Date(s.ran_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -159,8 +172,10 @@ export default function EvaluationPage() {
               <strong className="text-foreground">Model.</strong> The model is not the bottleneck.
               Sonnet at low effort passes {`${low?.passed ?? "?"} of ${low?.scored ?? "?"}`} cases
               and at medium effort it passes {s.passed}. The gap is one case, and it turns on how the
-              model phrases its answer, not on how it reasons. A bigger model would cost more and
-              change nothing here.
+              model phrases its answer, not on how it reasons.
+              {opus
+                ? ` Opus passes ${opus.passed} of ${opus.scored} and costs ${opusCostRatio} times as much. Its failures are a retrieval miss, a defensible reading of "net", and twice treating the asker as the owner.`
+                : " A bigger model would cost more and change nothing here."}
             </p>
             <p>
               <strong className="text-foreground">Retrieval.</strong> The bottleneck is what the
@@ -180,11 +195,14 @@ export default function EvaluationPage() {
               0.40 and 0.50.
             </p>
             <p>
-              <strong className="text-foreground">Measurement.</strong> Each setting ran once. The
-              model writes its own searches and words them differently each time, so the same
-              section can score 0.60 on one run and 0.48 on the next. A one-case difference between
-              settings is noise. The direction of the trend is not. The next step is to run each
-              setting several times and choose a value with a spread, not a point.
+              <strong className="text-foreground">Measurement.</strong> The model writes its own
+              searches and words them differently each time, so one run of a setting is one
+              sample. I ran the policy cases three times each at 0.40, 0.45 and 0.50. The pass
+              counts per run were {repsText}. The swing inside one setting is{" "}
+              {repsSpread} cases, the same as the gap between settings, so the mean is what to
+              read: {repsMeans}. At 0.40 every expected section was shown on all{" "}
+              {repsAsks} asks. The threshold should move to 0.40. This page still reports the main
+              run at 0.50 until it is redone there.
             </p>
           </div>
         </section>
@@ -318,8 +336,9 @@ function suiteCell(v: { passed: number; total: number } | undefined) {
 
 function Differences() {
   const main = compare.runs[0];
-  const models = compare.runs.filter((r) => r.retrieval_threshold === main.retrieval_threshold);
-  const thresholds = compare.runs
+  const single = compare.runs.filter((r) => (r.reps?.length ?? 1) === 1);
+  const models = single.filter((r) => r.retrieval_threshold === main.retrieval_threshold);
+  const thresholds = single
     .filter((r) => r.model === main.model && r.effort === main.effort)
     .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
 
@@ -338,6 +357,63 @@ function Differences() {
         runs={thresholds}
         header={(r) => r.retrieval_threshold.toFixed(2)}
       />
+      <Repetitions />
+    </div>
+  );
+}
+
+// Runs that asked every policy case several times: the pass count per
+// repetition, so the swing between runs of one setting is a measured number.
+function Repetitions() {
+  const repeated = compare.runs
+    .filter((r) => (r.reps?.length ?? 1) > 1)
+    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
+
+  if (repeated.length === 0) return null;
+  const width = Math.max(...repeated.map((r) => r.reps!.length));
+  const perRun = repeated[0].scored / repeated[0].reps!.length;
+
+  return (
+    <div>
+      <h3 className="mb-2 text-xl">Repetitions</h3>
+      <p className="mb-4 text-base text-muted-foreground">
+        The {perRun} policy cases asked {width} times each at one threshold, on Sonnet 5.5 at
+        medium effort. Each cell is how many passed on that repetition.
+      </p>
+      <Table className="max-w-2xl">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Threshold</TableHead>
+            {Array.from({ length: width }, (_, i) => (
+              <TableHead key={i} className="text-right">
+                Run {i + 1}
+              </TableHead>
+            ))}
+            <TableHead className="text-right">Mean</TableHead>
+            <TableHead className="text-right">Spread</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {repeated.map((r) => {
+            const reps = r.reps!;
+            const mean = reps.reduce((a, b) => a + b, 0) / reps.length;
+            return (
+              <TableRow key={r.label}>
+                <TableCell className="font-sql">{r.retrieval_threshold.toFixed(2)}</TableCell>
+                {reps.map((n, i) => (
+                  <TableCell key={i} className="text-right font-sql">
+                    {n}/{perRun}
+                  </TableCell>
+                ))}
+                <TableCell className="text-right font-sql">{mean.toFixed(1)}</TableCell>
+                <TableCell className="text-right font-sql">
+                  {Math.min(...reps)}–{Math.max(...reps)}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
     </div>
   );
 }
@@ -419,8 +495,11 @@ function DisagreementTable({
 function runName(r: Compare["runs"][number]): string {
   const main = compare.runs[0];
 
-  if (r.retrieval_threshold !== main.retrieval_threshold) {
-    return `${r.retrieval_threshold.toFixed(2)}, policy cases`;
+  const reps = r.reps?.length ?? 1;
+  const times = reps > 1 ? ` ×${reps}` : "";
+
+  if (r.retrieval_threshold !== main.retrieval_threshold || reps > 1) {
+    return `${r.retrieval_threshold.toFixed(2)}, policy cases${times}`;
   }
   return `${modelName(r.model)}, ${r.effort} effort${r === main ? `, threshold ${r.retrieval_threshold.toFixed(2)}` : ""}`;
 }

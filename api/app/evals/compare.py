@@ -40,15 +40,43 @@ def load(label: str, path: Path) -> dict[str, Any]:
         "latency_median_ms": s["latency_median_ms"],
         "latency_p90_ms": s["latency_p90_ms"],
         "retrieval": s["retrieval"],
-        "outcomes": {
-            r["case"]["id"]: {
-                "outcome": r["grade"]["outcome"],
-                "reasons": r["grade"]["reasons"],
-                "cost_usd": r["trace"]["cost_usd"],
-            }
-            for r in run["results"]
-        },
+        # Passed per repetition, when a run asked every case more than once.
+        "reps": passes_per_rep(run["results"]),
+        "outcomes": outcomes_by_case(run["results"]),
     }
+
+
+def outcomes_by_case(results: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """One entry per case. With repetitions, the outcome is pass only if every rep passed."""
+    out: dict[str, dict[str, Any]] = {}
+
+    for r in results:
+        case_id = r["case"]["id"]
+        entry = out.setdefault(
+            case_id, {"outcome": "pass", "reasons": [], "cost_usd": 0.0, "passes": 0, "reps": 0}
+        )
+        entry["reps"] += 1
+        entry["passes"] += r["grade"]["outcome"] == "pass"
+        entry["cost_usd"] += r["trace"]["cost_usd"]
+
+        if r["grade"]["outcome"] != "pass":
+            entry["outcome"] = r["grade"]["outcome"]
+            entry["reasons"] = r["grade"]["reasons"]
+
+    for entry in out.values():
+        entry["cost_usd"] = round(entry["cost_usd"] / entry["reps"], 6)
+
+    return out
+
+
+def passes_per_rep(results: list[dict[str, Any]]) -> list[int]:
+    by_rep: dict[int, int] = {}
+
+    for r in results:
+        rep = int(r.get("rep", 0))
+        by_rep[rep] = by_rep.get(rep, 0) + (r["grade"]["outcome"] == "pass")
+
+    return [by_rep[k] for k in sorted(by_rep)]
 
 
 def compare(runs: list[dict[str, Any]]) -> dict[str, Any]:
