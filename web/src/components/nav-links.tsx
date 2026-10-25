@@ -43,3 +43,38 @@ export function NavLinks() {
     </>
   );
 }
+
+export function FooterNav() {
+  const pathname = usePathname();
+  const current = currentPage(pathname);
+  return (
+    <ul className="space-y-2">
+      <li>
+        <Link
+          href="/"
+          aria-current={pathname === "/" ? "page" : undefined}
+          className={cn(
+            "font-heading text-base underline-offset-4 hover:underline",
+            pathname === "/" ? "text-primary" : "text-foreground",
+          )}
+        >
+          Home
+        </Link>
+      </li>
+      {pages.map((p) => (
+        <li key={p.href}>
+          <Link
+            href={p.href}
+            aria-current={current?.href === p.href ? "page" : undefined}
+            className={cn(
+              "font-heading text-base underline-offset-4 hover:underline",
+              current?.href === p.href ? "text-primary" : "text-foreground",
+            )}
+          >
+            {p.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}

@@ -246,14 +246,31 @@ export default function ArchitecturePage() {
         <h2 id="stack" className="mb-3 scroll-mt-28 text-2xl">
           Stack
         </h2>
-        <p>
-          The API is <Code>FastAPI</Code> with <Code>psycopg</Code> for the database and{" "}
-          <Code>sqlglot</Code> for the guard. The database is Postgres with <Code>pgvector</Code>{" "}
-          for the policy embeddings, which come from OpenAI <Code>text-embedding-3-small</Code>.
-          The model is Claude Sonnet 5.5. The site is <Code>Next.js</Code>. Locally, one{" "}
-          <Code>docker compose</Code> file runs the database, the API and the site. Deployed, the
-          site will run on Vercel and the API and the database will run separately.
-        </p>
+        <ul className="list-disc space-y-3 pl-6">
+          <li>
+            <strong className="font-semibold">API.</strong> <Code>FastAPI</Code>, with{" "}
+            <Code>psycopg</Code> for the database and <Code>sqlglot</Code> for the guard.
+          </li>
+          <li>
+            <strong className="font-semibold">Database.</strong> Postgres with <Code>pgvector</Code>{" "}
+            for the policy embeddings.
+          </li>
+          <li>
+            <strong className="font-semibold">Embeddings.</strong> OpenAI{" "}
+            <Code>text-embedding-3-small</Code>.
+          </li>
+          <li>
+            <strong className="font-semibold">Model.</strong> Claude Sonnet 5.5 at medium effort.
+          </li>
+          <li>
+            <strong className="font-semibold">Site.</strong> <Code>Next.js</Code>.
+          </li>
+          <li>
+            <strong className="font-semibold">Running it.</strong> Locally, one{" "}
+            <Code>docker compose</Code> file runs the database, the API and the site. Deployed,
+            the site will run on Vercel and the API and the database will run separately.
+          </li>
+        </ul>
       </article>
     </>
   );
