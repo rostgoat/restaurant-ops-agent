@@ -108,10 +108,10 @@ export default function EvaluationPage() {
                 <TableHead className="text-right">SQL</TableHead>
                 <TableHead className="text-right">Policy</TableHead>
                 <TableHead className="text-right">Proposals</TableHead>
-                <TableHead className="text-right">Retrieval P / R</TableHead>
-                <TableHead className="text-right">Cost</TableHead>
-                <TableHead className="text-right">Time</TableHead>
-                <TableHead className="text-right">Run cost</TableHead>
+                <TableHead className="max-w-[7rem] text-right whitespace-normal">Retrieval precision / recall</TableHead>
+                <TableHead className="max-w-[6rem] text-right whitespace-normal">Cost per answer</TableHead>
+                <TableHead className="max-w-[6rem] text-right whitespace-normal">Time per answer</TableHead>
+                <TableHead className="max-w-[5rem] text-right whitespace-normal">Whole run</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -138,9 +138,6 @@ export default function EvaluationPage() {
           </Table>
           <Differences />
           <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
-            <p>
-              Cost and time are per answered question, the typical one. Run cost is the whole run.
-            </p>
             <p>
               <strong className="text-foreground">The model is not the bottleneck.</strong> Low
               effort passed {`${low?.passed ?? "?"} of ${low?.scored ?? "?"}`}, medium passed{" "}
