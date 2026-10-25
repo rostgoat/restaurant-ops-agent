@@ -43,12 +43,15 @@ export default function ArchitecturePage() {
         <h1 className="mt-4 mb-10 text-5xl">How a question becomes an answer</h1>
         <p>
           Every request goes through the same steps. The model decides what to try. Code decides
-          what runs. A person decides what happens. The trace records all three, so a wrong answer
-          from the model stays a wrong answer and never becomes a wrong action.
+          what runs. A person decides what happens. The model cannot run a query, send a message or
+          file a dispute. Only code and a person can, and the trace records every step.
         </p>
 
         <ul className="mt-8 list-disc space-y-2 pl-6">
-          <li>The model writes SQL, searches the policies and drafts actions. It never executes anything.</li>
+          <li>
+            The model writes SQL, searches the policies and drafts actions. It cannot run a query,
+            send a message or file a dispute.
+          </li>
           <li>Code takes every query apart before it runs: no writes, one restaurant&apos;s rows only, read-only.</li>
           <li>
             Policy search is limited to one restaurant and to sections above a score threshold.
@@ -88,11 +91,11 @@ export default function ArchitecturePage() {
         <p>
           The guard takes the SQL apart with <Code>sqlglot</Code> into the parts the database would see, a
           parse tree, instead of reading it as text. A string match misses a write hidden behind a
-          comment or odd casing. The parsed query does not. It runs eight
+          comment or odd casing. A parsed query cannot hide one. It runs eight
           checks: the query parses, it is one statement, it is a <Code>SELECT</Code>, it contains no write, it
           calls no function that reads files or reaches the network, it reads only the seven
           allowed tables, it is scoped to one restaurant, and it fits under a row limit. The scope
-          check adds the filter rather than looking for one. Every table in the query is replaced
+          check does not look for a restaurant filter in the query. It adds one. Every table in the query is replaced
           by that restaurant&apos;s rows, so a join or a subquery cannot reach another restaurant.
           A blocked query goes back to the model with the name of the check that failed, and the
           model can try again. If nothing runs, the trace ends as blocked.{" "}
@@ -164,7 +167,7 @@ export default function ArchitecturePage() {
           A pending proposal waits on the trace page for a person to approve or reject it. Either
           choice appends a human step to the trace. Approval then appends a code step that writes
           a record of the action, labelled as simulated. No marketplace, phone or register is
-          reached. This is the only path by which anything changes, and the model is not on it.{" "}
+          reached. This is the only way anything changes. The model has no step in it.{" "}
           <File path="api/app/routes/proposals.py" />
         </p>
 
@@ -175,8 +178,8 @@ export default function ArchitecturePage() {
         <p>
           Every step is a row: who did it, the model, code or a person, what it decided, how long
           it took. Each model turn records its tokens, including how many came from the prompt
-          cache, and the trace prices the request from the published rates. That is where the cost
-          per question on the Evaluation page comes from. The Scenarios and Evaluation pages are
+          cache, and the trace prices the request from the published rates. The cost per question
+          on the Evaluation page is the sum of those rows. The Scenarios and Evaluation pages are
           rendered from these rows. <File path="api/app/agent/trace.py" />
         </p>
 
@@ -191,13 +194,15 @@ export default function ArchitecturePage() {
             parsers are weaker.
           </li>
           <li>
-            <strong className="font-semibold">No ORM.</strong> The premise is running generated
-            SQL. An ORM would sit in the way. Queries go through <Code>psycopg</Code> directly.
+            <strong className="font-semibold">No ORM.</strong> The model writes the SQL. An ORM
+            writes SQL for you, which is the opposite of what this project does. Queries go
+            through <Code>psycopg</Code> directly.
           </li>
           <li>
             <strong className="font-semibold">Scoping by rewrite, not row-level security.</strong>{" "}
-            Postgres row-level security would be the production answer. The rewrite is visible in
-            the trace, which is what this project is for. The data is synthetic.
+            Row-level security would do this job inside Postgres. I rewrite the query instead so the
+            trace can show the filter being added. The data is generated, so there is nothing to
+            protect.
           </li>
           <li>
             <strong className="font-semibold">A threshold, not a top four.</strong> A question the
@@ -205,9 +210,9 @@ export default function ArchitecturePage() {
             and the Evaluation page says why that is still an open question.
           </li>
           <li>
-            <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> Opus gave the same
-            outcomes at two and a half times the cost on the cases I have, and low effort did as
-            well as medium. The eval decides this, not a preference.
+            <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> On the evaluation
+            cases Opus passed fewer and cost two and a half times as much. Low effort did as well
+            as medium. The evaluation chose the model.
           </li>
           <li>
             <strong className="font-semibold">Deterministic graders.</strong> No model grades
