@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Answer } from "@/components/answer";
 import { Clock, Coins, ListOrdered, RotateCcw } from "lucide-react";
+import type React from "react";
 import type { Step, Trace } from "@/lib/api";
 import { count, dollars, seconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -75,7 +76,7 @@ function Outcome({ trace }: { trace: Trace }) {
   );
 }
 
-export function TraceMeta({ trace }: { trace: Trace }) {
+export function TraceMeta({ trace, children }: { trace: Trace; children?: React.ReactNode }) {
   const tokensIn =
     trace.usage.input_tokens + trace.usage.cache_read_tokens + trace.usage.cache_write_tokens;
   const items = [
@@ -115,6 +116,7 @@ export function TraceMeta({ trace }: { trace: Trace }) {
           </li>
         ))}
       </ul>
+      {children}
     </div>
   );
 }

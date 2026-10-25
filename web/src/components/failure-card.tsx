@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ListTree } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -80,6 +81,7 @@ export function FailureCard({
       <Collapsible open={open} onOpenChange={setOpen} className="mt-6">
         <CollapsibleTrigger asChild>
           <Button size="lg" variant={open ? "outline" : "default"} className="h-11 px-5 font-heading text-base">
+            <ListTree className="size-4" aria-hidden />
             {open ? "Hide the trace" : "Show the trace"}
           </Button>
         </CollapsibleTrigger>

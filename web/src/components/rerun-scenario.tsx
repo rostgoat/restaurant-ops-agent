@@ -58,7 +58,7 @@ export function RerunButton({ pending, elapsed, onClick }: { pending: boolean; e
       className="h-11 px-5 font-heading text-base"
     >
       <RotateCw className={pending ? "size-4 animate-spin" : "size-4"} aria-hidden />
-      {pending ? `Asking the agent, ${elapsed}s` : "Ask it again now"}
+      {pending ? `Rerunning, ${elapsed}s` : "Rerun scenario"}
     </Button>
   );
 }
@@ -130,7 +130,7 @@ export function QuestionStatsLine({ stats }: { stats: QuestionStats | null }) {
     stats.latency_median_ms != null ? `typical time ${(stats.latency_median_ms / 1000).toFixed(1)} s` : null,
   ].filter(Boolean);
   return (
-    <p className="mt-2 text-sm text-muted-foreground">
+    <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">
       Asked {stats.asked} {stats.asked === 1 ? "time" : "times"}
       {since ? ` since ${since}` : ""}, by everyone who has opened this page: {parts.join(", ")}.
     </p>

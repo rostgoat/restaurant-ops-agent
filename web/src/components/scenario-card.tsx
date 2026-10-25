@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ListTree } from "lucide-react";
 import { Answer } from "@/components/answer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -75,23 +76,25 @@ export function ScenarioCard({
       </div>
 
       <div className="mt-8">
-        <TraceMeta trace={t} />
+        <TraceMeta trace={t}>
+          <QuestionStatsLine stats={rerun.stats} />
+        </TraceMeta>
       </div>
 
       <Collapsible open={open} onOpenChange={setOpen} className="mt-6">
         <div className="flex flex-wrap items-center gap-3">
           <CollapsibleTrigger asChild>
             <Button size="lg" variant={open ? "outline" : "default"} className="h-11 px-5 font-heading text-base">
+              <ListTree className="size-4" aria-hidden />
               {open ? "Hide the trace" : "Show the trace"}
             </Button>
           </CollapsibleTrigger>
           <RerunButton pending={rerun.pending} elapsed={rerun.elapsed} onClick={rerun.run} />
         </div>
         <p className="mt-3 text-sm text-muted-foreground">
-          Captured on {capturedOn}. Asking again puts the same question to the agent live, for a few
+          Captured on {capturedOn}. Rerunning puts the same question to the agent live, for a few
           cents and about ten seconds. Each run is kept so you can flip between them.
         </p>
-        <QuestionStatsLine stats={rerun.stats} />
         <CollapsibleContent className="mt-8">
           <TraceLedger trace={t} />
         </CollapsibleContent>
