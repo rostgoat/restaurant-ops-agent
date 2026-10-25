@@ -7,20 +7,28 @@ export function PageOutline({ items }: { items: { slug: string; title: string }[
   const [active, setActive] = useState(items[0]?.slug);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActive(visible[0].target.id);
-      },
-      { rootMargin: "-20% 0px -65% 0px", threshold: 0 }
-    );
-    for (const item of items) {
-      const el = document.getElementById(item.slug);
-      if (el) observer.observe(el);
-    }
-    return () => observer.disconnect();
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const line = window.innerHeight * 0.3;
+      let current = items[0]?.slug;
+      for (const item of items) {
+        const el = document.getElementById(item.slug);
+        if (el && el.getBoundingClientRect().top <= line) current = item.slug;
+      }
+      setActive(current);
+    };
+    const onScroll = () => {
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, [items]);
 
   return (
