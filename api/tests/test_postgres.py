@@ -165,8 +165,8 @@ def test_policy_search_is_scoped_to_the_merchant_before_similarity():
         query = "missing items on a DoorDash order, dispute window and packing photo"
         noodle = search.search(1, query, limit=3)
         coffee = search.search(2, query, limit=3)
-        assert noodle[0].label.startswith("marketplace:")
-        assert all(not h.label.startswith("marketplace:") for h in coffee)
+        assert noodle[0].label.startswith("Marketplace Terms")
+        assert all(not h.label.startswith("Marketplace Terms") for h in coffee)
         assert noodle[0].score > coffee[0].score
         assert all(0.0 <= h.score <= 1.0 for h in noodle + coffee)
     finally:

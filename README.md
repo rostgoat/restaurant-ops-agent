@@ -34,68 +34,26 @@ infra/   Postgres init for docker compose.
 
 ## Run it
 
+Docker runs the database and the API. The site runs with pnpm, as it does on
+Vercel.
+
 ```bash
-# the database and the API on :8000
-cp .env.example .env            # add ANTHROPIC_API_KEY and OPENAI_API_KEY; API_TOKEN when deployed
-python data/generate.py --out data/out --months 12 --seed 42
-docker compose up -d --build --wait      # the api image builds from the repo root
-cd api && .venv/bin/python -m app.policies.index --dsn "$DATABASE_URL" --dsn "$EVAL_DATABASE_URL"
+cp .env.example .env                         # add ANTHROPIC_API_KEY and OPENAI_API_KEY
+docker compose up -d --build --wait          # Postgres (loaded from data/out) and the API on :8000
+docker compose run --rm tools sh -c 'python -m app.policies.index --dsn "$DATABASE_URL" --dsn "$EVAL_DATABASE_URL"'
+cd web && pnpm install && pnpm dev           # the site on :3000
+```
 
-# the site on :3000
-cd web && pnpm install && pnpm dev     # NEXT_PUBLIC_SITE_URL sets the public address when deployed
+Everything else runs in the same image against this checkout:
 
-# tests
-cd api && .venv/bin/python -m pytest
-
-# the evaluation set, against the frozen database
-cd api && .venv/bin/python -m app.evals.run --dsn "$EVAL_DATABASE_URL"
+```bash
+docker compose run --rm tools python -m pytest                       # the API tests, database included
+docker compose run --rm tools python -m app.evals.run                # the evaluation set, against the frozen database
+docker compose run --rm tools python ../data/generate.py --out ../data/out --months 12 --seed 42
 ```
 
 Model: Claude Sonnet 5.5. Embeddings: OpenAI text-embedding-3-small. Database:
 Postgres with pgvector.
-
-## Deploy
-
-Three services: the database on Neon, the API on Fly, the site on Vercel.
-
-**Neon.** `neon.ts` at the root declares the project; `neon deploy` pulls the
-connection strings into `.env`. Keep the local `DATABASE_URL` for compose and
-hold Neon's under `NEON_DATABASE_URL` (pooled) and `NEON_DATABASE_URL_UNPOOLED`.
-Load the database over the unpooled string:
-
-```bash
-psql "$NEON_DATABASE_URL_UNPOOLED" -f data/schema.sql
-cd data/out && psql "$NEON_DATABASE_URL_UNPOOLED" -f load.sql && cd ../..
-cd api && .venv/bin/python -m app.policies.index --dsn "$NEON_DATABASE_URL_UNPOOLED"
-```
-
-The API keeps a small connection pool open on a long-running machine, so give
-Fly the unpooled string as `DATABASE_URL`; Neon's pooler is for serverless
-callers that open a connection per request.
-
-**Fly.** `fly.toml` at the root describes the API: built from `api/Dockerfile`
-with the policy documents inside, one machine always running, health check
-on `/health`.
-
-```bash
-fly launch --no-deploy --copy-config
-fly secrets set DATABASE_URL="$NEON_DATABASE_URL_UNPOOLED" ANTHROPIC_API_KEY=... OPENAI_API_KEY=... API_TOKEN=...
-fly deploy
-```
-
-After that, pushes to `main` that touch the API deploy through
-`.github/workflows/deploy-api.yml`; it needs a `FLY_API_TOKEN` repository
-secret from `fly tokens create deploy`. Set `WEB_ORIGIN` in `fly.toml` to the
-site's address.
-
-**Vercel.** Import the repository with the root directory set to `web`.
-Environment variables: `API_URL` (the Fly app's URL), `API_TOKEN` (the same
-value as on Fly), `NEXT_PUBLIC_SITE_URL` (the site's own address, needed at
-build time for the sitemap and canonical links).
-
-**Then.** Run `api/scripts/capture.py --api https://<fly app>` once with
-`API_TOKEN` set, so the hosted database holds the scenario captures and the
-approved dispute, and check `/robots.txt` and `/sitemap.xml` on the live site.
 
 ## Licence
 
