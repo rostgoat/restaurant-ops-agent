@@ -84,6 +84,7 @@ export default function ArchitecturePage() {
           <ArchitectureDiagram />
           <figcaption className="mt-4 text-base text-muted-foreground">
             The request path. Each box is a step the trace records, in the colour the trace uses.
+            <span className="sm:hidden"> Scroll it sideways to see the code lane.</span>
           </figcaption>
         </figure>
 
