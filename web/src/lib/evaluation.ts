@@ -67,7 +67,7 @@ export const diagnosis: Record<string, string> = {
   "pol-04":
     "The section that says Ridgeline is on no marketplace scored 0.49 on the model's second search, just under the 0.50 threshold. Shown nothing, the model said it found no deadline and suggested checking the DoorDash portal, which is the wrong advice for a restaurant that is not on DoorDash.",
   "pol-01":
-    "The model found the comps section and gave the $25 limit, but said the manager should \"escalate\" without naming the owner, which is what the policy says and what the grader looks for.",
+    "The model found the comps section and gave the $25 limit, but wrote \"needs your approval\", treating the person asking as the owner. The policy says the owner approves, and the grader looks for that word. At 0.45 the model was also shown the staff-meals section, which did not apply.",
   "pol-13":
     "The model computed 1.09% against the 1% rule and named the review, but addressed the asker as the owner instead of saying the owner reviews the week.",
   "pol-15":
