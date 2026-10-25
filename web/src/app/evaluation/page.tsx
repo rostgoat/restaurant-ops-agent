@@ -178,33 +178,27 @@ export default function EvaluationPage() {
         <h2 className="mb-6 text-3xl">Limitations</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            Every case runs through the same entry point the site uses, with the same prompt,
-            tools, model, and settings, and the full trace is kept so a surprising grade can be
-            traced to the step that caused it. A case whose request errored is reported
-            separately, never as a model failure.
+            The graders check less than a person would. The SQL grader looks for the expected
+            figure among the numbers in the answer. It cannot tell a right number reached by a wrong
+            query from a right answer, and it cannot tell a wrong answer from a right one that
+            leaves the number out. The policy grader checks that the right section is cited and
+            that a few phrases appear. It does not judge whether the explanation is sound.
           </p>
           <p>
-            The SQL grader looks for the expected figure, within a small tolerance, among the numbers
-            in the answer. It cannot tell a right answer from a right number arrived at by the
-            wrong query, and it cannot tell a wrong answer from a right one phrased without the
-            number. The policy grader checks citations and a few phrases, not whether the
-            explanation is sound. {s.cases} cases is enough to catch regressions, not to estimate
-            a rate to the point.
+            {s.cases} cases catch regressions. They do not pin down a rate. Ground truth is
+            hand-written: a query I wrote for each SQL case, the section I named for each policy
+            case, and the status the trace records for refusals and proposals.
           </p>
           <p>
-            One run of each setting. The comparison above shows the run-to-run swing is real: the
-            same policy case passes on one run and fails on the next when the model words its
-            search differently. The harness supports repetitions, and a pass rate with a spread is
-            the next number to add. Ground truth: {s.ground_truth}
-          </p>
-          <p>
-            Run on commit {s.commit ?? "unknown"}, model {s.model} at {s.effort} effort, dataset{" "}
-            {s.dataset}, with the clock frozen at {s.frozen_now.slice(0, 10)}. The run file with
-            every trace is in the repository under api/evals/runs. The{" "}
+            Every case runs through the same code path as the site, with the same prompt, tools
+            and settings, on a frozen copy of the data with the clock set to{" "}
+            {s.frozen_now.slice(0, 10)}. A request that errors is counted apart from the
+            model&apos;s failures. The run file with every trace is in the repository under
+            api/evals/runs. The{" "}
             <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
               scenarios
             </Link>{" "}
-            are the readable version of the same idea.
+            tell the same story in prose.
           </p>
         </div>
       </section>
