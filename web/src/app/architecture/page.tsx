@@ -75,8 +75,9 @@ export default function ArchitecturePage() {
           <Code>search_policy</Code> asks for the rules on a topic. <Code>propose</Code> drafts an
           action: a dispute, a text campaign, a comp or a note to the owner. <Code>decline</Code>{" "}
           turns the question down and says why. The model can call up
-          to six tools in one request, in any order, or answer in plain text with none. I gave it
-          no tool that changes anything, so there is nothing for a bad prompt to reach.{" "}
+          to six tools in one request, in any order, or answer in plain text with none. None of the
+          four can write, send or file anything. A question that tells the model to delete or
+          change something, like the injection scenario, has no tool to do it with.{" "}
           <File path="api/app/agent/tools.py" />
         </p>
 
