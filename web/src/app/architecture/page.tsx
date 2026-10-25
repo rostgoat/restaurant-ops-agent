@@ -1,18 +1,17 @@
-import type { Metadata } from "next";
 import { ArchitectureDiagram } from "@/components/architecture-diagram";
 import { Kicker } from "@/components/kicker";
+import { pageMetadata } from "@/lib/site";
 import { PageOutline } from "@/components/page-outline";
 import { Separator } from "@/components/ui/separator";
 import { data } from "@/lib/evaluation";
 import { count } from "@/lib/format";
 import { scenarios } from "@/lib/scenarios";
 
-export const metadata: Metadata = {
-  title: "Architecture",
-  description: "How a question becomes an answer: the model picks a tool, code checks and runs it, a person approves. One section per step with a link to the file, the decisions, and what it does not do.",
-  alternates: { canonical: "/architecture" },
-  openGraph: { title: "Architecture", description: "How a question becomes an answer: the model picks a tool, code checks and runs it, a person approves. One section per step with a link to the file, the decisions, and what it does not do.", url: "/architecture" },
-};
+export const metadata = pageMetadata(
+  "Architecture",
+  "How a question becomes an answer: the model picks a tool, code checks and runs it, a person approves. One section per step with a link to the file, the decisions, and what it does not do.",
+  "/architecture",
+);
 
 const REPO = "https://github.com/rostgoat/restaurant-ops-agent/blob/main/";
 

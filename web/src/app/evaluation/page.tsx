@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Kicker } from "@/components/kicker";
+import { pageMetadata } from "@/lib/site";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -19,12 +19,11 @@ import { compare, data, describeExpectation, diagnosis, errors, failures, suiteT
 
 const QUESTIONS_PER_DAY = 20;
 
-export const metadata: Metadata = {
-  title: "Evaluation",
-  description: "52 questions with a known right answer, graded by code. Every failure shown in full, and the same cases on other models, efforts and retrieval thresholds.",
-  alternates: { canonical: "/evaluation" },
-  openGraph: { title: "Evaluation", description: "52 questions with a known right answer, graded by code. Every failure shown in full, and the same cases on other models, efforts and retrieval thresholds.", url: "/evaluation" },
-};
+export const metadata = pageMetadata(
+  "Evaluation",
+  "52 questions with a known right answer, graded by code. Every failure shown in full, and the same cases on other models, efforts and retrieval thresholds.",
+  "/evaluation",
+);
 
 const outline = [
   { slug: "every-case", title: "Every case" },

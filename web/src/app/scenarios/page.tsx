@@ -1,16 +1,15 @@
-import type { Metadata } from "next";
 import { ScenarioCard } from "@/components/scenario-card";
 import { Kicker } from "@/components/kicker";
+import { pageMetadata } from "@/lib/site";
 import { PageOutline } from "@/components/page-outline";
 import { questionStats } from "@/lib/api";
 import { scenarios } from "@/lib/scenarios";
 
-export const metadata: Metadata = {
-  title: "Scenarios",
-  description: "Five questions put to two fictional restaurants, simplest first, with what should happen written before each was asked, the captured answer, and the full trace. Each can be rerun live.",
-  alternates: { canonical: "/scenarios" },
-  openGraph: { title: "Scenarios", description: "Five questions put to two fictional restaurants, simplest first, with what should happen written before each was asked, the captured answer, and the full trace. Each can be rerun live.", url: "/scenarios" },
-};
+export const metadata = pageMetadata(
+  "Scenarios",
+  "Five questions put to two fictional restaurants, simplest first, with what should happen written before each was asked, the captured answer, and the full trace. Each can be rerun live.",
+  "/scenarios",
+);
 
 // Rendered on every request, with no loading state, so the "asked N times"
 // line is current when the page opens.

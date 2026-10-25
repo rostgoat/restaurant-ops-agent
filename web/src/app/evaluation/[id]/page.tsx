@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { compare, data, describeExpectation, diagnosis, suiteTitle, type Outcome } from "@/lib/evaluation";
+import { pageMetadata } from "@/lib/site";
 import { count } from "@/lib/format";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -27,12 +28,7 @@ export async function generateMetadata(props: { params: Promise<{ id: string }> 
     ? `${r.case.question} Graded ${r.grade.outcome} on the ${r.case.suite} suite, with the full trace.`
     : title;
 
-  return {
-    title,
-    description,
-    alternates: { canonical: `/evaluation/${id}` },
-    openGraph: { title, description, url: `/evaluation/${id}` },
-  };
+  return pageMetadata(title, description, `/evaluation/${id}`);
 }
 
 export function generateStaticParams() {
