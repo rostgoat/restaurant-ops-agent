@@ -121,18 +121,19 @@ export function RerunResult({
 
 export function QuestionStatsLine({ stats }: { stats: QuestionStats | null }) {
   if (!stats || stats.asked === 0) return null;
-  const since = stats.first_asked_at
-    ? new Date(stats.first_asked_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-    : null;
-  const parts = [
-    `${stats.answered} answered`,
-    stats.cost_median_usd != null ? `typical cost $${stats.cost_median_usd.toFixed(4)}` : null,
-    stats.latency_median_ms != null ? `typical time ${(stats.latency_median_ms / 1000).toFixed(1)} s` : null,
-  ].filter(Boolean);
+  const items = [
+    { label: "asked", value: `${stats.asked} ${stats.asked === 1 ? "time" : "times"}` },
+    { label: "avg cost", value: stats.cost_avg_usd != null ? `$${stats.cost_avg_usd.toFixed(4)}` : null },
+    { label: "avg time", value: stats.latency_avg_ms != null ? `${(stats.latency_avg_ms / 1000).toFixed(1)} s` : null },
+  ].filter((it) => it.value !== null);
   return (
-    <p className="mt-3 border-t pt-3 text-sm text-muted-foreground">
-      Asked {stats.asked} {stats.asked === 1 ? "time" : "times"}
-      {since ? ` since ${since}` : ""}, by everyone who has opened this page: {parts.join(", ")}.
-    </p>
+    <ul className="mt-3 flex flex-wrap gap-x-8 gap-y-2 border-t pt-3" aria-label="Every run of this question">
+      {items.map((it) => (
+        <li key={it.label} className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{it.label}:</span>
+          <span className="font-heading text-base">{it.value}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

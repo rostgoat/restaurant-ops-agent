@@ -46,12 +46,12 @@ class FakeStore:
             for t in self.traces.values()
             if t.merchant_id == merchant_id and t.question == question
         ]
-        costs = sorted(t.cost_usd for t in mine)
+        costs = [t.cost_usd for t in mine]
         return QuestionStats(
             asked=len(mine),
             answered=sum(t.status == "answered" for t in mine),
-            cost_median_usd=costs[len(costs) // 2] if costs else None,
-            latency_median_ms=None,
+            cost_avg_usd=sum(costs) / len(costs) if costs else None,
+            latency_avg_ms=None,
             first_asked_at=min((t.created_at for t in mine), default=None),
         )
 

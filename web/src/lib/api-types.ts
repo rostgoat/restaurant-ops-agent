@@ -194,10 +194,10 @@ export interface components {
             asked: number;
             /** Answered */
             answered: number;
-            /** Cost Median Usd */
-            cost_median_usd: number | null;
-            /** Latency Median Ms */
-            latency_median_ms: number | null;
+            /** Cost Avg Usd */
+            cost_avg_usd: number | null;
+            /** Latency Avg Ms */
+            latency_avg_ms: number | null;
             /** First Asked At */
             first_asked_at: string | null;
         };

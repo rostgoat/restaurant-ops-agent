@@ -42,8 +42,8 @@ _SELECT_TRACE = f"SELECT {_TRACE_COLUMNS} FROM request_traces WHERE id = %s AND 
 _QUESTION_STATS = """
 SELECT count(*),
        count(*) FILTER (WHERE status = 'answered'),
-       percentile_cont(0.5) WITHIN GROUP (ORDER BY cost_usd),
-       percentile_cont(0.5) WITHIN GROUP (ORDER BY latency_ms),
+       avg(cost_usd),
+       avg(latency_ms),
        min(created_at)
 FROM request_traces
 WHERE merchant_id = %s AND question = %s
@@ -77,8 +77,8 @@ _SELECT_PROPOSAL = f"SELECT {_PROPOSAL_COLUMNS} FROM proposals WHERE id = %s AND
 class QuestionStats:
     asked: int
     answered: int
-    cost_median_usd: float | None
-    latency_median_ms: int | None
+    cost_avg_usd: float | None
+    latency_avg_ms: int | None
     first_asked_at: datetime | None
 
 
@@ -180,8 +180,8 @@ class Store:
         return QuestionStats(
             asked=int(asked),
             answered=int(answered),
-            cost_median_usd=float(cost) if cost is not None else None,
-            latency_median_ms=int(latency) if latency is not None else None,
+            cost_avg_usd=float(cost) if cost is not None else None,
+            latency_avg_ms=int(latency) if latency is not None else None,
             first_asked_at=first,
         )
 

@@ -74,6 +74,6 @@ class MerchantOut(BaseModel):
 class QuestionStatsOut(BaseModel):
     asked: int
     answered: int
-    cost_median_usd: float | None
-    latency_median_ms: int | None
+    cost_avg_usd: float | None
+    latency_avg_ms: int | None
     first_asked_at: datetime | None
