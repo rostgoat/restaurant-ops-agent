@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
 import { MerchantBadge } from "@/components/merchant-badge";
-import { RerunButton, RerunResult, useRerun } from "@/components/rerun-scenario";
+import { QuestionStatsLine, RerunButton, RerunResult, useRerun } from "@/components/rerun-scenario";
+import type { QuestionStats } from "@/lib/api";
 import type { Scenario } from "@/lib/scenarios";
 
 function toolsUsed(s: Scenario): string[] {
@@ -22,9 +23,17 @@ function toolsUsed(s: Scenario): string[] {
   return used;
 }
 
-export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?: string }) {
+export function ScenarioCard({
+  scenario,
+  kicker,
+  stats,
+}: {
+  scenario: Scenario;
+  kicker?: string;
+  stats?: QuestionStats | null;
+}) {
   const [open, setOpen] = useState(false);
-  const rerun = useRerun(scenario.slug);
+  const rerun = useRerun(scenario.slug, stats ?? null);
   const capturedOn = new Date(scenario.trace.created_at).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -82,6 +91,7 @@ export function ScenarioCard({ scenario, kicker }: { scenario: Scenario; kicker?
           Captured on {capturedOn}. Asking again puts the same question to the agent live, for a few
           cents and about ten seconds. Each run is kept so you can flip between them.
         </p>
+        <QuestionStatsLine stats={rerun.stats} />
         <CollapsibleContent className="mt-8">
           <TraceLedger trace={t} />
         </CollapsibleContent>

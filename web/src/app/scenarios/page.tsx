@@ -1,11 +1,17 @@
 import { ScenarioCard } from "@/components/scenario-card";
 import { Kicker } from "@/components/kicker";
 import { PageOutline } from "@/components/page-outline";
+import { questionStats } from "@/lib/api";
 import { scenarios } from "@/lib/scenarios";
 
 export const metadata = { title: "Scenarios" };
 
-export default function ScenariosPage() {
+// Rendered on every request, with no loading state, so the "asked N times"
+// line is current when the page opens.
+export const instant = false;
+
+export default async function ScenariosPage() {
+  const stats = await Promise.all(scenarios.map((s) => questionStats(s.merchant_id, s.question)));
   const when = new Date(scenarios[0].trace.created_at).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -29,7 +35,7 @@ export default function ScenariosPage() {
       </section>
       <div className="mt-20 space-y-16">
         {scenarios.map((s, i) => (
-          <ScenarioCard key={s.slug} scenario={s} kicker={`Scenario ${i + 1} of ${scenarios.length}`} />
+          <ScenarioCard key={s.slug} scenario={s} kicker={`Scenario ${i + 1} of ${scenarios.length}`} stats={stats[i]} />
         ))}
       </div>
       <PageOutline items={items} />

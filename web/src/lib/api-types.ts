@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/questions/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Question Stats */
+        get: operations["question_stats_questions_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/proposals/{proposal_id}/approve": {
         parameters: {
             query?: never;
@@ -170,6 +187,19 @@ export interface components {
             draft_message: string | null;
             /** Decided At */
             decided_at: string | null;
+        };
+        /** QuestionStatsOut */
+        QuestionStatsOut: {
+            /** Asked */
+            asked: number;
+            /** Answered */
+            answered: number;
+            /** Cost Median Usd */
+            cost_median_usd: number | null;
+            /** Latency Median Ms */
+            latency_median_ms: number | null;
+            /** First Asked At */
+            first_asked_at: string | null;
         };
         /** StepOut */
         StepOut: {
@@ -359,6 +389,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TraceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    question_stats_questions_stats_get: {
+        parameters: {
+            query: {
+                question: string;
+            };
+            header: {
+                "x-merchant-id": number;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionStatsOut"];
                 };
             };
             /** @description Validation Error */

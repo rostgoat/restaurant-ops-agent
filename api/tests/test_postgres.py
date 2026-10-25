@@ -136,6 +136,9 @@ def test_a_trace_survives_the_round_trip(store):
         assert loaded.steps[2].latency_ms == 40
 
         assert store.get_trace(trace.id, 2) is None
+        stats = store.question_stats(1, trace.question)
+        assert (stats.asked, stats.answered) == (1, 1)
+        assert store.question_stats(2, trace.question).asked == 0
     finally:
         with psycopg.connect(DSN) as conn:
             conn.execute("DELETE FROM request_traces WHERE id = %s", (trace.id,))

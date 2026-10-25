@@ -38,6 +38,23 @@ class FakeStore:
     def save_trace(self, trace):
         self.traces[trace.id] = trace
 
+    def question_stats(self, merchant_id, question):
+        from app.store import QuestionStats
+
+        mine = [
+            t
+            for t in self.traces.values()
+            if t.merchant_id == merchant_id and t.question == question
+        ]
+        costs = sorted(t.cost_usd for t in mine)
+        return QuestionStats(
+            asked=len(mine),
+            answered=sum(t.status == "answered" for t in mine),
+            cost_median_usd=costs[len(costs) // 2] if costs else None,
+            latency_median_ms=None,
+            first_asked_at=min((t.created_at for t in mine), default=None),
+        )
+
     def get_trace(self, trace_id, merchant_id):
         trace = self.traces.get(trace_id)
         return trace if trace and trace.merchant_id == merchant_id else None
@@ -155,3 +172,18 @@ def test_a_trace_is_only_readable_by_the_restaurant_that_asked():
     trace_id = api.post("/ask", json={"question": "a"}, headers=as_merchant(1)).json()["id"]
     assert api.get(f"/traces/{trace_id}", headers=as_merchant(1)).status_code == 200
     assert api.get(f"/traces/{trace_id}", headers=as_merchant(2)).status_code == 404
+
+
+def test_question_stats_count_every_time_this_restaurant_asked_it():
+    api, _ = make(FakeClient(reply(text("hi")), reply(text("hi")), reply(text("hi"))))
+    api.post("/ask", json={"question": "a"}, headers=as_merchant(1))
+    api.post("/ask", json={"question": "a"}, headers=as_merchant(1))
+    api.post("/ask", json={"question": "a"}, headers=as_merchant(2))
+    stats = api.get("/questions/stats", params={"question": "a"}, headers=as_merchant(1)).json()
+    assert (stats["asked"], stats["answered"]) == (2, 2)
+    assert (
+        api.get("/questions/stats", params={"question": "zzz"}, headers=as_merchant(1)).json()[
+            "asked"
+        ]
+        == 0
+    )

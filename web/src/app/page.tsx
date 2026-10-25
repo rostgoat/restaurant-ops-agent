@@ -2,12 +2,16 @@ import Link from "next/link";
 import { Kicker } from "@/components/kicker";
 import { ScenarioCard } from "@/components/scenario-card";
 import { Button } from "@/components/ui/button";
+import { questionStats } from "@/lib/api";
 import type { Scenario } from "@/lib/scenarios";
 import fileDispute from "@/content/scenarios/file-dispute.json";
 
 const scenario = fileDispute as Scenario;
 
-export default function HomePage() {
+export const instant = false;
+
+export default async function HomePage() {
+  const stats = await questionStats(scenario.merchant_id, scenario.question);
   return (
     <>
       <section>
@@ -47,7 +51,11 @@ export default function HomePage() {
       </section>
 
       <section className="mt-28">
-        <ScenarioCard scenario={scenario} kicker="Scenario 5 of 5: a dispute the model proposes, code checks, and the owner approves." />
+        <ScenarioCard
+          scenario={scenario}
+          kicker="Scenario 5 of 5: a dispute the model proposes, code checks, and the owner approves."
+          stats={stats}
+        />
       </section>
     </>
   );

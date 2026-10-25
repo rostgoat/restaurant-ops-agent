@@ -69,3 +69,11 @@ class MerchantOut(BaseModel):
     name: str
     cuisine: str
     timezone: str
+
+
+class QuestionStatsOut(BaseModel):
+    asked: int
+    answered: int
+    cost_median_usd: float | None
+    latency_median_ms: int | None
+    first_asked_at: datetime | None

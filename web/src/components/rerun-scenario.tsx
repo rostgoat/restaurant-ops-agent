@@ -7,13 +7,14 @@ import { Answer } from "@/components/answer";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
-import type { Trace } from "@/lib/api";
+import type { QuestionStats, Trace } from "@/lib/api";
 
 type Run = { at: Date; trace: Trace };
 
 // The button goes in the card's button row; the result renders below it.
-export function useRerun(slug: string) {
+export function useRerun(slug: string, initialStats: QuestionStats | null) {
   const [runs, setRuns] = useState<Run[]>([]);
+  const [stats, setStats] = useState<QuestionStats | null>(initialStats);
   const [shown, setShown] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -31,6 +32,7 @@ export function useRerun(slug: string) {
     start(async () => {
       const result = await rerunScenario(slug);
       if (result.trace) {
+        if (result.stats) setStats(result.stats);
         setRuns((prev) => {
           const next = [...prev, { at: new Date(), trace: result.trace! }];
           setShown(next.length - 1);
@@ -42,7 +44,7 @@ export function useRerun(slug: string) {
     });
   };
 
-  return { runs, shown, setShown, error, pending, elapsed, run };
+  return { runs, shown, setShown, error, pending, elapsed, run, stats };
 }
 
 export function RerunButton({ pending, elapsed, onClick }: { pending: boolean; elapsed: number; onClick: () => void }) {
@@ -114,5 +116,23 @@ export function RerunResult({
         </CollapsibleContent>
       </Collapsible>
     </div>
+  );
+}
+
+export function QuestionStatsLine({ stats }: { stats: QuestionStats | null }) {
+  if (!stats || stats.asked === 0) return null;
+  const since = stats.first_asked_at
+    ? new Date(stats.first_asked_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    : null;
+  const parts = [
+    `${stats.answered} answered`,
+    stats.cost_median_usd != null ? `typical cost $${stats.cost_median_usd.toFixed(4)}` : null,
+    stats.latency_median_ms != null ? `typical time ${(stats.latency_median_ms / 1000).toFixed(1)} s` : null,
+  ].filter(Boolean);
+  return (
+    <p className="mt-2 text-sm text-muted-foreground">
+      Asked {stats.asked} {stats.asked === 1 ? "time" : "times"}
+      {since ? ` since ${since}` : ""}, by everyone who has opened this page: {parts.join(", ")}.
+    </p>
   );
 }

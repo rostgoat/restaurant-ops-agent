@@ -3,6 +3,8 @@ import { Kicker } from "@/components/kicker";
 import { PageOutline } from "@/components/page-outline";
 import { Separator } from "@/components/ui/separator";
 import { data } from "@/lib/evaluation";
+import { count } from "@/lib/format";
+import { scenarios } from "@/lib/scenarios";
 
 export const metadata = { title: "Architecture" };
 
@@ -33,6 +35,15 @@ function File({ path }: { path: string }) {
     </a>
   );
 }
+
+// The caching figure, read from the first scenario's answering turn.
+const cached = (() => {
+  const step = scenarios[0].trace.steps.find((st) => st.name === "answer");
+  const u = (step?.detail as { usage?: Record<string, number> } | undefined)?.usage ?? {};
+  const read = u.cache_read_tokens ?? 0;
+  const input = (u.input_tokens ?? 0) + read + (u.cache_write_tokens ?? 0);
+  return { read, input, prompt: Math.round(read / 10) * 10 };
+})();
 
 export default function ArchitecturePage() {
   const s = data.summary;
@@ -214,6 +225,15 @@ export default function ArchitecturePage() {
             <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> On the evaluation
             cases Opus passed fewer and cost two and a half times as much. Low effort did as well
             as medium. The evaluation chose the model.
+          </li>
+          <li>
+            <strong className="font-semibold">Prompt caching.</strong> The system prompt, the
+            tool definitions and the table descriptions are the same for every question, about{" "}
+            {count(cached.prompt)} tokens. They are cached, so every turn after the first reads
+            them at a tenth of the price. On the first scenario&apos;s answering turn,{" "}
+            {count(cached.read)} of {count(cached.input)} input tokens came from the cache. The
+            trace records this on every turn and the cost per question includes it. Answers are
+            not cached. Every question is a live run.
           </li>
           <li>
             <strong className="font-semibold">Deterministic graders.</strong> No model grades

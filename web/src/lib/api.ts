@@ -3,6 +3,7 @@ import type { components } from "./api-types";
 
 export type Trace = components["schemas"]["TraceOut"];
 export type Step = components["schemas"]["StepOut"];
+export type QuestionStats = components["schemas"]["QuestionStatsOut"];
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
 
@@ -31,4 +32,17 @@ export async function ask(merchantId: number, question: string): Promise<Trace> 
     headers: { "X-Merchant-Id": String(merchantId), "content-type": "application/json" },
     body: JSON.stringify({ question }),
   });
+}
+
+// How one question has fared every time this restaurant asked it, across
+// the capture and every visitor's re-run. Null when the API is not up.
+export async function questionStats(merchantId: number, question: string): Promise<QuestionStats | null> {
+  try {
+    return await call<QuestionStats>(`/questions/stats?question=${encodeURIComponent(question)}`, {
+      headers: { "X-Merchant-Id": String(merchantId) },
+      cache: "no-store",
+    });
+  } catch {
+    return null;
+  }
 }
