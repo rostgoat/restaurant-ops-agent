@@ -1,6 +1,6 @@
 import { ScenarioCard } from "@/components/scenario-card";
 import { Kicker } from "@/components/kicker";
-import { ScenarioToc } from "@/components/scenario-toc";
+import { PageOutline } from "@/components/page-outline";
 import type { Scenario } from "@/lib/scenarios";
 
 import deliveryVsCounter from "@/content/scenarios/delivery-vs-counter.json";
@@ -46,7 +46,7 @@ export default function ScenariosPage() {
           <ScenarioCard key={s.slug} scenario={s} kicker={`Scenario ${i + 1} of ${scenarios.length}`} />
         ))}
       </div>
-      <ScenarioToc items={items} />
+      <PageOutline items={items} />
     </>
   );
 }

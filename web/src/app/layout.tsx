@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Link from "next/link";
+import { BackToTop } from "@/components/back-to-top";
 import { NavLinks } from "@/components/nav-links";
 import { PageNav } from "@/components/page-nav";
 import { ThemeProvider, ThemeToggle } from "@/components/theme";
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </header>
         <main className="mx-auto w-full max-w-5xl flex-1 px-8 py-20 sm:px-16 sm:py-28">{children}</main>
         <PageNav />
+        <BackToTop />
         <footer className="border-t">
           <p className="mx-auto max-w-5xl px-8 py-10 text-sm text-muted-foreground sm:px-16">
             Built by Rost M.{" "}

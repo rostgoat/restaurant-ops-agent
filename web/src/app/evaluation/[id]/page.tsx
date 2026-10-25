@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Answer } from "@/components/answer";
 import { MerchantBadge } from "@/components/merchant-badge";
+import { PageOutline } from "@/components/page-outline";
 import { TraceLedger } from "@/components/trace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,14 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
   return (
     <>
+      <PageOutline
+        items={[
+          { slug: "expectation", title: "What should happen, and what the grader found" },
+          { slug: "answer", title: "What it answered" },
+          { slug: "other-runs", title: "Other models and thresholds" },
+          { slug: "trace", title: "The trace" },
+        ]}
+      />
       <Button asChild variant="link" className="mb-10 h-auto p-0 font-sans text-sm">
         <Link href="/evaluation">
           <ArrowLeft className="size-4" aria-hidden /> All {data.results.length} cases
@@ -61,7 +70,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         ))}
       </p>
 
-      <div className="mt-12 grid gap-8 md:grid-cols-2">
+      <div id="expectation" className="mt-12 grid scroll-mt-28 gap-8 md:grid-cols-2">
         <div>
           <h2 className="mb-2 text-xl">What should happen</h2>
           <p className="text-lg leading-relaxed">{describeExpectation(c)}</p>
@@ -87,7 +96,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
       </div>
 
       {r.trace.answer && (
-        <section className="mt-12">
+        <section id="answer" className="mt-12 scroll-mt-28">
           <h2 className="mb-3 text-xl">What it answered</h2>
           <Answer text={r.trace.answer} merchantId={c.merchant_id} className="text-lg leading-relaxed" />
         </section>
@@ -95,7 +104,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
 
       {others && <OtherRuns outcomes={others.outcomes} />}
 
-      <section className="mt-16">
+      <section id="trace" className="mt-16 scroll-mt-28">
         <h2 className="mb-3 text-2xl">The trace</h2>
         <p className="mb-8 text-lg text-muted-foreground">
           Every step as it ran. Steps marked model were decided by Claude; steps marked code ran as
@@ -159,7 +168,7 @@ function OtherRuns({ outcomes }: { outcomes: Record<string, Outcome> }) {
   const ran = (r: (typeof compare.runs)[number]) => outcomes[r.label] != null;
   if (models.filter(ran).length < 2 && thresholds.filter(ran).length < 2) return null;
   return (
-    <section className="mt-16">
+    <section id="other-runs" className="mt-16 scroll-mt-28">
       <h2 className="mb-3 text-2xl">Other models and thresholds</h2>
       <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
         The result above comes from the main run: {modelName(main.model)} at {main.effort} effort,

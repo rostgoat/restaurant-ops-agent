@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-export function ScenarioToc({ items }: { items: { slug: string; title: string }[] }) {
+export function PageOutline({ items }: { items: { slug: string; title: string }[] }) {
   const [active, setActive] = useState(items[0]?.slug);
 
   useEffect(() => {
@@ -25,7 +25,7 @@ export function ScenarioToc({ items }: { items: { slug: string; title: string }[
 
   return (
     <nav
-      aria-label="Scenarios on this page"
+      aria-label="On this page"
       className="group fixed top-1/2 right-0 z-20 hidden -translate-y-1/2 lg:block"
     >
       <ol className="flex flex-col items-end gap-2 py-3 pr-4 pl-6">

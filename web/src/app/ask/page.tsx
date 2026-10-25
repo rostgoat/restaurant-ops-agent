@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Kicker } from "@/components/kicker";
+import { PageOutline } from "@/components/page-outline";
 import { AskForm } from "@/components/ask-form";
 import { MerchantPicker } from "@/components/merchant-picker";
 import { StatusBadge, statusLine } from "@/components/trace";
@@ -25,7 +26,13 @@ export const metadata = { title: "Ask" };
 export default async function AskPage() {
   return (
     <>
-      <section className="max-w-[64ch]">
+      <PageOutline
+        items={[
+          { slug: "ask", title: "Ask a question" },
+          { slug: "recent", title: "Recent questions" },
+        ]}
+      />
+      <section id="ask" className="max-w-[64ch] scroll-mt-28">
         <Kicker page="Ask" />
         <h1 className="mt-4 text-4xl sm:text-5xl">Ask it yourself</h1>
         <p className="mt-8 text-lg leading-relaxed text-muted-foreground">
@@ -60,7 +67,7 @@ async function Workspace() {
         </div>
         <AskForm merchantName={merchant.name} />
       </div>
-      <section>
+      <section id="recent" className="scroll-mt-28">
         <h3 className="mb-4 text-2xl">Recent questions</h3>
         {traces.length === 0 ? (
           <p className="text-muted-foreground">

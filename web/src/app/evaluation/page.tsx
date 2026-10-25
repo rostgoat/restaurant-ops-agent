@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FailureCard } from "@/components/failure-card";
+import { PageOutline } from "@/components/page-outline";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { StatusBadge } from "@/components/trace";
 import { count, dollars, seconds } from "@/lib/format";
@@ -18,6 +19,14 @@ import { compare, data, describeExpectation, diagnosis, errors, failures, suiteT
 const QUESTIONS_PER_DAY = 20;
 
 export const metadata = { title: "Evaluation" };
+
+const outline = [
+  { slug: "every-case", title: "Every case" },
+  { slug: "failures", title: "The failures" },
+  { slug: "by-suite", title: "By suite" },
+  { slug: "comparison", title: "Other models, efforts and thresholds" },
+  { slug: "limitations", title: "Limitations" },
+];
 
 export default function EvaluationPage() {
   const s = data.summary;
@@ -29,6 +38,7 @@ export default function EvaluationPage() {
   const perMonth = s.cost_per_answered_median_usd !== null ? s.cost_per_answered_median_usd * QUESTIONS_PER_DAY * 30 : null;
   return (
     <>
+      <PageOutline items={outline} />
       <section>
         <Kicker page="Evaluation" />
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
@@ -63,7 +73,7 @@ export default function EvaluationPage() {
       <FailuresSection />
 
       <section className="mt-24">
-        <h2 className="mb-6 text-3xl">By suite</h2>
+        <h2 id="by-suite" className="mb-6 scroll-mt-28 text-3xl">By suite</h2>
         <Table className="max-w-3xl">
           <TableHeader>
             <TableRow>
@@ -93,7 +103,7 @@ export default function EvaluationPage() {
 
       {compare.runs.length > 1 && (
         <section className="mt-24">
-          <h2 className="mb-6 text-3xl">Other models, efforts and thresholds</h2>
+          <h2 id="comparison" className="mb-6 scroll-mt-28 text-3xl">Other models, efforts and thresholds</h2>
           <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
             The first row is the run this page reports. Each other row changes one setting: the
             model, the effort, or the retrieval threshold. The threshold is the similarity score a
@@ -175,7 +185,7 @@ export default function EvaluationPage() {
       )}
 
       <section className="mt-24">
-        <h2 className="mb-6 text-3xl">Limitations</h2>
+        <h2 id="limitations" className="mb-6 scroll-mt-28 text-3xl">Limitations</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
             The graders check less than a person would. The SQL grader looks for the expected
@@ -209,7 +219,7 @@ export default function EvaluationPage() {
 function EveryCase() {
   return (
       <section className="mt-24">
-        <h2 className="mb-6 text-3xl">Every case</h2>
+        <h2 id="every-case" className="mb-6 scroll-mt-28 text-3xl">Every case</h2>
         <Table>
           <TableHeader>
             <TableRow>
@@ -250,7 +260,7 @@ function EveryCase() {
 function FailuresSection() {
   return (
       <section className="mt-24">
-        <h2 className="mb-6 text-3xl">
+        <h2 id="failures" className="mb-6 scroll-mt-28 text-3xl">
           {failures.length === 0 ? "No failures" : failures.length === 1 ? "The one failure" : `The ${failures.length} failures`}
         </h2>
         {failures.length === 0 ? (

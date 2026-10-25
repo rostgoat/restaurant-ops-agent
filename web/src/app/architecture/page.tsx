@@ -1,6 +1,6 @@
 import { ArchitectureDiagram } from "@/components/architecture-diagram";
 import { Kicker } from "@/components/kicker";
-import { ScenarioToc } from "@/components/scenario-toc";
+import { PageOutline } from "@/components/page-outline";
 import { Separator } from "@/components/ui/separator";
 import { data } from "@/lib/evaluation";
 
@@ -33,7 +33,7 @@ export default function ArchitecturePage() {
   const s = data.summary;
   return (
     <>
-      <ScenarioToc items={sections} />
+      <PageOutline items={sections} />
       <article className="text-lg leading-relaxed">
         <Kicker page="Architecture" />
         <h1 className="mt-4 mb-10 text-5xl">How a question becomes an answer</h1>
