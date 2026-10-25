@@ -19,6 +19,7 @@ const sections = [
   { slug: "trace", title: "The trace and the cost" },
   { slug: "decisions", title: "Decisions" },
   { slug: "gaps", title: "What it does not do" },
+  { slug: "stack", title: "Stack" },
 ];
 
 function Code({ children }: { children: string }) {
@@ -189,9 +190,9 @@ export default function ArchitecturePage() {
         </h2>
         <ul className="list-disc space-y-3 pl-6">
           <li>
-            <strong className="font-semibold">Python and <Code>sqlglot</Code> over Node.</strong> Validating
-            generated SQL as a parse tree is the whole enforcement layer, and the JavaScript
-            parsers are weaker.
+            <strong className="font-semibold">Python and <Code>sqlglot</Code> over Node.</strong>{" "}
+            <Code>sqlglot</Code> parses SQL into a tree and lets the guard rewrite it. The guard is
+            the enforcement layer, so the API is written in the language that has the parser.
           </li>
           <li>
             <strong className="font-semibold">No ORM.</strong> The model writes the SQL. An ORM
@@ -232,15 +233,26 @@ export default function ArchitecturePage() {
         <ul className="list-disc space-y-3 pl-6">
           <li>The two restaurants and their orders are generated. Nothing here is real sales.</li>
           <li>An approved action is recorded, not sent. No marketplace, SMS gateway or register is connected.</li>
-          <li>The restaurant is chosen with a cookie. There is no login.</li>
+          <li>
+            There is no login. On the Ask page you pick a restaurant, the choice is stored in a
+            cookie, and the server sends it to the API as the restaurant id. In a real product the
+            id would come from the account.
+          </li>
           <li>Each evaluation setting ran once. The pass rates have no spread yet.</li>
           <li>Tenant isolation is enforced in the application, not in the database.</li>
         </ul>
 
-        <p className="mt-14 text-base text-muted-foreground">
-          <Code>FastAPI</Code>, <Code>psycopg</Code>, <Code>sqlglot</Code>, Postgres with{" "}
-          <Code>pgvector</Code>, OpenAI <Code>text-embedding-3-small</Code>, Claude Sonnet 5.5,{" "}
-          <Code>Next.js</Code>. One <Code>docker compose</Code> file runs all of it.
+        <Separator className="my-14" />
+        <h2 id="stack" className="mb-3 scroll-mt-28 text-2xl">
+          Stack
+        </h2>
+        <p>
+          The API is <Code>FastAPI</Code> with <Code>psycopg</Code> for the database and{" "}
+          <Code>sqlglot</Code> for the guard. The database is Postgres with <Code>pgvector</Code>{" "}
+          for the policy embeddings, which come from OpenAI <Code>text-embedding-3-small</Code>.
+          The model is Claude Sonnet 5.5. The site is <Code>Next.js</Code>. Locally, one{" "}
+          <Code>docker compose</Code> file runs the database, the API and the site. Deployed, the
+          site will run on Vercel and the API and the database will run separately.
         </p>
       </article>
     </>
