@@ -203,6 +203,7 @@ function EveryCase() {
               <TableHead>Question</TableHead>
               <TableHead>Asked as</TableHead>
               <TableHead>Result</TableHead>
+              <TableHead className="text-right">Time</TableHead>
               <TableHead className="text-right">Cost</TableHead>
             </TableRow>
           </TableHeader>
@@ -222,6 +223,7 @@ function EveryCase() {
                   <OutcomeBadge outcome={r.grade.outcome} />{" "}
                   <StatusBadge status={r.trace.status} />
                 </TableCell>
+                <TableCell className="text-right font-sql text-[13px]">{seconds(r.trace.latency_ms)}</TableCell>
                 <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
               </TableRow>
             ))}
