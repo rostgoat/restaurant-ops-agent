@@ -3,7 +3,7 @@
 #   fly secrets set DATABASE_URL=... ANTHROPIC_API_KEY=... OPENAI_API_KEY=... API_TOKEN=...
 #   fly deploy
 app = "restaurant-ops-agent"
-primary_region = "sea"
+primary_region = "iad"
 
 [build]
   dockerfile = "api/Dockerfile"
