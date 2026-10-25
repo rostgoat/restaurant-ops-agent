@@ -306,7 +306,7 @@ function Differences() {
         title="Retrieval threshold"
         intro="Each column is one run of the policy cases on Sonnet 5.5 at medium effort with a different threshold. Only cases with mixed results are listed."
         runs={thresholds}
-        header={(r) => `threshold ${r.retrieval_threshold.toFixed(2)}`}
+        header={(r) => r.retrieval_threshold.toFixed(2)}
       />
     </div>
   );
@@ -387,7 +387,7 @@ function DisagreementTable({
 function runName(r: Compare["runs"][number]): string {
   const main = compare.runs[0];
   if (r.retrieval_threshold !== main.retrieval_threshold) {
-    return `threshold ${r.retrieval_threshold.toFixed(2)}, policy cases`;
+    return `${r.retrieval_threshold.toFixed(2)}, policy cases`;
   }
   return `${modelName(r.model)}, ${r.effort} effort${r === main ? `, threshold ${r.retrieval_threshold.toFixed(2)}` : ""}`;
 }
