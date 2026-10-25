@@ -56,14 +56,20 @@ Postgres with pgvector.
 
 Three services: the database on Neon, the API on Fly, the site on Vercel.
 
-**Neon.** Create a project and a database. Then, from this repository with the
-direct (non-pooled) connection string:
+**Neon.** `neon.ts` at the root declares the project; `neon deploy` pulls the
+connection strings into `.env`. Keep the local `DATABASE_URL` for compose and
+hold Neon's under `NEON_DATABASE_URL` (pooled) and `NEON_DATABASE_URL_UNPOOLED`.
+Load the database over the unpooled string:
 
 ```bash
-psql "$NEON_URL" -f data/schema.sql
-cd data/out && psql "$NEON_URL" -f load.sql && cd ../..
-cd api && .venv/bin/python -m app.policies.index --dsn "$NEON_URL"
+psql "$NEON_DATABASE_URL_UNPOOLED" -f data/schema.sql
+cd data/out && psql "$NEON_DATABASE_URL_UNPOOLED" -f load.sql && cd ../..
+cd api && .venv/bin/python -m app.policies.index --dsn "$NEON_DATABASE_URL_UNPOOLED"
 ```
+
+The API keeps a small connection pool open on a long-running machine, so give
+Fly the unpooled string as `DATABASE_URL`; Neon's pooler is for serverless
+callers that open a connection per request.
 
 **Fly.** `fly.toml` at the root describes the API: built from `api/Dockerfile`
 with the policy documents inside, one machine always running, health check
@@ -71,7 +77,7 @@ on `/health`.
 
 ```bash
 fly launch --no-deploy --copy-config
-fly secrets set DATABASE_URL="$NEON_URL" ANTHROPIC_API_KEY=... OPENAI_API_KEY=... API_TOKEN=...
+fly secrets set DATABASE_URL="$NEON_DATABASE_URL_UNPOOLED" ANTHROPIC_API_KEY=... OPENAI_API_KEY=... API_TOKEN=...
 fly deploy
 ```
 

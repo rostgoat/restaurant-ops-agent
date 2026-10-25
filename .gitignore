@@ -44,3 +44,4 @@ pgdata/
 
 # Session context for Claude Code, kept local
 CLAUDE.md
+.neon
