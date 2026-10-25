@@ -62,9 +62,9 @@ export default function EvaluationPage() {
         </p>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           Last run {when}. A SQL answer must contain the figure a hand-written query returns
-          from that database. A policy answer must cite the section the author named and nothing
-          borrowed from the other restaurant. A refusal or a proposal is graded on what the trace
-          records.
+          from that database. A policy answer must cite the section I named and must not quote the
+          other restaurant&apos;s rules. A refusal is graded on its status. A proposal is graded on
+          the status the checker gave it.
         </p>
       </section>
 
@@ -171,8 +171,8 @@ export default function EvaluationPage() {
               easy to catch. A confident &ldquo;there is no rule&rdquo; is not.
             </p>
             <p>
-              <strong className="text-foreground">Threshold.</strong> So I measured the dial instead
-              of guessing. At 0.40 the model sees {fmt(t040?.retrieval.recall ?? null)} of the right
+              <strong className="text-foreground">Threshold.</strong> So I ran the policy cases
+              at four other thresholds. At 0.40 the model sees {fmt(t040?.retrieval.recall ?? null)} of the right
               sections, plus some that do not apply. At 0.60 it sees{" "}
               {fmt(t060?.retrieval.recall ?? null)}, and four discount questions fail together when
               one section drops below the bar. The two mistakes are not equal. An extra section is
@@ -271,8 +271,8 @@ function FailuresSection() {
         </h2>
         {failures.length === 0 ? (
           <p className=" text-lg text-muted-foreground">
-            Every scored case passed on this run. That is a small set; it says the floor holds,
-            not that the agent is right in general.
+            Every case passed on this run. {data.summary.cases} cases is a small set. It shows nothing
+            regressed, not that the agent is right in general.
           </p>
         ) : (
           <div className="space-y-12">

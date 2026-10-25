@@ -5,7 +5,7 @@
   "question": "Customer 1500 is claiming another missing item on a delivery order. How should I handle it?",
   "expected": [
     "Counts customer 1500's refunded marketplace orders in the last 90 days with SQL.",
-    "Finds they cross the flag threshold of three.",
+    "Finds six, over the limit of three.",
     "Applies the repeat-disputes rule: dispute every claim regardless of value, and tell the owner. Cites it."
   ],
   "trace": {
@@ -15,7 +15,7 @@
     "created_at": "2026-10-25T00:22:42.181779Z",
     "model": "claude-sonnet-5-5",
     "status": "answered",
-    "answer": "Customer 1500 is flagged under the repeat-dispute rule, so you should dispute this claim and not just accept the chargeback.\n\nIn the last 90 days (since about July 27), 1500 has had 6 marketplace delivery orders refunded in full. Four were DoorDash (orders 98436, 91153, 90201 and 78696) and two were Uber Eats (89105 and 86211). The policy flags anyone with three or more. For a flagged customer, every missing-item claim is disputed regardless of order value, and you are told [Marketplace Terms \u00a77, Repeat Disputes].\n\nThe dispute has to be filed inside the platform's window: DoorDash 7 days from the order date, Uber Eats 30, Grubhub 14. A late dispute is rejected automatically [Marketplace Terms \u00a73, Missing or Incorrect Items].\n\nI couldn't tell which order the new claim is about. If it's the latest one, DoorDash order 98436 from October 13, the 7-day window closed on October 20. Check the order date and platform before you file.\n\nPacking photos are only taken for marketplace orders over $40. Most of 1500's orders are under that, so a photo may not exist. The policy says not to dispute an over-$40 order with no photo, but the flagged-customer rule says to dispute every claim. The policies don't say which takes precedence, so you'll need to decide.\n\nI've sent you a notify-owner proposal for customer 1500. It is pending, and nothing has been filed or changed yet. Send me the order number and I can propose the dispute itself.",
+    "answer": "Customer 1500 is flagged under the repeat-dispute rule, so you should dispute this claim and not just accept the chargeback.\n\nIn the last 90 days (since about July 27), 1500 has had 6 marketplace delivery orders refunded in full. Four were DoorDash (orders 98436, 91153, 90201 and 78696) and two were Uber Eats (89105 and 86211). The policy flags anyone with three or more. For a flagged customer, every missing-item claim is disputed regardless of order value, and you are told [Marketplace Terms §7, Repeat Disputes].\n\nThe dispute has to be filed inside the platform's window: DoorDash 7 days from the order date, Uber Eats 30, Grubhub 14. A late dispute is rejected automatically [Marketplace Terms §3, Missing or Incorrect Items].\n\nI couldn't tell which order the new claim is about. If it's the latest one, DoorDash order 98436 from October 13, the 7-day window closed on October 20. Check the order date and platform before you file.\n\nPacking photos are only taken for marketplace orders over $40. Most of 1500's orders are under that, so a photo may not exist. The policy says not to dispute an over-$40 order with no photo, but the flagged-customer rule says to dispute every claim. The policies don't say which takes precedence, so you'll need to decide.\n\nI've sent you a notify-owner proposal for customer 1500. It is pending, and nothing has been filed or changed yet. Send me the order number and I can propose the dispute itself.",
     "usage": {
       "input_tokens": 11286,
       "cache_read_tokens": 13425,
@@ -478,22 +478,22 @@
           "threshold": 0.5,
           "hits": [
             {
-              "label": "Marketplace Terms \u00a77, Repeat Disputes",
+              "label": "Marketplace Terms §7, Repeat Disputes",
               "score": 0.7098,
               "used": true
             },
             {
-              "label": "Marketplace Terms \u00a73, Missing or Incorrect Items",
+              "label": "Marketplace Terms §3, Missing or Incorrect Items",
               "score": 0.6704,
               "used": true
             },
             {
-              "label": "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries",
+              "label": "Marketplace Terms §4, Late, Cold, or Damaged Deliveries",
               "score": 0.5495,
               "used": true
             },
             {
-              "label": "House Policy \u00a73, Refunds on In-Store and Online Orders",
+              "label": "House Policy §3, Refunds on In-Store and Online Orders",
               "score": 0.4883,
               "used": false
             }
@@ -640,7 +640,7 @@
         "detail": {
           "kind": "notify_owner",
           "summary": "Customer 1500 is a flagged repeat missing-item claimant (6 refunded marketplace orders in 90 days); dispute this new claim if still within the platform window.",
-          "reason": "[Marketplace Terms \u00a77, Repeat Disputes] three or more refunded marketplace orders in 90 days means every missing-item claim is disputed regardless of value and the owner is told. [Marketplace Terms \u00a73, Missing or Incorrect Items] disputes need to be filed within the window (DoorDash 7 days, Uber Eats 30, Grubhub 14), and a packing photo exists only for orders over $40.",
+          "reason": "[Marketplace Terms §7, Repeat Disputes] three or more refunded marketplace orders in 90 days means every missing-item claim is disputed regardless of value and the owner is told. [Marketplace Terms §3, Missing or Incorrect Items] disputes need to be filed within the window (DoorDash 7 days, Uber Eats 30, Grubhub 14), and a packing photo exists only for orders over $40.",
           "order_id": null,
           "customer_id": 1500,
           "amount_cents": null,
@@ -679,7 +679,7 @@
         "name": "answer",
         "outcome": "answered",
         "detail": {
-          "text": "Customer 1500 is flagged under the repeat-dispute rule, so you should dispute this claim and not just accept the chargeback.\n\nIn the last 90 days (since about July 27), 1500 has had 6 marketplace delivery orders refunded in full. Four were DoorDash (orders 98436, 91153, 90201 and 78696) and two were Uber Eats (89105 and 86211). The policy flags anyone with three or more. For a flagged customer, every missing-item claim is disputed regardless of order value, and you are told [Marketplace Terms \u00a77, Repeat Disputes].\n\nThe dispute has to be filed inside the platform's window: DoorDash 7 days from the order date, Uber Eats 30, Grubhub 14. A late dispute is rejected automatically [Marketplace Terms \u00a73, Missing or Incorrect Items].\n\nI couldn't tell which order the new claim is about. If it's the latest one, DoorDash order 98436 from October 13, the 7-day window closed on October 20. Check the order date and platform before you file.\n\nPacking photos are only taken for marketplace orders over $40. Most of 1500's orders are under that, so a photo may not exist. The policy says not to dispute an over-$40 order with no photo, but the flagged-customer rule says to dispute every claim. The policies don't say which takes precedence, so you'll need to decide.\n\nI've sent you a notify-owner proposal for customer 1500. It is pending, and nothing has been filed or changed yet. Send me the order number and I can propose the dispute itself.",
+          "text": "Customer 1500 is flagged under the repeat-dispute rule, so you should dispute this claim and not just accept the chargeback.\n\nIn the last 90 days (since about July 27), 1500 has had 6 marketplace delivery orders refunded in full. Four were DoorDash (orders 98436, 91153, 90201 and 78696) and two were Uber Eats (89105 and 86211). The policy flags anyone with three or more. For a flagged customer, every missing-item claim is disputed regardless of order value, and you are told [Marketplace Terms §7, Repeat Disputes].\n\nThe dispute has to be filed inside the platform's window: DoorDash 7 days from the order date, Uber Eats 30, Grubhub 14. A late dispute is rejected automatically [Marketplace Terms §3, Missing or Incorrect Items].\n\nI couldn't tell which order the new claim is about. If it's the latest one, DoorDash order 98436 from October 13, the 7-day window closed on October 20. Check the order date and platform before you file.\n\nPacking photos are only taken for marketplace orders over $40. Most of 1500's orders are under that, so a photo may not exist. The policy says not to dispute an over-$40 order with no photo, but the flagged-customer rule says to dispute every claim. The policies don't say which takes precedence, so you'll need to decide.\n\nI've sent you a notify-owner proposal for customer 1500. It is pending, and nothing has been filed or changed yet. Send me the order number and I can propose the dispute itself.",
           "usage": {
             "input_tokens": 3797,
             "cache_read_tokens": 2685,
@@ -696,13 +696,13 @@
         "outcome": "passed",
         "detail": {
           "cited": [
-            "Marketplace Terms \u00a73, Missing or Incorrect Items",
-            "Marketplace Terms \u00a77, Repeat Disputes"
+            "Marketplace Terms §3, Missing or Incorrect Items",
+            "Marketplace Terms §7, Repeat Disputes"
           ],
           "retrieved": [
-            "Marketplace Terms \u00a73, Missing or Incorrect Items",
-            "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries",
-            "Marketplace Terms \u00a77, Repeat Disputes"
+            "Marketplace Terms §3, Missing or Incorrect Items",
+            "Marketplace Terms §4, Late, Cold, or Damaged Deliveries",
+            "Marketplace Terms §7, Repeat Disputes"
           ],
           "not_retrieved": []
         },
@@ -721,7 +721,7 @@
         "payload": {
           "kind": "notify_owner",
           "summary": "Customer 1500 is a flagged repeat missing-item claimant (6 refunded marketplace orders in 90 days); dispute this new claim if still within the platform window.",
-          "reason": "[Marketplace Terms \u00a77, Repeat Disputes] three or more refunded marketplace orders in 90 days means every missing-item claim is disputed regardless of value and the owner is told. [Marketplace Terms \u00a73, Missing or Incorrect Items] disputes need to be filed within the window (DoorDash 7 days, Uber Eats 30, Grubhub 14), and a packing photo exists only for orders over $40.",
+          "reason": "[Marketplace Terms §7, Repeat Disputes] three or more refunded marketplace orders in 90 days means every missing-item claim is disputed regardless of value and the owner is told. [Marketplace Terms §3, Missing or Incorrect Items] disputes need to be filed within the window (DoorDash 7 days, Uber Eats 30, Grubhub 14), and a packing photo exists only for orders over $40.",
           "customer_id": 1500,
           "checks": []
         },

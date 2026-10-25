@@ -32,11 +32,9 @@ export default async function ScenariosPage() {
           Five scenarios, from a plain query to an approved action.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
-          Five questions, in order of how much the system has to do, put to two restaurants that run on six different written policies,
-          answered by Claude Sonnet 5.5 on {when}. Each one states the expected behaviour
-          before showing what happened, so you can judge the system rather than take its word.
-          Several questions are asked at both restaurants so the difference in their rules
-          shows, and nothing has been edited, including what did not go to plan.
+          Five questions, simplest first, put to two restaurants with different written rules.
+          Claude Sonnet 5.5 answered them on {when}. For each one I wrote down what should happen
+          before asking, then captured what did. Nothing is edited.
         </p>
       </section>
       <div className="mt-20 space-y-16">

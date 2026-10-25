@@ -1,5 +1,7 @@
 # Restaurant ops agent
 
+**Live: https://restaurant-ops-agent.vercel.app**
+
 An AI agent that answers a restaurant owner's questions about their own sales
 and their own written policies, and proposes actions a person approves before
 anything happens. The model writes SQL, searches policy and drafts actions. Code
@@ -94,3 +96,7 @@ build time for the sitemap and canonical links).
 **Then.** Run `api/scripts/capture.py --api https://<fly app>` once with
 `API_TOKEN` set, so the hosted database holds the scenario captures and the
 approved dispute, and check `/robots.txt` and `/sitemap.xml` on the live site.
+
+## Licence
+
+MIT.

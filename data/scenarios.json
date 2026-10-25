@@ -26,7 +26,7 @@
     "question": "Customer 1500 is claiming another missing item on a delivery order. How should I handle it?",
     "expected": [
       "Counts customer 1500's refunded marketplace orders in the last 90 days with SQL.",
-      "Finds they cross the flag threshold of three.",
+      "Finds six, over the limit of three.",
       "Applies the repeat-disputes rule: dispute every claim regardless of value, and tell the owner. Cites it."
     ]
   },
@@ -49,7 +49,7 @@
     "expected": [
       "Proposes filing the dispute rather than claiming to have filed it.",
       "Code looks the order up, confirms it is a DoorDash order, and that the 7-day window is still open, with the due date.",
-      "The proposal waits for a person. In this capture the owner's approval was given through the API, and the record it produced is marked as simulated."
+      "The proposal waits for a person. I approved it through the API, and the record is marked as simulated."
     ],
     "approve": true
   }

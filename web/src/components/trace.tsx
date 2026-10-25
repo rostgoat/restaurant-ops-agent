@@ -13,6 +13,7 @@ import { Answer } from "@/components/answer";
 import { Clock, Coins, ListOrdered, RotateCcw } from "lucide-react";
 import type React from "react";
 import type { Step, Trace } from "@/lib/api";
+import { costWithoutCache } from "@/lib/pricing";
 import { count, dollars, seconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -77,11 +78,33 @@ function Outcome({ trace }: { trace: Trace }) {
   );
 }
 
+// A trace reloaded from the database carries only token totals. Each model
+// step still records its own cache reads and writes, so sum those.
+function cacheTokens(trace: Trace) {
+  let cache_read_tokens = 0;
+  let cache_write_tokens = 0;
+
+  for (const step of trace.steps) {
+    const u = (step.detail as { usage?: Record<string, number> } | null)?.usage;
+
+    if (!u) continue;
+    cache_read_tokens += u.cache_read_tokens ?? 0;
+    cache_write_tokens += u.cache_write_tokens ?? 0;
+  }
+
+  return { cache_read_tokens, cache_write_tokens };
+}
+
 export function TraceMeta({ trace, children }: { trace: Trace; children?: React.ReactNode }) {
   const tokensIn =
     trace.usage.input_tokens + trace.usage.cache_read_tokens + trace.usage.cache_write_tokens;
+  const uncached = costWithoutCache(trace.model, trace.cost_usd, cacheTokens(trace));
   const items = [
-    { icon: Coins, value: dollars(trace.cost_usd), label: "to answer" },
+    {
+      icon: Coins,
+      value: dollars(trace.cost_usd),
+      label: uncached ? `to answer, ${dollars(uncached)} without the prompt cache` : "to answer",
+    },
     {
       icon: Clock,
       value: seconds(trace.latency_ms),

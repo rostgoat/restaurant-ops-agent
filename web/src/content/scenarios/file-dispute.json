@@ -6,7 +6,7 @@
   "expected": [
     "Proposes filing the dispute rather than claiming to have filed it.",
     "Code looks the order up, confirms it is a DoorDash order, and that the 7-day window is still open, with the due date.",
-    "The proposal waits for a person. In this capture the owner's approval was given through the API, and the record it produced is marked as simulated."
+    "The proposal waits for a person. I approved it through the API, and the record is marked as simulated."
   ],
   "approve": true,
   "trace": {
@@ -16,7 +16,7 @@
     "created_at": "2026-10-25T00:23:13.729026Z",
     "model": "claude-sonnet-5-5",
     "status": "answered",
-    "answer": "I've proposed the DoorDash dispute for order 100660, but it hasn't been filed. It stays pending until a person approves it.\n\nThe order is a completed DoorDash (Caviar) order from 2026-10-20 for $61.40. DoorDash allows 7 days, and the check shows the window open until 2026-10-27. The deadline is **2026-10-27**. A dispute filed after that is rejected automatically [Marketplace Terms \u00a73, Missing or Incorrect Items].\n\nBefore approving, confirm that a packing photo of the item in the bag exists. Photos are taken for every marketplace order over $40, and this one qualifies. I can't see photos in the data. If there is no photo, the policy says not to dispute. You would accept the chargeback and log it as a packing miss [Marketplace Terms \u00a73, Missing or Incorrect Items].",
+    "answer": "I've proposed the DoorDash dispute for order 100660, but it hasn't been filed. It stays pending until a person approves it.\n\nThe order is a completed DoorDash (Caviar) order from 2026-10-20 for $61.40. DoorDash allows 7 days, and the check shows the window open until 2026-10-27. The deadline is **2026-10-27**. A dispute filed after that is rejected automatically [Marketplace Terms §3, Missing or Incorrect Items].\n\nBefore approving, confirm that a packing photo of the item in the bag exists. Photos are taken for every marketplace order over $40, and this one qualifies. I can't see photos in the data. If there is no photo, the policy says not to dispute. You would accept the chargeback and log it as a packing miss [Marketplace Terms §3, Missing or Incorrect Items].",
     "usage": {
       "input_tokens": 13317,
       "cache_read_tokens": 0,
@@ -162,22 +162,22 @@
           "hits": [
             {
               "used": true,
-              "label": "Marketplace Terms \u00a73, Missing or Incorrect Items",
+              "label": "Marketplace Terms §3, Missing or Incorrect Items",
               "score": 0.5133
             },
             {
               "used": false,
-              "label": "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries",
+              "label": "Marketplace Terms §4, Late, Cold, or Damaged Deliveries",
               "score": 0.4372
             },
             {
               "used": false,
-              "label": "Marketplace Terms \u00a77, Repeat Disputes",
+              "label": "Marketplace Terms §7, Repeat Disputes",
               "score": 0.4159
             },
             {
               "used": false,
-              "label": "Marketplace Terms \u00a72, Commission and Pricing",
+              "label": "Marketplace Terms §2, Commission and Pricing",
               "score": 0.3731
             }
           ],
@@ -200,7 +200,7 @@
             "cache_read_tokens": 2685,
             "cache_write_tokens": 0
           },
-          "reason": "[Marketplace Terms \u00a73, Missing or Incorrect Items]: DoorDash window is 7 days; the order is 5 days old. It is over $40, so a packing photo should exist. Confirm the photo before approving, because without one the policy says to accept the chargeback.",
+          "reason": "[Marketplace Terms §3, Missing or Incorrect Items]: DoorDash window is 7 days; the order is 5 days old. It is over $40, so a packing photo should exist. Confirm the photo before approving, because without one the policy says to accept the chargeback.",
           "summary": "File a DoorDash chargeback dispute for order 100660 ($61.40, placed 2026-10-20), within the 7-day window.",
           "order_id": 100660,
           "customer_id": 3226,
@@ -245,7 +245,7 @@
         "name": "answer",
         "outcome": "answered",
         "detail": {
-          "text": "I've proposed the DoorDash dispute for order 100660, but it hasn't been filed. It stays pending until a person approves it.\n\nThe order is a completed DoorDash (Caviar) order from 2026-10-20 for $61.40. DoorDash allows 7 days, and the check shows the window open until 2026-10-27. The deadline is **2026-10-27**. A dispute filed after that is rejected automatically [Marketplace Terms \u00a73, Missing or Incorrect Items].\n\nBefore approving, confirm that a packing photo of the item in the bag exists. Photos are taken for every marketplace order over $40, and this one qualifies. I can't see photos in the data. If there is no photo, the policy says not to dispute. You would accept the chargeback and log it as a packing miss [Marketplace Terms \u00a73, Missing or Incorrect Items].",
+          "text": "I've proposed the DoorDash dispute for order 100660, but it hasn't been filed. It stays pending until a person approves it.\n\nThe order is a completed DoorDash (Caviar) order from 2026-10-20 for $61.40. DoorDash allows 7 days, and the check shows the window open until 2026-10-27. The deadline is **2026-10-27**. A dispute filed after that is rejected automatically [Marketplace Terms §3, Missing or Incorrect Items].\n\nBefore approving, confirm that a packing photo of the item in the bag exists. Photos are taken for every marketplace order over $40, and this one qualifies. I can't see photos in the data. If there is no photo, the policy says not to dispute. You would accept the chargeback and log it as a packing miss [Marketplace Terms §3, Missing or Incorrect Items].",
           "usage": {
             "input_tokens": 1337,
             "output_tokens": 279,
@@ -262,10 +262,10 @@
         "outcome": "passed",
         "detail": {
           "cited": [
-            "Marketplace Terms \u00a73, Missing or Incorrect Items"
+            "Marketplace Terms §3, Missing or Incorrect Items"
           ],
           "retrieved": [
-            "Marketplace Terms \u00a73, Missing or Incorrect Items"
+            "Marketplace Terms §3, Missing or Incorrect Items"
           ],
           "not_retrieved": []
         },
@@ -322,7 +322,7 @@
             }
           ],
           "due_by": "2026-10-27",
-          "reason": "[Marketplace Terms \u00a73, Missing or Incorrect Items]: DoorDash window is 7 days; the order is 5 days old. It is over $40, so a packing photo should exist. Confirm the photo before approving, because without one the policy says to accept the chargeback.",
+          "reason": "[Marketplace Terms §3, Missing or Incorrect Items]: DoorDash window is 7 days; the order is 5 days old. It is over $40, so a packing photo should exist. Confirm the photo before approving, because without one the policy says to accept the chargeback.",
           "summary": "File a DoorDash chargeback dispute for order 100660 ($61.40, placed 2026-10-20), within the 7-day window.",
           "order_id": 100660,
           "execution": {

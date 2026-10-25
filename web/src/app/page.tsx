@@ -35,7 +35,7 @@ export default async function HomePage() {
           decides what may run, keeps each restaurant to its own data and its
           own rules, and records every step with what it cost. A{" "}
           <span className="font-semibold text-human">person</span> approves
-          anything that would change something.
+          every action before it happens.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
