@@ -1,0 +1,22 @@
+# Deploys the API to Fly on every push to main that touches it.
+# Needs the FLY_API_TOKEN repository secret: fly tokens create deploy -x 999999h
+name: deploy api
+
+on:
+  push:
+    branches: [main]
+    paths: ["api/**", "data/policies/**", "fly.toml", ".github/workflows/deploy-api.yml"]
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

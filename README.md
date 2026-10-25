@@ -51,3 +51,40 @@ cd api && .venv/bin/python -m app.evals.run --dsn "$EVAL_DATABASE_URL"
 
 Model: Claude Sonnet 5.5. Embeddings: OpenAI text-embedding-3-small. Database:
 Postgres with pgvector.
+
+## Deploy
+
+Three services: the database on Neon, the API on Fly, the site on Vercel.
+
+**Neon.** Create a project and a database. Then, from this repository with the
+direct (non-pooled) connection string:
+
+```bash
+psql "$NEON_URL" -f data/schema.sql
+cd data/out && psql "$NEON_URL" -f load.sql && cd ../..
+cd api && .venv/bin/python -m app.policies.index --dsn "$NEON_URL"
+```
+
+**Fly.** `fly.toml` at the root describes the API: built from `api/Dockerfile`
+with the policy documents inside, one machine always running, health check
+on `/health`.
+
+```bash
+fly launch --no-deploy --copy-config
+fly secrets set DATABASE_URL="$NEON_URL" ANTHROPIC_API_KEY=... OPENAI_API_KEY=... API_TOKEN=...
+fly deploy
+```
+
+After that, pushes to `main` that touch the API deploy through
+`.github/workflows/deploy-api.yml`; it needs a `FLY_API_TOKEN` repository
+secret from `fly tokens create deploy`. Set `WEB_ORIGIN` in `fly.toml` to the
+site's address.
+
+**Vercel.** Import the repository with the root directory set to `web`.
+Environment variables: `API_URL` (the Fly app's URL), `API_TOKEN` (the same
+value as on Fly), `NEXT_PUBLIC_SITE_URL` (the site's own address, needed at
+build time for the sitemap and canonical links).
+
+**Then.** Run `api/scripts/capture.py --api https://<fly app>` once with
+`API_TOKEN` set, so the hosted database holds the scenario captures and the
+approved dispute, and check `/robots.txt` and `/sitemap.xml` on the live site.
