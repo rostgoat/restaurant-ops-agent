@@ -14,6 +14,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
+
   return (
     <Button
       variant="ghost"

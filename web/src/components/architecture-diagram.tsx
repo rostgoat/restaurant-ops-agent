@@ -72,6 +72,7 @@ export function ArchitectureDiagram() {
   const M = { x: 40, w: 290 };
   const C = { x: 450, w: 290 };
   const full = { x: M.x, w: C.x + C.w - M.x };
+
   return (
     <div className="overflow-x-auto">
       <svg

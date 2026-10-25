@@ -24,6 +24,7 @@ def main() -> None:
     scenarios = json.loads((ROOT / "data" / "scenarios.json").read_text())
     out = ROOT / "web" / "src" / "content" / "scenarios"
     out.mkdir(parents=True, exist_ok=True)
+
     for s in scenarios:
         if args.only and s["slug"] not in args.only:
             continue
@@ -38,6 +39,7 @@ def main() -> None:
         # A scenario marked "approve" has its first pending proposal approved
         # here, standing in for the owner, so the capture shows the Human step.
         pending = [p for p in trace.get("proposals", []) if p["status"] == "pending"]
+
         if s.get("approve") and pending:
             headers = {"X-Merchant-Id": str(s["merchant_id"])}
             urllib.request.urlopen(

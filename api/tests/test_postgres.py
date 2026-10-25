@@ -28,6 +28,7 @@ pytestmark = pytest.mark.skipif(not DSN, reason="TEST_DATABASE_URL is not set")
 @pytest.fixture(scope="module")
 def runner():
     r = PostgresRunner(DSN, statement_timeout_ms=500)
+
     yield r
     r.close()
 
@@ -36,6 +37,7 @@ def runner():
 def store():
     s = Store(DSN)
     s.open()
+
     yield s
     s.close()
 
@@ -43,6 +45,7 @@ def store():
 def count_orders(runner, merchant_id):
     verdict = guard("SELECT count(*) AS n FROM orders", merchant_id)
     assert verdict.ok, verdict.reason
+
     return runner.run(verdict.sql).rows[0][0]
 
 
@@ -115,6 +118,7 @@ def test_a_trace_survives_the_round_trip(store):
     trace.step("code", "guard", "passed", {"checks": [{"name": "parses", "passed": True}]})
     trace.step("code", "execute", "ok", {"rows": [[412]], "columns": ["n"]}, latency_ms=40)
     trace.step("model", "answer", "answered", {"text": "412."})
+
     try:
         store.save_trace(trace)
 
@@ -156,6 +160,7 @@ def test_policy_search_is_scoped_to_the_merchant_before_similarity():
     policies = Path(__file__).resolve().parents[2] / "data" / "policies"
     index(policies, [DSN], FakeEmbedder())
     search = PostgresPolicySearch(DSN, FakeEmbedder())
+
     try:
         query = "missing items on a DoorDash order, dispute window and packing photo"
         noodle = search.search(1, query, limit=3)

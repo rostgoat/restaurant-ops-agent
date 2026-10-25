@@ -18,6 +18,7 @@ export default async function ScenariosPage() {
     day: "numeric",
   });
   const items = scenarios.map((s) => ({ slug: s.slug, title: s.title }));
+
   return (
     <>
       <section>

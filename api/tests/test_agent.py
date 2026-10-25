@@ -155,6 +155,7 @@ def test_request_shape():
     assert req["system"][0]["cache_control"] == {"type": "ephemeral"}
     assert "thinking" not in req
     assert "temperature" not in req
+
     for tool in req["tools"]:
         assert tool["strict"] is True
         assert tool["input_schema"]["additionalProperties"] is False
@@ -176,6 +177,7 @@ def test_the_question_is_passed_verbatim_with_the_date():
 def test_the_prompt_describes_every_readable_table_and_no_other():
     for table in ALLOWED_TABLES:
         assert f"\n{table}(" in SYSTEM
+
     for table in ("request_traces", "trace_steps", "proposals"):
         assert table not in SYSTEM
 
@@ -414,6 +416,7 @@ def test_cost_is_priced_per_model_and_unknown_models_do_not_run():
     usage = TraceUsage(input_tokens=1_000_000, output_tokens=0)
     assert cost_usd("claude-opus-5-5", usage) == PRICES["claude-opus-5-5"].input
     assert cost_usd("claude-sonnet-5-5", usage) == PRICES["claude-sonnet-5-5"].input
+
     with pytest.raises(KeyError):
         cost_usd("claude-3-opus", usage)
 

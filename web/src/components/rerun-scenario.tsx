@@ -23,6 +23,7 @@ export function useRerun(slug: string, initialStats: QuestionStats | null) {
   useEffect(() => {
     if (!pending) return;
     const id = window.setInterval(() => setElapsed((s) => s + 1), 1000);
+
     return () => window.clearInterval(id);
   }, [pending]);
 
@@ -31,11 +32,13 @@ export function useRerun(slug: string, initialStats: QuestionStats | null) {
     setError(null);
     start(async () => {
       const result = await rerunScenario(slug);
+
       if (result.trace) {
         if (result.stats) setStats(result.stats);
         setRuns((prev) => {
           const next = [...prev, { at: new Date(), trace: result.trace! }];
           setShown(next.length - 1);
+
           return next;
         });
       } else {
@@ -78,9 +81,12 @@ export function RerunResult({
 }) {
   const [open, setOpen] = useState(false);
   const current = runs[shown];
+
   if (error) return <p className="mt-4 text-sm text-destructive">{error}</p>;
+
   if (!current) return null;
   const t = current.trace;
+
   return (
     <div className="mt-8 border-t pt-8">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">

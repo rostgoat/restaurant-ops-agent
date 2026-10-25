@@ -46,12 +46,15 @@ def load_cases() -> dict[str, Any]:
 
 def gold_value(runner: PostgresRunner, case: dict[str, Any]) -> Any:
     sql = case.get("gold_sql")
+
     if not sql:
         return None
     verdict = guard(sql, case.get("gold_merchant_id", case["merchant_id"]))
+
     if not verdict.ok:
         raise RuntimeError(f"{case['id']}: gold SQL fails the guard: {verdict.reason}")
     rows = runner.run(verdict.sql).rows
+
     return rows[0][0] if rows else None
 
 
@@ -85,13 +88,16 @@ def run_case(
     )
     served = trace.model
     g: Grade = grade(case, trace, gold)
+
     if trace.status != "error" and served != settings.model:
         g = Grade("error", [f"served by {served}, not {settings.model}"])
     payload = asdict(trace)
     payload["id"] = str(trace.id)
+
     for p in payload["proposals"]:
         p["id"] = str(p["id"])
         p["trace_id"] = str(p["trace_id"])
+
     return {
         "case": case,
         "gold": _jsonable(gold),
@@ -106,6 +112,7 @@ def summarise(
     scored = [r for r in results if r["grade"]["outcome"] != "error"]
     errors = [r for r in results if r["grade"]["outcome"] == "error"]
     suites: dict[str, dict[str, int]] = {}
+
     for r in scored:
         s = suites.setdefault(r["case"]["suite"], {"passed": 0, "total": 0})
         s["total"] += 1
@@ -114,6 +121,7 @@ def summarise(
     costs = [r["trace"]["cost_usd"] for r in answered]
     latencies = [r["trace"]["latency_ms"] for r in results if r["trace"]["status"] != "error"]
     retrieval = _retrieval_metrics(results)
+
     return {
         "ran_at": datetime.now(UTC).isoformat(),
         "model": settings.model,
@@ -139,12 +147,15 @@ def summarise(
 
 def _retrieval_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
     used_total = relevant_used = expected_total = expected_found = 0
+
     for r in results:
         case = r["case"]
+
         if case["suite"] != "policy":
             continue
         expected = set(case.get("expected_citations", []))
         used: set[str] = set()
+
         for s in r["trace"]["steps"]:
             if s["name"] == "retrieve":
                 for h in (s["detail"] or {}).get("hits", []):
@@ -154,6 +165,7 @@ def _retrieval_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
         relevant_used += len(used & expected)
         expected_total += len(expected)
         expected_found += len(used & expected)
+
     return {
         "precision": round(relevant_used / used_total, 3) if used_total else None,
         "recall": round(expected_found / expected_total, 3) if expected_total else None,
@@ -165,6 +177,7 @@ def _retrieval_metrics(results: list[dict[str, Any]]) -> dict[str, Any]:
 def _p(values: list[float], q: float) -> float:
     ordered = sorted(values)
     index = min(len(ordered) - 1, int(round(q * (len(ordered) - 1))))
+
     return ordered[index]
 
 
@@ -180,14 +193,19 @@ def _commit() -> str | None:
 def _jsonable(value: Any) -> Any:
     if isinstance(value, dict):
         return {k: _jsonable(v) for k, v in value.items()}
+
     if isinstance(value, list | tuple):
         return [_jsonable(v) for v in value]
+
     if isinstance(value, datetime):
         return value.isoformat()
+
     if hasattr(value, "isoformat"):
         return value.isoformat()
+
     if isinstance(value, float | int | str | bool) or value is None:
         return value
+
     return str(value)
 
 
@@ -201,6 +219,7 @@ def regrade(path: Path, cases: dict[str, Any]) -> None:
     )
     for r in run["results"]:
         case = by_id.get(r["case"]["id"], r["case"])
+
         if r["trace"].get("status") == "error" and not r["trace"].get("steps"):
             continue
         g = grade(case, trace_from_json(r["trace"]), r.get("gold"))
@@ -232,17 +251,22 @@ def main() -> None:
         help="keep the run file but leave the site's main run alone (comparison runs)",
     )
     args = ap.parse_args()
+
     if not args.dsn:
         sys.exit("set EVAL_DATABASE_URL or pass --dsn")
 
     cases = load_cases()
     selected = [c for c in cases["cases"] if not args.only or c["id"] in args.only]
+
     if args.regrade:
         regrade(args.regrade, cases)
+
         return
     runner = PostgresRunner(args.dsn)
+
     if args.check_gold:
         check_gold(runner, selected)
+
         return
 
     settings = Settings(model=args.model, effort=args.effort, retrieval_threshold=args.threshold)
@@ -252,6 +276,7 @@ def main() -> None:
     now = datetime.fromisoformat(cases["frozen_now"].replace("Z", "+00:00"))
 
     results: list[dict[str, Any]] = []
+
     for rep in range(args.reps):
         for case in selected:
             try:
@@ -297,12 +322,14 @@ def main() -> None:
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     path = RUNS / f"{stamp}.json"
     path.write_text(json.dumps(run, indent=1) + "\n")
+
     if not args.no_site_copy:
         SITE_COPY.write_text(json.dumps(run, indent=1) + "\n")
     s = summary
     print(f"\n{s['passed']}/{s['scored']} passed, {s['errors']} errors")
     print(f"${s['cost_total_usd']} total, median ${s['cost_per_answered_median_usd']} per answer")
     print(f"p50 {s['latency_median_ms']} ms, p90 {s['latency_p90_ms']} ms")
+
     for suite, v in s["suites"].items():
         print(f"  {suite:8} {v['passed']}/{v['total']}")
     print(f"  retrieval precision {s['retrieval']['precision']} recall {s['retrieval']['recall']}")

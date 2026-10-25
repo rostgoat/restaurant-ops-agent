@@ -69,14 +69,17 @@ def answer(
 
     def finish(status: Status, text: str | None = None) -> Trace:
         trace.cost_usd = cost_usd(settings.model, trace.usage)
+
         return trace.finish(status, text, latency_ms=_ms(started))
 
     while True:
         t0 = time.perf_counter()
+
         try:
             reply = client.messages.create(**request(settings, messages))
         except anthropic.APIError as e:
             trace.step("model", "respond", "error", {"error": str(e)}, latency_ms=_ms(t0))
+
             return finish("error")
         model_ms = _ms(t0)
         trace.model_ms += model_ms
@@ -87,9 +90,12 @@ def answer(
         if reply.stop_reason == "refusal":
             detail = reply.stop_details.model_dump() if reply.stop_details else {}
             trace.step("model", "respond", "refusal", detail | usage, latency_ms=model_ms)
+
             return finish("refused")
+
         if reply.stop_reason == "max_tokens":
             trace.step("model", "respond", "max_tokens", usage, latency_ms=model_ms)
+
             return finish("error")
 
         text = "".join(b.text for b in reply.content if b.type == "text").strip()
@@ -97,6 +103,7 @@ def answer(
 
         if call is None:
             trace.step("model", "answer", "answered", {"text": text} | usage, latency_ms=model_ms)
+
             if retrieved is not None:
                 _check_citations(trace, text, retrieved)
             # Text after a block, with nothing executed, is the model talking
@@ -107,12 +114,15 @@ def answer(
             reason = str(call.input.get("reason", "")).strip()
             detail = {"reason": reason} | usage
             trace.step("model", "decline", "declined", detail, latency_ms=model_ms)
+
             return finish("refused", reason)
 
         trace.step("model", call.name, "proposed", dict(call.input) | usage, latency_ms=model_ms)
         calls += 1
+
         if calls > settings.max_tool_calls:
             trace.step("code", "tool_limit", "reached", {"limit": settings.max_tool_calls})
+
             return finish("blocked" if blocked and not executed else "error")
 
         if call.name == "run_sql":
@@ -126,6 +136,7 @@ def answer(
             result = _propose(call, trace, merchant_id, checker, now)
         else:
             result = _tool_result(call.id, f"There is no tool named {call.name}.", error=True)
+
         if result.get("is_error"):
             trace.retries += 1
 
@@ -148,6 +159,7 @@ def request(settings: Settings, messages: list[dict[str, Any]]) -> dict[str, Any
     # An organisation-level key is refused without this; a workspace key ignores it.
     if settings.workspace_id:
         params["workspace_id"] = settings.workspace_id
+
     return params
 
 
@@ -163,6 +175,7 @@ def _run_sql(
     t0 = time.perf_counter()
     verdict = guard(sql, merchant_id, row_limit=settings.row_limit)
     checks = [{"name": c.name, "passed": c.passed, "detail": c.detail} for c in verdict.checks]
+
     if not verdict.ok:
         trace.step(
             "code",
@@ -181,6 +194,7 @@ def _run_sql(
     )
 
     t0 = time.perf_counter()
+
     try:
         rows = runner.run(verdict.sql)
     except QueryError as e:
@@ -188,12 +202,14 @@ def _run_sql(
         trace.tool_ms += elapsed
         trace.step("code", "execute", "error", {"error": str(e)}, latency_ms=elapsed)
         message = f"The query failed: {e}. Fix it, or decline if it cannot be done."
+
         return _tool_result(call.id, message, error=True), "error"
     elapsed = _ms(t0)
     trace.tool_ms += elapsed
 
     payload = rows.to_payload(settings.rows_to_model)
     trace.step("code", "execute", "ok", payload, latency_ms=elapsed)
+
     return _tool_result(call.id, json.dumps(payload)), "ok"
 
 
@@ -205,8 +221,10 @@ def _search_policy(
     settings: Settings,
 ) -> tuple[dict[str, Any], set[str]]:
     query = str(call.input.get("query", "")).strip()
+
     if policies is None:
         trace.step("code", "retrieve", "unavailable", {"query": query})
+
         return _tool_result(call.id, "Policy search is not available.", error=True), set()
 
     t0 = time.perf_counter()
@@ -220,6 +238,7 @@ def _search_policy(
     if not used:
         trace.step("code", "retrieve", "nothing above threshold", detail, latency_ms=elapsed)
         message = "No section of this restaurant's policies matches closely enough."
+
         return _tool_result(call.id, message), set()
     trace.step(
         "code",
@@ -229,6 +248,7 @@ def _search_policy(
         latency_ms=elapsed,
     )
     payload = {"sections": [{"label": h.label, "text": h.body} for h in used]}
+
     return _tool_result(call.id, json.dumps(payload)), {h.label for h in used}
 
 
@@ -237,6 +257,7 @@ def _propose(
 ) -> dict[str, Any]:
     if checker is None:
         trace.step("code", "check_proposal", "unavailable", dict(call.input))
+
         return _tool_result(call.id, "Proposals are not available.", error=True)
     t0 = time.perf_counter()
     proposal = checker.check(merchant_id, trace.id, now, dict(call.input))
@@ -254,11 +275,13 @@ def _propose(
         "needs_owner": bool(proposal.payload.get("needs_owner")),
     }
     trace.step("code", "check_proposal", outcome(proposal), detail, latency_ms=elapsed)
+
     return _tool_result(call.id, json.dumps(tool_message(proposal)))
 
 
 def citations_in(text: str) -> set[str]:
     """Section labels cited in square brackets; "[A §1, X; B §2, Y]" cites two."""
+
     return {
         " ".join(part.split())
         for found in _CITATION.findall(text)
@@ -271,6 +294,7 @@ def _check_citations(trace: Trace, text: str, retrieved: set[str]) -> None:
     cited = citations_in(text)
     missing = sorted(cited - retrieved)
     detail = {"cited": sorted(cited), "retrieved": sorted(retrieved), "not_retrieved": missing}
+
     if not retrieved:
         outcome = "failed" if cited else "passed"
         reason = "cited a section although nothing was retrieved" if cited else None
@@ -298,8 +322,10 @@ def _usage(reply_usage: Any) -> dict[str, Any]:
 
 def _tool_result(tool_use_id: str, content: str, *, error: bool = False) -> dict[str, Any]:
     result: dict[str, Any] = {"type": "tool_result", "tool_use_id": tool_use_id, "content": content}
+
     if error:
         result["is_error"] = True
+
     return result
 
 

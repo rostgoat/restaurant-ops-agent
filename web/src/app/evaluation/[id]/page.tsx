@@ -20,6 +20,7 @@ import { count } from "@/lib/format";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
+
   return { title: `Evaluation case ${id}` };
 }
 
@@ -30,6 +31,7 @@ export function generateStaticParams() {
 export default async function CasePage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const index = data.results.findIndex((r) => r.case.id === id);
+
   if (index < 0) notFound();
   const r = data.results[index];
   const prev = data.results[index - 1];
@@ -42,6 +44,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
       : r.grade.outcome === "fail"
         ? "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
         : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
+
   return (
     <>
       <PageOutline
@@ -139,6 +142,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
 
 function passLine(r: (typeof data.results)[number]): string {
   const { expected, found } = r.grade;
+
   if (r.case.suite === "sql" && expected !== null && found !== null) {
     return `Found ${figure(found, r.case.value_kind)} against ${figure(expected, r.case.value_kind)} expected.`;
   }
@@ -153,8 +157,11 @@ function passLine(r: (typeof data.results)[number]): string {
 
 function figure(v: unknown, kind: string | undefined): string {
   if (typeof v !== "number") return String(v);
+
   if (kind === "cents") return v.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
   if (kind === "pct") return `${v}%`;
+
   return count(v);
 }
 
@@ -166,7 +173,9 @@ function OtherRuns({ outcomes }: { outcomes: Record<string, Outcome> }) {
     .filter((r) => r.model === main.model && r.effort === main.effort)
     .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
   const ran = (r: (typeof compare.runs)[number]) => outcomes[r.label] != null;
+
   if (models.filter(ran).length < 2 && thresholds.filter(ran).length < 2) return null;
+
   return (
     <section id="other-runs" className="mt-16 scroll-mt-28">
       <h2 className="mb-3 text-2xl">Other models and thresholds</h2>

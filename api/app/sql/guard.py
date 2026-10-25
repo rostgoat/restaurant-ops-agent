@@ -22,6 +22,7 @@ Three rules:
 Nothing here calls the model or the network, so the same query always gets the
 same verdict.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -48,8 +49,17 @@ ALLOWED_TABLES = frozenset(TENANT_COLUMN)
 # Resolved by name because sqlglot renames these between versions. A name it
 # does not have is a construct it cannot parse, so nothing is lost by skipping.
 FORBIDDEN_NODE_NAMES = (
-    "Insert", "Update", "Delete", "Drop", "Create", "Alter",
-    "TruncateTable", "Truncate", "Grant", "Merge", "Command",
+    "Insert",
+    "Update",
+    "Delete",
+    "Drop",
+    "Create",
+    "Alter",
+    "TruncateTable",
+    "Truncate",
+    "Grant",
+    "Merge",
+    "Command",
 )
 FORBIDDEN_NODES = tuple(
     node
@@ -61,10 +71,22 @@ FORBIDDEN_NODES = tuple(
 # kills a session, or changes settings.
 FORBIDDEN_FUNCTIONS = frozenset(
     {
-        "pg_read_file", "pg_read_binary_file", "pg_ls_dir", "pg_stat_file",
-        "lo_import", "lo_export", "dblink", "dblink_exec", "pg_sleep",
-        "pg_terminate_backend", "pg_cancel_backend", "copy", "pg_logdir_ls",
-        "query_to_xml", "set_config", "current_setting",
+        "pg_read_file",
+        "pg_read_binary_file",
+        "pg_ls_dir",
+        "pg_stat_file",
+        "lo_import",
+        "lo_export",
+        "dblink",
+        "dblink_exec",
+        "pg_sleep",
+        "pg_terminate_backend",
+        "pg_cancel_backend",
+        "copy",
+        "pg_logdir_ls",
+        "query_to_xml",
+        "set_config",
+        "current_setting",
     }
 )
 
@@ -94,6 +116,7 @@ class GuardResult:
         for c in self.checks:
             if not c.passed:
                 return c.name
+
         return None
 
 
@@ -126,6 +149,7 @@ def guard(
         tree = _apply_limit(tree, row_limit, ok)
     except _Blocked as b:
         checks.append(Check(b.check, False, b.reason))
+
         return GuardResult(ok=False, reason=b.reason, checks=checks)
 
     return GuardResult(ok=True, sql=tree.sql(dialect=DIALECT), checks=checks)
@@ -138,8 +162,10 @@ def _parse_single(sql: str, ok) -> exp.Expression:
         raise _Blocked("parses", f"not valid SQL: {e}") from e
 
     statements = [s for s in statements if s is not None]
+
     if len(statements) == 0:
         raise _Blocked("parses", "empty statement")
+
     if len(statements) > 1:
         raise _Blocked(
             "single statement",
@@ -153,12 +179,14 @@ def _parse_single(sql: str, ok) -> exp.Expression:
     if not isinstance(tree, exp.Select | exp.Union | exp.Except | exp.Intersect | exp.Subquery):
         raise _Blocked("select only", f"{type(tree).__name__.lower()} is not a SELECT")
     ok("select only")
+
     return tree
 
 
 def _reject_forbidden_statements(tree: exp.Expression, ok) -> None:
     for node_type in FORBIDDEN_NODES:
         found = tree.find(node_type)
+
         if found is not None:
             raise _Blocked(
                 "no writes",
@@ -173,8 +201,10 @@ def _reject_forbidden_statements(tree: exp.Expression, ok) -> None:
 def _reject_forbidden_functions(tree: exp.Expression, ok) -> None:
     for node in tree.find_all(exp.Anonymous, exp.Func):
         name = (node.sql_name() or "").lower()
+
         if isinstance(node, exp.Anonymous):
             name = str(node.this).lower()
+
         if name in FORBIDDEN_FUNCTIONS:
             raise _Blocked("no unsafe functions", f"{name}() is not permitted")
     ok("no unsafe functions")
@@ -182,31 +212,31 @@ def _reject_forbidden_functions(tree: exp.Expression, ok) -> None:
 
 def _collect_tables(tree: exp.Expression, allowed: frozenset[str], ok) -> set[str]:
     """Table names actually read, excluding CTE aliases defined in this query."""
-    cte_names = {
-        cte.alias_or_name.lower()
-        for cte in tree.find_all(exp.CTE)
-        if cte.alias_or_name
-    }
+    cte_names = {cte.alias_or_name.lower() for cte in tree.find_all(exp.CTE) if cte.alias_or_name}
 
     seen: set[str] = set()
+
     for table in tree.find_all(exp.Table):
         name = (table.name or "").lower()
         schema = (table.db or "").lower()
+
         if schema in FORBIDDEN_SCHEMAS:
             raise _Blocked("allowed tables", f"schema {schema} is not readable")
+
         if not name or name in cte_names:
             continue
+
         if name not in allowed:
             raise _Blocked(
                 "allowed tables",
-                f"table {name!r} is not readable; allowed: "
-                + ", ".join(sorted(allowed)),
+                f"table {name!r} is not readable; allowed: " + ", ".join(sorted(allowed)),
             )
         seen.add(name)
 
     if not seen:
         raise _Blocked("allowed tables", "query reads no permitted table")
     ok("allowed tables", ", ".join(sorted(seen)))
+
     return seen
 
 
@@ -214,17 +244,14 @@ def _scope_to_tenant(tree: exp.Expression, merchant_id: int, ok) -> exp.Expressi
     if not isinstance(merchant_id, int) or merchant_id <= 0:
         raise _Blocked("tenant scope", "merchant id must be a positive integer")
 
-    cte_names = {
-        cte.alias_or_name.lower()
-        for cte in tree.find_all(exp.CTE)
-        if cte.alias_or_name
-    }
+    cte_names = {cte.alias_or_name.lower() for cte in tree.find_all(exp.CTE) if cte.alias_or_name}
     rewritten: list[str] = []
 
     def rewrite(node: exp.Expression) -> exp.Expression:
         if not isinstance(node, exp.Table):
             return node
         name = (node.name or "").lower()
+
         if name in cte_names or name not in TENANT_COLUMN:
             return node
         # Already inside a scoping subquery this function produced.
@@ -233,31 +260,41 @@ def _scope_to_tenant(tree: exp.Expression, merchant_id: int, ok) -> exp.Expressi
 
         column = TENANT_COLUMN[name]
         alias = node.alias_or_name or name
-        inner = exp.select("*").from_(exp.table_(name)).where(
-            exp.condition(f"{column} = {merchant_id}")
+        inner = (
+            exp.select("*")
+            .from_(exp.table_(name))
+            .where(exp.condition(f"{column} = {merchant_id}"))
         )
         inner.meta["scoped"] = True
         rewritten.append(f"{name}.{column}")
+
         return exp.Subquery(this=inner, alias=exp.TableAlias(this=exp.to_identifier(alias)))
 
     scoped = tree.transform(rewrite, copy=True)
+
     if not rewritten:
         raise _Blocked("tenant scope", "no tenant-scoped table to filter")
     ok("tenant scope", f"merchant_id={merchant_id} on " + ", ".join(sorted(set(rewritten))))
+
     return scoped
 
 
 def _apply_limit(tree: exp.Expression, row_limit: int, ok) -> exp.Expression:
     existing = tree.args.get("limit")
+
     if existing is not None:
         try:
             current = int(existing.expression.this)
         except (AttributeError, TypeError, ValueError):
             current = row_limit + 1
+
         if current <= row_limit:
             ok("row limit", f"query limit {current}")
+
             return tree
         ok("row limit", f"lowered {current} to {row_limit}")
+
         return tree.limit(row_limit, copy=True)
     ok("row limit", f"injected {row_limit}")
+
     return tree.limit(row_limit, copy=True)

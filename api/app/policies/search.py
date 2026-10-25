@@ -37,6 +37,7 @@ class PostgresPolicySearch:
     def search(self, merchant_id: int, query: str, *, limit: int) -> list[Hit]:
         vector = self._embedder.embed([query])[0]
         self._pool.open()
+
         with self._pool.connection() as conn:
             rows = conn.execute(
                 _NEAREST, {"q": as_vector(vector), "merchant_id": merchant_id, "limit": limit}

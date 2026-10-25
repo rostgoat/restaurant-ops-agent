@@ -32,6 +32,7 @@ class FakeSearch:
 
     def search(self, merchant_id, query, *, limit):
         self.calls.append((merchant_id, query, limit))
+
         return self.hits[:limit]
 
 

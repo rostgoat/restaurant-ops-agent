@@ -42,11 +42,13 @@ const cached = (() => {
   const u = (step?.detail as { usage?: Record<string, number> } | undefined)?.usage ?? {};
   const read = u.cache_read_tokens ?? 0;
   const input = (u.input_tokens ?? 0) + read + (u.cache_write_tokens ?? 0);
+
   return { read, input, prompt: Math.round(read / 10) * 10 };
 })();
 
 export default function ArchitecturePage() {
   const s = data.summary;
+
   return (
     <>
       <PageOutline items={sections} />
@@ -138,6 +140,7 @@ export default function ArchitecturePage() {
           {s.retrieval_threshold.toFixed(2)}. Sections under the bar are written to the trace but
           not shown to the model. When nothing clears the bar, the model is told so. I chose a
           threshold over a fixed top four because a question the policies do not cover should
+
           return nothing, not the nearest miss. The two restaurants&apos; rules differ on purpose,
           so a section from the wrong restaurant would be a wrong decision, not just a wrong
           answer. <File path="api/app/policies/search.py" />

@@ -102,6 +102,7 @@ class Store:
     def merchant_exists(self, merchant_id: int) -> bool:
         with self._pool.connection() as conn:
             row = conn.execute("SELECT 1 FROM merchants WHERE id = %s", (merchant_id,)).fetchone()
+
         return row is not None
 
     def save_trace(self, trace: Trace) -> None:
@@ -163,6 +164,7 @@ class Store:
     def get_proposal(self, proposal_id: UUID, merchant_id: int) -> Proposal | None:
         with self._pool.connection() as conn:
             row = conn.execute(_SELECT_PROPOSAL, (proposal_id, merchant_id)).fetchone()
+
         return _proposal(row) if row else None
 
     def decide_proposal(self, proposal: Proposal) -> None:
@@ -174,9 +176,11 @@ class Store:
 
     def question_stats(self, merchant_id: int, question: str) -> QuestionStats:
         """How one question has fared every time this restaurant asked it."""
+
         with self._pool.connection() as conn:
             row = conn.execute(_QUESTION_STATS, (merchant_id, question)).fetchone()
         asked, answered, cost, latency, first = row if row else (0, 0, None, None, None)
+
         return QuestionStats(
             asked=int(asked),
             answered=int(answered),
@@ -188,12 +192,14 @@ class Store:
     def get_trace(self, trace_id: UUID, merchant_id: int) -> Trace | None:
         with self._pool.connection() as conn:
             row = conn.execute(_SELECT_TRACE, (trace_id, merchant_id)).fetchone()
+
             if row is None:
                 return None
             steps = conn.execute(_SELECT_STEPS, ([trace_id],)).fetchall()
             proposals = conn.execute(_SELECT_PROPOSALS_FOR, ([trace_id],)).fetchall()
         trace = _trace(row, [_step(s) for s in steps])
         trace.proposals = [_proposal(p) for p in proposals]
+
         return trace
 
 
@@ -285,4 +291,5 @@ def _proposal(row: tuple[Any, ...]) -> Proposal:
 
 def _step(row: tuple[Any, ...]) -> Step:
     _, seq, actor, name, outcome, detail, latency_ms = row
+
     return Step(seq, actor, name, outcome, detail, latency_ms or 0)

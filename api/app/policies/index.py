@@ -29,6 +29,7 @@ DO UPDATE SET body = EXCLUDED.body, embedding = EXCLUDED.embedding
 def index(root: Path, dsns: list[str], embedder: Embedder) -> int:
     chunks = read_policies(root)
     vectors = embedder.embed([c.text for c in chunks])
+
     for dsn in dsns:
         with psycopg.connect(dsn) as conn, conn.transaction():
             conn.execute("DELETE FROM policy_chunks")

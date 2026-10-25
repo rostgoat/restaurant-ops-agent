@@ -16,6 +16,7 @@ const look: Record<number, { name: string; emoji: string; className: string }> =
 
 export function MerchantBadge({ merchantId, className }: { merchantId: number; className?: string }) {
   const m = look[merchantId] ?? { name: `Merchant ${merchantId}`, emoji: "🏪", className: "" };
+
   return (
     <Badge variant="outline" className={cn("font-heading text-sm", m.className, className)}>
       <span aria-hidden>{m.emoji}</span> {m.name}

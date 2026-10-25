@@ -45,6 +45,7 @@ export function TraceLedger({ trace, animate = false }: { trace: Trace; animate?
         </li>
         {trace.steps.map((step, i) => {
           const lane = step.actor as Lane;
+
           return (
             <li
               key={step.seq}
@@ -130,6 +131,7 @@ export function statusLine(trace: Trace): string {
     case "blocked": {
       const guard = trace.steps.find((s) => s.name === "guard" && s.outcome === "blocked");
       const check = guard?.detail?.blocked_by;
+
       return check ? `Blocked by the guard at the “${check}” check.` : "Blocked by the guard.";
     }
     default:
@@ -152,6 +154,7 @@ export function StatusBadge({ status }: { status: Trace["status"] }) {
       : status === "refused" || status === "blocked"
         ? "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
         : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
+
   return (
     <Badge variant="outline" className={cn("font-heading", tone)}>
       {label}
@@ -161,6 +164,7 @@ export function StatusBadge({ status }: { status: Trace["status"] }) {
 
 function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
   const d = step.detail ?? {};
+
   switch (`${step.name}:${step.outcome}`) {
     case "run_sql:proposed":
       return (
@@ -327,7 +331,9 @@ function StepBody({ step, merchantId }: { step: Step; merchantId: number }) {
       return <Title>Stopped after {String(d.limit)} tool calls</Title>;
     default:
       if (step.name === "retrieve") return <Retrieved step={step} />;
+
       if (step.name === "check_proposal") return <Checked step={step} />;
+
       return (
         <>
           <Title>
@@ -352,6 +358,7 @@ function Checked({ step }: { step: Step }) {
       : step.outcome === "needs the owner"
         ? "Checked the proposal: the owner must approve"
         : "Checked the proposal: waiting for a person";
+
   return (
     <>
       <Title>{title}</Title>
@@ -370,6 +377,7 @@ function Retrieved({ step }: { step: Step }) {
   const d = step.detail ?? {};
   const hits = Array.isArray(d.hits) ? (d.hits as RetrievedHit[]) : [];
   const none = step.outcome === "nothing above threshold";
+
   return (
     <>
       <Title>{none ? "Nothing in the policies came close enough" : `Retrieved ${step.outcome}`}</Title>
@@ -405,6 +413,7 @@ type Check = { name: string; passed: boolean; detail: string | null };
 
 function Checks({ checks }: { checks: unknown }) {
   if (!Array.isArray(checks)) return null;
+
   return (
     <ul className="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
       {(checks as Check[]).map((c) => (
@@ -420,9 +429,11 @@ function Checks({ checks }: { checks: unknown }) {
 function Rows({ detail }: { detail: Record<string, unknown> }) {
   const columns = Array.isArray(detail.columns) ? (detail.columns as string[]) : [];
   const rows = Array.isArray(detail.rows) ? (detail.rows as unknown[][]) : [];
+
   if (columns.length === 0) return null;
   const shown = rows.slice(0, 8);
   const hidden = rows.length - shown.length;
+
   return (
     <div className="mt-2">
       <Table className="w-auto font-sql text-[13px]">
@@ -458,8 +469,10 @@ function Rows({ detail }: { detail: Record<string, unknown> }) {
 
 function Usage({ detail }: { detail: Record<string, unknown> }) {
   const u = detail.usage as Record<string, number> | undefined;
+
   if (!u) return null;
   const cached = u.cache_read_tokens > 0 ? ` (${count(u.cache_read_tokens)} from cache)` : "";
+
   return (
     <p className="mt-2 text-sm text-muted-foreground">
       {count(u.input_tokens + u.cache_read_tokens + u.cache_write_tokens)} tokens in{cached},{" "}

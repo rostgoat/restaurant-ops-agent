@@ -18,10 +18,12 @@ export function currentPage(pathname: string) {
 export function NavLinks() {
   const pathname = usePathname();
   const current = currentPage(pathname);
+
   return (
     <>
       {pages.map((p) => {
         const active = current?.href === p.href;
+
         return (
           <li key={p.href}>
             <Button
@@ -46,6 +48,7 @@ export function NavLinks() {
 export function FooterNav() {
   const pathname = usePathname();
   const current = currentPage(pathname);
+
   return (
     <ul className="space-y-2">
       <li>

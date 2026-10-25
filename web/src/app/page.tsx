@@ -12,6 +12,7 @@ export const instant = false;
 
 export default async function HomePage() {
   const stats = await questionStats(scenario.merchant_id, scenario.question);
+
   return (
     <>
       <section>

@@ -31,6 +31,7 @@ export function FailureCard({
   trace: Trace;
 }) {
   const [open, setOpen] = useState(false);
+
   return (
     <article className="border-t pt-8">
       <p className="mb-3 font-heading text-base text-primary">

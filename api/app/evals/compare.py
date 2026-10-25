@@ -23,6 +23,7 @@ OUT = ROOT / "web" / "src" / "content" / "eval-compare.json"
 def load(label: str, path: Path) -> dict[str, Any]:
     run = json.loads(path.read_text())
     s = run["summary"]
+
     return {
         "label": label,
         "file": path.name,
@@ -55,6 +56,7 @@ def compare(runs: list[dict[str, Any]]) -> dict[str, Any]:
     first = json.loads((ROOT / "api" / "evals" / "cases.json").read_text())["cases"]
     by_id = {c["id"]: c for c in first}
     cases = []
+
     for case_id in ids:
         outcomes = {r["label"]: r["outcomes"].get(case_id) for r in runs}
         verdicts = {o["outcome"] for o in outcomes.values() if o}
@@ -68,6 +70,7 @@ def compare(runs: list[dict[str, Any]]) -> dict[str, Any]:
             }
         )
     slim = [{k: v for k, v in r.items() if k != "outcomes"} for r in runs]
+
     return {"runs": slim, "cases": cases}
 
 
@@ -76,11 +79,13 @@ def main() -> None:
     ap.add_argument("runs", nargs="+", help='"Label"=path/to/run.json')
     args = ap.parse_args()
     runs = []
+
     for spec in args.runs:
         label, _, path = spec.partition("=")
         runs.append(load(label, Path(path)))
     out = compare(runs)
     OUT.write_text(json.dumps(out, indent=2) + "\n")
+
     for r in out["runs"]:
         print(f"{r['label']:24} {r['passed']}/{r['scored']}  ${r['cost_total_usd']}")
     print(f"{sum(c['differs'] for c in out['cases'])} cases differ; wrote {OUT}")

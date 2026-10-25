@@ -26,9 +26,11 @@ const order = [
 export function PageNav() {
   const pathname = usePathname();
   const index = order.findIndex((p) => p.href === pathname);
+
   if (index === -1) return null;
   const previous = order[index - 1];
   const next = order[index + 1];
+
   return (
     <nav aria-label="Pages" className="mx-auto w-full max-w-5xl px-8 pb-20 sm:px-16">
       <div className="rounded-lg border p-6 sm:p-8">

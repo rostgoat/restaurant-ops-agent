@@ -25,11 +25,14 @@ def reject(proposal_id: UUID, merchant_id: Merchant, request: Request) -> Propos
 def _decide(proposal_id: UUID, merchant_id: int, request: Request, *, approve: bool) -> ProposalOut:
     store = request.app.state.store
     proposal = store.get_proposal(proposal_id, merchant_id)
+
     if proposal is None:
         raise HTTPException(status_code=404, detail="unknown proposal")
+
     if proposal.status != "pending":
         raise HTTPException(status_code=409, detail=f"proposal is already {proposal.status}")
     trace = store.get_trace(proposal.trace_id, merchant_id)
+
     if trace is None:
         raise HTTPException(status_code=404, detail="unknown trace")
 
@@ -60,4 +63,5 @@ def _decide(proposal_id: UUID, merchant_id: int, request: Request, *, approve: b
         )
     store.decide_proposal(proposal)
     store.append_steps(trace.id, steps)
+
     return ProposalOut.model_validate(proposal, from_attributes=True)

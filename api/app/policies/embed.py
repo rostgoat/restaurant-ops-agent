@@ -29,6 +29,7 @@ class OpenAIEmbedder:
         response = self._client.post("/embeddings", json={"model": self.model, "input": texts})
         response.raise_for_status()
         data = sorted(response.json()["data"], key=lambda d: d["index"])
+
         return [d["embedding"] for d in data]
 
 
@@ -44,8 +45,10 @@ class FakeEmbedder:
     @staticmethod
     def _one(text: str) -> list[float]:
         vector = [0.0] * DIMENSIONS
+
         for word in re.findall(r"[a-z0-9']+", text.lower()):
             slot = int(hashlib.md5(word.encode()).hexdigest(), 16) % DIMENSIONS
             vector[slot] += 1.0
         norm = math.sqrt(sum(v * v for v in vector)) or 1.0
+
         return [v / norm for v in vector]

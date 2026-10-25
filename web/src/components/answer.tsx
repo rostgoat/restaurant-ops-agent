@@ -39,10 +39,13 @@ export function Answer({
   // "[A §1, X; B §2, Y]" cites two sections in one bracket.
   const linked = text.replace(CITATION, (whole, inside: string) => {
     const labels = inside.split(";").map((l) => l.trim()).filter(Boolean);
+
     if (!labels.every((l) => section(merchantId, l))) return whole;
+
     return labels.map((l) => `[${l}](#policy/${encodeURIComponent(l)})`).join(" ");
   });
   const current = open ? section(merchantId, open) : null;
+
   return (
     <>
       <div className={cn(prose, className)}>
@@ -51,8 +54,10 @@ export function Answer({
           components={{
             a: ({ href, children }) => {
               const m = href?.match(/^#policy\/(.+)$/);
+
               if (!m) return <a href={href}>{children}</a>;
               const label = decodeURIComponent(m[1]);
+
               return (
                 <button
                   type="button"

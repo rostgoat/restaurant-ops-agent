@@ -36,6 +36,7 @@ export default function EvaluationPage() {
   const when = new Date(s.ran_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const rate = s.scored ? Math.round((100 * s.passed) / s.scored) : 0;
   const perMonth = s.cost_per_answered_median_usd !== null ? s.cost_per_answered_median_usd * QUESTIONS_PER_DAY * 30 : null;
+
   return (
     <>
       <PageOutline items={outline} />
@@ -316,6 +317,7 @@ function Differences() {
   const thresholds = compare.runs
     .filter((r) => r.model === main.model && r.effort === main.effort)
     .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
+
   return (
     <div className="mt-10 space-y-12">
       <h3 className="text-2xl">Where the runs disagree</h3>
@@ -349,6 +351,7 @@ function DisagreementTable({
   const labels = runs.map((r) => r.label);
   const rows = compare.cases.filter((c) => {
     const seen = new Set(labels.map((l) => c.outcomes[l]?.outcome).filter(Boolean));
+
     return seen.size > 1;
   });
   return (
@@ -388,6 +391,7 @@ function DisagreementTable({
                 </TableCell>
                 {runs.map((r) => {
                   const o = c.outcomes[r.label];
+
                   return (
                     <TableCell key={r.label} className="px-2 text-center align-top">
                       {o ? (
@@ -409,6 +413,7 @@ function DisagreementTable({
 
 function runName(r: Compare["runs"][number]): string {
   const main = compare.runs[0];
+
   if (r.retrieval_threshold !== main.retrieval_threshold) {
     return `${r.retrieval_threshold.toFixed(2)}, policy cases`;
   }
@@ -426,6 +431,7 @@ function OutcomeBadge({ outcome }: { outcome: string }) {
       : outcome === "fail"
         ? "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
         : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
+
   return (
     <Badge variant="outline" className={`font-heading ${tone}`}>
       {outcome}

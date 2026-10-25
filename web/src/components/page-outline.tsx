@@ -12,8 +12,10 @@ export function PageOutline({ items }: { items: { slug: string; title: string }[
       frame = 0;
       const line = window.innerHeight * 0.3;
       let current = items[0]?.slug;
+
       for (const item of items) {
         const el = document.getElementById(item.slug);
+
         if (el && el.getBoundingClientRect().top <= line) current = item.slug;
       }
       setActive(current);
@@ -24,9 +26,11 @@ export function PageOutline({ items }: { items: { slug: string; title: string }[
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
+
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+
       if (frame) window.cancelAnimationFrame(frame);
     };
   }, [items]);

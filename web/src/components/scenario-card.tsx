@@ -15,12 +15,17 @@ import type { Scenario } from "@/lib/scenarios";
 function toolsUsed(s: Scenario): string[] {
   const names = new Set(s.trace.steps.map((st) => st.name));
   const used: string[] = [];
+
   if (names.has("run_sql")) used.push("SQL");
+
   if (names.has("search_policy")) used.push("policy");
   const citations = s.trace.steps.find((st) => st.name === "citations");
+
   if (citations) used.push(citations.outcome === "passed" ? "citations checked" : "citations failed");
   const guard = s.trace.steps.find((st) => st.name === "guard");
+
   if (guard?.outcome === "blocked") used.push("blocked by the guard");
+
   return used;
 }
 
@@ -41,6 +46,7 @@ export function ScenarioCard({
     day: "numeric",
   });
   const t = scenario.trace;
+
   return (
     <article id={scenario.slug} className="scroll-mt-10 border-t pt-8">
       {kicker && <p className="mb-3 font-heading text-base text-primary">{kicker}</p>}

@@ -28,6 +28,7 @@ def trace(status="answered", answer="", steps=(), proposals=()):
     for actor, name, outcome, detail in steps:
         t.step(actor, name, outcome, detail)
     t.proposals = list(proposals)
+
     return t
 
 

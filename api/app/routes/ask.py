@@ -26,4 +26,5 @@ def ask(body: AskIn, merchant_id: Merchant, request: Request) -> TraceOut:
         settings=deps.settings,
     )
     deps.store.save_trace(trace)
+
     return TraceOut.from_trace(trace)

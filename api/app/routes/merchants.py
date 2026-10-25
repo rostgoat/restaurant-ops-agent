@@ -8,6 +8,7 @@ router = APIRouter()
 @router.get("/merchants", response_model=list[MerchantOut])
 def merchants(request: Request) -> list[MerchantOut]:
     found = request.app.state.store.merchants()
+
     return [MerchantOut.model_validate(m, from_attributes=True) for m in found]
 
 

@@ -15,8 +15,10 @@ class FakeClient:
         self.requests.append(request)
         assert self.replies, "the model was called more times than the test scripted"
         reply = self.replies.pop(0)
+
         if isinstance(reply, Exception):
             raise reply
+
         return reply
 
 
@@ -29,14 +31,17 @@ class FakeRunner:
         self.sql.append(sql)
         assert self.results, "the database was called more times than the test scripted"
         result = self.results.pop(0)
+
         if isinstance(result, Exception):
             raise result
+
         return result
 
 
 def reply(*blocks, stop_reason=None, usage=None, stop_details=None):
     if stop_reason is None:
         stop_reason = "tool_use" if any(b.type == "tool_use" for b in blocks) else "end_turn"
+
     return Message(
         id="msg_1",
         type="message",

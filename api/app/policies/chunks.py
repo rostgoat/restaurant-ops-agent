@@ -27,8 +27,10 @@ SECTION = re.compile(r"^(\d+)\. (.+)$")
 def label_for(document: str, section: str) -> str:
     """'House Policy' + '2. Comps' -> 'House Policy §2, Comps', the form the model cites."""
     m = SECTION.match(section)
+
     if not m:
         return f"{document}: {section}"
+
     return f"{document} §{m.group(1)}, {m.group(2)}"
 
 
@@ -41,6 +43,7 @@ def parse_document(merchant_id: int, document: str, markdown: str) -> list[Chunk
 
     def flush() -> None:
         body = "\n".join(lines).strip()
+
         if section and body:
             chunks.append(Chunk(merchant_id, title, section, body))
 
@@ -54,13 +57,17 @@ def parse_document(merchant_id: int, document: str, markdown: str) -> list[Chunk
         else:
             lines.append(line)
     flush()
+
     return chunks
 
 
 def read_policies(root: Path) -> list[Chunk]:
     chunks: list[Chunk] = []
+
     for merchant_dir in sorted(root.glob("merchant_*")):
         merchant_id = int(re.sub(r"\D", "", merchant_dir.name))
+
         for path in sorted(merchant_dir.glob("*.md")):
             chunks.extend(parse_document(merchant_id, path.stem, path.read_text()))
+
     return chunks

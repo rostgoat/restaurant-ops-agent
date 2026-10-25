@@ -69,10 +69,12 @@ class Trace:
     ) -> Step:
         step = Step(len(self.steps) + 1, actor, name, outcome, detail, latency_ms)
         self.steps.append(step)
+
         return step
 
     def finish(self, status: Status, answer: str | None, *, latency_ms: int) -> Trace:
         self.status = status
         self.answer = answer
         self.latency_ms = latency_ms
+
         return self

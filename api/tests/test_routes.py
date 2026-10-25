@@ -47,6 +47,7 @@ class FakeStore:
             if t.merchant_id == merchant_id and t.question == question
         ]
         costs = [t.cost_usd for t in mine]
+
         return QuestionStats(
             asked=len(mine),
             answered=sum(t.status == "answered" for t in mine),
@@ -57,6 +58,7 @@ class FakeStore:
 
     def get_trace(self, trace_id, merchant_id):
         trace = self.traces.get(trace_id)
+
         return trace if trace and trace.merchant_id == merchant_id else None
 
 
@@ -73,6 +75,7 @@ def make(client=None, runner=None):
     app.state.runner = runner or FakeRunner()
     app.state.policies = None
     app.state.checker = None
+
     return TestClient(app), app.state.store
 
 

@@ -15,6 +15,7 @@ export class ApiUnreachable extends Error {
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response: Response;
+
   try {
     response = await fetch(`${API_URL}${path}`, init);
   } catch {

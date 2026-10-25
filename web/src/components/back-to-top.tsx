@@ -11,6 +11,7 @@ export function BackToTop() {
     const onScroll = () => setShown(window.scrollY > 800);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   return (

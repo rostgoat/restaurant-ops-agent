@@ -39,9 +39,11 @@ class Proposal:
 
 def load_limits(root: Path) -> dict[int, dict[str, Any]]:
     limits: dict[int, dict[str, Any]] = {}
+
     for path in sorted(root.glob("merchant_*/limits.json")):
         merchant_id = int(re.sub(r"\D", "", path.parent.name))
         limits[merchant_id] = json.loads(path.read_text())
+
     return limits
 
 
@@ -68,6 +70,7 @@ class ProposalChecker:
         )
         limits = self._limits.get(merchant_id, {})
         checks: list[dict[str, Any]] = []
+
         try:
             if proposal.kind == "file_dispute":
                 self._check_dispute(proposal, limits, now, checks)
@@ -80,12 +83,14 @@ class ProposalChecker:
             proposal.status = "blocked"
             proposal.blocked_reason = f"could not look up the data: {e}"
         proposal.payload["checks"] = checks
+
         return proposal
 
     def _check_dispute(
         self, p: Proposal, limits: dict[str, Any], now: datetime, checks: list
     ) -> None:
         order_id = _int(p.payload.get("order_id"))
+
         if order_id is None:
             return _block(p, checks, "order", "no order id given")
         rows = self._runner.run(
@@ -97,11 +102,13 @@ class ProposalChecker:
         channel, created_at = str(rows[0][0]), rows[0][1]
         checks.append({"name": "order", "passed": True, "detail": f"order {order_id}, {channel}"})
         windows = limits.get("disputes", {}).get("window_days", {})
+
         if channel not in MARKETPLACES or channel not in windows:
             return _block(
                 p, checks, "marketplace", f"{channel} orders have no dispute process here"
             )
         deadline = created_at + timedelta(days=int(windows[channel]))
+
         if now > deadline:
             return _block(
                 p,
@@ -115,6 +122,7 @@ class ProposalChecker:
     def _check_campaign(self, p: Proposal, limits: dict[str, Any], checks: list) -> None:
         sms = limits.get("sms", {})
         cap = int(sms.get("discount_cap_pct", 0))
+
         if p.discount_pct is not None and p.discount_pct > cap:
             return _block(p, checks, "discount", f"{p.discount_pct}% is over the {cap}% cap")
         checks.append(
@@ -125,11 +133,13 @@ class ProposalChecker:
             }
         )
         wording = str(sms.get("stop_wording", ""))
+
         if wording and wording.lower() not in (p.draft_message or "").lower():
             return _block(p, checks, "wording", f'the message must end with "{wording}"')
         checks.append({"name": "wording", "passed": True, "detail": "opt-out wording present"})
         days = int(sms.get("implied_consent_days", 0))
         consent = "c.sms_opt_in"
+
         if days > 0:
             consent = (
                 f"(c.sms_opt_in OR EXISTS (SELECT 1 FROM orders o WHERE o.customer_id = c.id "
@@ -147,10 +157,12 @@ class ProposalChecker:
             else f"verified consent or an order in the last {days} days"
         )
         detail = f"{count} customers with a phone, not unsubscribed, {basis}"
+
         if claimed is not None and claimed != count:
             detail += f"; the model said {claimed}"
         checks.append({"name": "audience", "passed": True, "detail": detail})
         audience_cap = int(sms.get("audience_cap", 0))
+
         if audience_cap and count > audience_cap:
             checks.append(
                 {
@@ -163,9 +175,11 @@ class ProposalChecker:
 
     def _check_comp(self, p: Proposal, limits: dict[str, Any], checks: list) -> None:
         amount = _int(p.payload.get("amount_cents"))
+
         if amount is None or amount <= 0:
             return _block(p, checks, "amount", "no amount given")
         limit = int(limits.get("comps", {}).get("manager_limit_cents", 0))
+
         if amount > limit:
             checks.append(
                 {
@@ -223,6 +237,7 @@ def tool_message(p: Proposal) -> dict[str, Any]:
 def execute(p: Proposal) -> dict[str, Any]:
     """What approval produces. Every result is a record or a draft; nothing
     here reaches a marketplace, a phone, or a register."""
+
     if p.kind == "file_dispute":
         return {
             "result": f"Dispute recorded for order {p.payload.get('order_id')}, "

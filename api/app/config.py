@@ -22,6 +22,7 @@ class Config:
 
 def load() -> Config:
     load_dotenv()
+
     return Config(
         database_url=os.environ["DATABASE_URL"],
         web_origin=os.environ.get("WEB_ORIGIN", "http://localhost:3000"),

@@ -39,9 +39,11 @@ class PostgresRunner:
 
     def run(self, sql: str) -> QueryResult:
         self._pool.open()
+
         try:
             with self._pool.connection() as conn:
                 conn.read_only = True
+
                 with conn.transaction():
                     conn.execute(
                         "SELECT set_config('statement_timeout', %s, true)",
@@ -52,6 +54,7 @@ class PostgresRunner:
                     rows = [list(row) for row in cur.fetchall()]
         except psycopg.Error as e:
             raise QueryError(_message(e)) from e
+
         return QueryResult(columns, rows)
 
     def close(self) -> None:
@@ -61,16 +64,21 @@ class PostgresRunner:
 def _message(e: psycopg.Error) -> str:
     diag = getattr(e, "diag", None)
     primary = getattr(diag, "message_primary", None)
+
     return primary or str(e)
 
 
 def json_value(value: Any) -> Any:
     if value is None or isinstance(value, bool | int | float | str):
         return value
+
     if isinstance(value, Decimal):
         return float(value)
+
     if isinstance(value, datetime | date):
         return value.isoformat()
+
     if isinstance(value, UUID):
         return str(value)
+
     return str(value)
