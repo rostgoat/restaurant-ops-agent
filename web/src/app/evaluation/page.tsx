@@ -32,10 +32,13 @@ export default function EvaluationPage() {
           {s.cases} questions, graded by code. {s.passed} pass.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
-          The scenarios are stories. This is the measurement behind them: {s.cases} questions
-          with the right answer written down in advance, run through the same agent against a
-          frozen copy of the data, and graded by code rather than by another model. It is how
-          the project tells a change that helped from one that only made things different.
+          The{" "}
+          <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
+            scenarios
+          </Link>{" "}
+          are stories. Evaluation is the measurement behind them: {s.cases} questions with the
+          right answer written down in advance, passed through the same agent against a frozen copy
+          of the data, and graded by code.
           {failures.length === 1 ? " The one case that fails is shown in full below." : failures.length > 1 ? ` The ${failures.length} cases that fail are shown in full below.` : ""}
         </p>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
