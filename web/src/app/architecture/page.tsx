@@ -241,7 +241,8 @@ export default function ArchitecturePage() {
           </li>
           <li>
             <strong className="font-semibold">Two databases from one schema.</strong> The demo
-            database gets a new day of orders so the site never looks abandoned. The evaluation
+            database serves the site and the reruns. The generator can append one day of orders
+            to it at a time, and the job that would do that nightly is not built. The evaluation
             database is frozen so a score today compares with one next month.
           </li>
         </ul>
