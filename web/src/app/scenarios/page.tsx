@@ -31,7 +31,7 @@ export default function ScenariosPage() {
       <section>
         <Kicker page="Scenarios" />
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
-          Five questions, simplest first, with what should happen written down before each was asked.
+          Five scenarios, from a plain query to an approved action.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
           Five questions, in order of how much the system has to do, put to two restaurants that run on six different written policies,

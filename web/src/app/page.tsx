@@ -47,7 +47,7 @@ export default function HomePage() {
       </section>
 
       <section className="mt-28">
-        <ScenarioCard scenario={scenario} kicker="The last of the five scenarios, the one where every actor appears: the owner asks, the model proposes, code checks, the owner approves, code records." />
+        <ScenarioCard scenario={scenario} kicker="Scenario 5 of 5: a dispute the model proposes, code checks, and the owner approves." />
       </section>
     </>
   );

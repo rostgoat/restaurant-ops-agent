@@ -160,7 +160,7 @@ function OtherRuns({ outcomes }: { outcomes: Record<string, Outcome> }) {
   if (models.filter(ran).length < 2 && thresholds.filter(ran).length < 2) return null;
   return (
     <section className="mt-16">
-      <h2 className="mb-3 text-2xl">The same question, with one thing changed</h2>
+      <h2 className="mb-3 text-2xl">Other models and thresholds</h2>
       <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
         The result above comes from the main run: {modelName(main.model)} at {main.effort} effort,
         showing the model only policy sections that score above {main.retrieval_threshold}. The

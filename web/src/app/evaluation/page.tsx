@@ -87,7 +87,7 @@ export default function EvaluationPage() {
 
       {compare.runs.length > 1 && (
         <section className="mt-24">
-          <h2 className="mb-6 text-3xl">The same cases on other settings</h2>
+          <h2 className="mb-6 text-3xl">Other models, efforts and thresholds</h2>
           <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
             Everything above is the first row. The other rows are the same cases run once each
             with one thing changed: the model, the reasoning effort, or the similarity threshold
@@ -155,7 +155,7 @@ export default function EvaluationPage() {
       )}
 
       <section className="mt-24">
-        <h2 className="mb-6 text-3xl">What this does and does not measure</h2>
+        <h2 className="mb-6 text-3xl">Limitations</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
             Every case runs through the same entry point the site uses, with the same prompt,
