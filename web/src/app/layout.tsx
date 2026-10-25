@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Link from "next/link";
 import { BackToTop } from "@/components/back-to-top";
+import { GitHubLink } from "@/components/github-link";
 import { NavLinks } from "@/components/nav-links";
 import { PageNav } from "@/components/page-nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -42,6 +43,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             </Link>
             <ul className="flex items-center gap-4">
               <NavLinks />
+              <li aria-hidden className="mx-2 h-5 w-px bg-border" />
+              <li>
+                <GitHubLink variant="ghost" />
+              </li>
               <li>
                 <ThemeToggle />
               </li>
