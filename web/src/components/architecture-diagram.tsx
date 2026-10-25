@@ -101,7 +101,7 @@ export function ArchitectureDiagram() {
         <Arrow d={`M ${M.x + 145} 168 L ${M.x + 145} 196`} />
 
         {/* run_sql */}
-        <Box x={M.x} y={200} w={M.w} h={56} tone="model" title="run_sql" lines={["Writes one SELECT."]} />
+        <Box x={M.x} y={200} w={M.w} h={56} tone="model" title="tool: run_sql" lines={["Writes one SELECT."]} />
         <Arrow d={`M ${M.x + M.w} 218 L ${C.x} 218`} />
         <Box x={C.x} y={200} w={C.w} h={74} tone="code" title="Guard" lines={["Eight checks. Blocks writes. Adds the", "restaurant filter to every table."]} />
         <Arrow d={`M ${C.x + 145} 274 L ${C.x + 145} 298`} />
@@ -109,19 +109,19 @@ export function ArchitectureDiagram() {
         <Arrow d={`M ${C.x} 330 H 390 V 238 H ${M.x + M.w}`} label="rows, or the error" lx={390} ly={344} dashed />
 
         {/* search_policy */}
-        <Box x={M.x} y={386} w={M.w} h={56} tone="model" title="search_policy" lines={["Asks for the rules on a topic."]} />
+        <Box x={M.x} y={386} w={M.w} h={56} tone="model" title="tool: search_policy" lines={["Asks for the rules on a topic."]} />
         <Arrow d={`M ${M.x + M.w} 404 L ${C.x} 404`} />
         <Box x={C.x} y={386} w={C.w} h={74} tone="code" title="Retrieve" lines={["This restaurant's sections only, and only", "those above the score threshold."]} />
         <Arrow d={`M ${C.x} 430 L ${M.x + M.w} 430`} label="sections, or none" lx={390} ly={444} dashed />
 
         {/* propose */}
-        <Box x={M.x} y={490} w={M.w} h={74} tone="model" title="propose" lines={["A dispute, a campaign, a comp, or a", "note to the owner."]} />
+        <Box x={M.x} y={490} w={M.w} h={74} tone="model" title="tool: propose" lines={["A dispute, a campaign, a comp, or a", "note to the owner."]} />
         <Arrow d={`M ${M.x + M.w} 510 L ${C.x} 510`} />
         <Box x={C.x} y={490} w={C.w} h={74} tone="code" title="Check the proposal" lines={["Dispute windows, discount caps, consent,", "audience count."]} />
         <Arrow d={`M ${C.x} 540 L ${M.x + M.w} 540`} label="pending or blocked" lx={390} ly={554} dashed />
 
         {/* decline */}
-        <Box x={M.x} y={594} w={M.w} h={56} tone="model" title="decline" lines={["Says why. Nothing runs."]} />
+        <Box x={M.x} y={594} w={M.w} h={56} tone="model" title="tool: decline" lines={["Says why. Nothing runs."]} />
 
         {/* answer */}
         <Arrow d={`M ${M.x + 145} 650 L ${M.x + 145} 678`} />
