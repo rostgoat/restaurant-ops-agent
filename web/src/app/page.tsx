@@ -13,8 +13,8 @@ export default function HomePage() {
       <section>
         <Kicker />
         <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
-          Building an AI agent a restaurant can trust with its data and its
-          rules.
+          An AI agent that answers a restaurant&apos;s questions and never acts
+          on its own.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
           The <span className="font-semibold text-model">model</span> turns a

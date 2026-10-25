@@ -1,6 +1,6 @@
 {
   "slug": "repeat-refunder",
-  "title": "A customer the data flags, where SQL and policy meet",
+  "title": "A customer with three refunds in 90 days",
   "merchant_id": 1,
   "question": "Customer 1500 is claiming another missing item on a delivery order. How should I handle it?",
   "expected": [

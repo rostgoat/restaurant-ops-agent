@@ -92,10 +92,10 @@ export default function EvaluationPage() {
         <section className="mt-24">
           <h2 className="mb-6 text-3xl">Other models, efforts and thresholds</h2>
           <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
-            Everything above is the first row. The other rows are the same cases run once each
-            with one thing changed: the model, the reasoning effort, or the similarity threshold
-            below which a policy section is not shown to the model. The threshold rows cover the
-            policy cases only, because nothing else reads the policies.
+            The first row is the run this page reports. Each other row changes one setting: the
+            model, the effort, or the retrieval threshold. The threshold is the similarity score a
+            policy section needs before the model sees it. Threshold runs cover the{" "}
+            {s.suites.policy?.total ?? 0} policy cases only.
           </p>
           <Table>
             <TableHeader>
