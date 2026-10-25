@@ -1,5 +1,6 @@
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
+import type React from "react";
 import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Link from "next/link";
 import { BackToTop } from "@/components/back-to-top";
@@ -40,7 +41,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
