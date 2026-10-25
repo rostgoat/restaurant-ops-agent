@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -18,10 +19,20 @@ import {
 import { compare, data, describeExpectation, diagnosis, suiteTitle, type Outcome } from "@/lib/evaluation";
 import { count } from "@/lib/format";
 
-export async function generateMetadata(props: { params: Promise<{ id: string }> }) {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await props.params;
+  const r = data.results.find((x) => x.case.id === id);
+  const title = `Evaluation case ${id}`;
+  const description = r
+    ? `${r.case.question} Graded ${r.grade.outcome} on the ${r.case.suite} suite, with the full trace.`
+    : title;
 
-  return { title: `Evaluation case ${id}` };
+  return {
+    title,
+    description,
+    alternates: { canonical: `/evaluation/${id}` },
+    openGraph: { title, description, url: `/evaluation/${id}` },
+  };
 }
 
 export function generateStaticParams() {

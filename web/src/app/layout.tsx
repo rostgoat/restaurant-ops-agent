@@ -7,6 +7,7 @@ import { NavLinks } from "@/components/nav-links";
 import { PageNav } from "@/components/page-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeProvider, ThemeToggle } from "@/components/theme";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 
@@ -22,9 +23,19 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Restaurant ops agent", template: "%s · Restaurant ops agent" },
-  description:
-    "An agent that answers a restaurant owner's questions about their sales, with every step traced and checked.",
+  metadataBase: SITE_URL,
+  title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  twitter: { card: "summary_large_image", title: SITE_NAME, description: SITE_DESCRIPTION },
+  robots: { index: true, follow: true },
+  alternates: { canonical: "/" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

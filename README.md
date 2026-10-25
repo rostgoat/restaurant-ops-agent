@@ -36,11 +36,11 @@ infra/   Postgres init for docker compose.
 # the database and the API on :8000
 cp .env.example .env            # add ANTHROPIC_API_KEY and OPENAI_API_KEY
 python data/generate.py --out data/out --months 12 --seed 42
-docker compose up -d --build --wait
+docker compose up -d --build --wait      # the api image builds from the repo root
 cd api && .venv/bin/python -m app.policies.index --dsn "$DATABASE_URL" --dsn "$EVAL_DATABASE_URL"
 
 # the site on :3000
-cd web && pnpm install && pnpm dev
+cd web && pnpm install && pnpm dev     # NEXT_PUBLIC_SITE_URL sets the public address when deployed
 
 # tests
 cd api && .venv/bin/python -m pytest

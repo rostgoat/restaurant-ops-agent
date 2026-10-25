@@ -1,14 +1,21 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Kicker } from "@/components/kicker";
 import { ScenarioCard } from "@/components/scenario-card";
 import { Button } from "@/components/ui/button";
 import { questionStats } from "@/lib/api";
+import { SITE_DESCRIPTION } from "@/lib/site";
 import type { Scenario } from "@/lib/scenarios";
 import fileDispute from "@/content/scenarios/file-dispute.json";
 
 const scenario = fileDispute as Scenario;
 
 export const instant = false;
+
+export const metadata: Metadata = {
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const stats = await questionStats(scenario.merchant_id, scenario.question);

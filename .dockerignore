@@ -1,0 +1,6 @@
+web
+data/out
+data/append
+api/.venv
+api/evals/runs
+.git

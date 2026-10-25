@@ -1,9 +1,13 @@
+# Built from the repository root so the policy documents ship inside the
+# image: docker build -f api/Dockerfile .
 FROM python:3.12-slim
 
 WORKDIR /srv
-COPY pyproject.toml ./
-COPY app ./app
+COPY api/pyproject.toml ./
+COPY api/app ./app
 RUN pip install --no-cache-dir .
+COPY data/policies /data/policies
+ENV POLICIES_ROOT=/data/policies
 
 EXPOSE 8000
 HEALTHCHECK --interval=5s --timeout=3s --retries=20 \
