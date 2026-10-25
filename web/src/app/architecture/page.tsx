@@ -59,7 +59,7 @@ export default function ArchitecturePage() {
       <PageOutline items={sections} />
       <article className="text-lg leading-relaxed">
         <Kicker page="Architecture" />
-        <h1 className="mt-4 mb-10 text-5xl">How a question becomes an answer</h1>
+        <h1 className="mt-4 mb-10 text-4xl sm:text-5xl">How a question becomes an answer</h1>
         <p>
           Every request goes through the same steps. The model decides what to try. Code decides
           what runs. A person decides what happens. The model cannot run a query, send a message or

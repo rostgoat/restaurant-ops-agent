@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme";
 export function SiteFooter() {
   return (
     <footer className="border-t">
-      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-8 py-16 sm:flex-row sm:justify-between sm:px-16 sm:py-20">
+      <div className="mx-auto flex max-w-5xl flex-col gap-10 px-5 py-14 sm:flex-row sm:justify-between sm:px-16 sm:py-20">
         <div className="max-w-md">
           <Link href="/" className="font-heading text-lg font-semibold">
             Restaurant ops agent

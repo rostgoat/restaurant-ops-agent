@@ -28,7 +28,7 @@ export default async function ScenariosPage() {
     <>
       <section>
         <Kicker page="Scenarios" />
-        <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
+        <h1 className="mt-4 max-w-[30ch] text-4xl sm:text-6xl">
           Five scenarios, from a plain query to an approved action.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">

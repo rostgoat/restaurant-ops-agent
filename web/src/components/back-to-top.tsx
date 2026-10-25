@@ -22,8 +22,8 @@ export function BackToTop() {
       aria-label="Back to top"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className={cn(
-        "fixed right-6 bottom-6 z-20 rounded-full shadow-lg transition-all duration-200",
-        shown ? "opacity-100" : "pointer-events-none translate-y-2 opacity-0",
+        "fixed bottom-5 left-1/2 z-20 -translate-x-1/2 rounded-full shadow-lg transition-all duration-200 sm:right-6 sm:bottom-6 sm:left-auto sm:translate-x-0",
+        shown ? "opacity-100" : "pointer-events-none opacity-0",
       )}
     >
       <ArrowUp className="size-5" aria-hidden />

@@ -70,7 +70,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
       <p className="font-heading text-base text-primary">
         Evaluation case {c.id}, from the {(suiteTitle[c.suite] ?? c.suite).split(":")[0].toLowerCase()} suite
       </p>
-      <h1 className="mt-4 text-4xl sm:text-5xl">{c.question}</h1>
+      <h1 className="mt-4 text-3xl sm:text-5xl">{c.question}</h1>
       <p className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         Asked as <MerchantBadge merchantId={c.merchant_id} />
         {(c.tags ?? []).map((t) => (

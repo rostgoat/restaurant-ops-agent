@@ -32,7 +32,7 @@ export function PageNav() {
   const next = order[index + 1];
 
   return (
-    <nav aria-label="Pages" className="mx-auto w-full max-w-5xl px-8 pb-20 sm:px-16">
+    <nav aria-label="Pages" className="mx-auto w-full max-w-5xl px-5 pb-14 sm:px-16 sm:pb-20">
       <div className="rounded-lg border p-6 sm:p-8">
         <p className="mb-6 font-heading text-sm text-muted-foreground">Where next</p>
         <div className="grid gap-8 sm:grid-cols-2">

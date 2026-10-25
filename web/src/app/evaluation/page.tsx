@@ -47,7 +47,7 @@ export default function EvaluationPage() {
       <PageOutline items={outline} />
       <section>
         <Kicker page="Evaluation" />
-        <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
+        <h1 className="mt-4 max-w-[30ch] text-4xl sm:text-6xl">
           {s.cases} questions, graded by code. {s.passed} pass.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
@@ -226,7 +226,7 @@ function EveryCase() {
   return (
       <section className="mt-24">
         <h2 id="every-case" className="mb-6 scroll-mt-28 text-3xl">Every case</h2>
-        <Table>
+        <Table className="min-w-[760px]">
           <TableHeader>
             <TableRow>
               <TableHead>Case</TableHead>
@@ -367,7 +367,7 @@ function DisagreementTable({
         {rows.length === 0 && " None here: every case had the same result in every column."}
       </p>
       {rows.length > 0 && (
-        <Table>
+        <Table className="min-w-[720px]">
           <TableHeader>
             <TableRow>
               <TableHead>Case</TableHead>

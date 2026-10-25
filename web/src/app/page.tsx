@@ -24,7 +24,7 @@ export default async function HomePage() {
     <>
       <section>
         <Kicker />
-        <h1 className="mt-4 max-w-[30ch] text-5xl sm:text-6xl">
+        <h1 className="mt-4 max-w-[30ch] text-4xl sm:text-6xl">
           An AI agent that answers a restaurant&apos;s questions and never acts
           on its own.
         </h1>

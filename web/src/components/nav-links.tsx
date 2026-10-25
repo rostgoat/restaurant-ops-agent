@@ -30,7 +30,7 @@ export function NavLinks() {
               asChild
               variant="link"
               className={cn(
-                "font-heading text-base text-foreground",
+                "-ml-2 px-2 font-heading text-sm text-foreground sm:ml-0 sm:px-2.5 sm:text-base",
                 active && "text-primary underline underline-offset-8 decoration-2",
               )}
             >
