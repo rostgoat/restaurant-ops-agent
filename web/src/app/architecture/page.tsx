@@ -61,9 +61,12 @@ export default function ArchitecturePage() {
         <Kicker page="Architecture" />
         <h1 className="mt-4 mb-10 text-4xl sm:text-5xl">How a question becomes an answer</h1>
         <p>
-          Every request goes through the same steps. The model decides what to try. Code decides
-          what runs. A person decides what happens. The model cannot run a query, send a message or
-          file a dispute. Only code and a person can, and the trace records every step.
+          Every request goes through the same steps. The{" "}
+          <span className="font-semibold text-model">model</span> decides what to try.{" "}
+          <span className="font-semibold text-code">Code</span> decides what runs. A{" "}
+          <span className="font-semibold text-human">person</span> decides what happens. The model
+          cannot run a query, send a message or file a dispute. Only code and a person can, and the
+          trace records every step.
         </p>
 
         <ul className="mt-8 list-disc space-y-2 pl-6">
