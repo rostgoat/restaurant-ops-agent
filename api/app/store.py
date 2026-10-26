@@ -11,15 +11,6 @@ from psycopg_pool import ConnectionPool
 from app.agent.proposals import Proposal
 from app.agent.trace import Step, Trace, Usage
 
-
-@dataclass(frozen=True)
-class Merchant:
-    id: int
-    name: str
-    cuisine: str
-    timezone: str
-
-
 _INSERT_TRACE = """
 INSERT INTO request_traces
     (id, merchant_id, created_at, question, status, answer, model,
@@ -91,13 +82,6 @@ class Store:
 
     def close(self) -> None:
         self._pool.close()
-
-    def merchants(self) -> list[Merchant]:
-        with self._pool.connection() as conn:
-            rows = conn.execute(
-                "SELECT id, name, cuisine, timezone FROM merchants ORDER BY id"
-            ).fetchall()
-        return [Merchant(*row) for row in rows]
 
     def merchant_exists(self, merchant_id: int) -> bool:
         with self._pool.connection() as conn:

@@ -14,15 +14,8 @@ router = APIRouter()
 
 @router.post("/proposals/{proposal_id}/approve", response_model=ProposalOut)
 def approve(proposal_id: UUID, merchant_id: Merchant, request: Request) -> ProposalOut:
-    return _decide(proposal_id, merchant_id, request, approve=True)
-
-
-@router.post("/proposals/{proposal_id}/reject", response_model=ProposalOut)
-def reject(proposal_id: UUID, merchant_id: Merchant, request: Request) -> ProposalOut:
-    return _decide(proposal_id, merchant_id, request, approve=False)
-
-
-def _decide(proposal_id: UUID, merchant_id: int, request: Request, *, approve: bool) -> ProposalOut:
+    """A person approves a pending proposal. Code then records the action as a
+    simulated execution; nothing outside this database changes."""
     store = request.app.state.store
     proposal = store.get_proposal(proposal_id, merchant_id)
 
@@ -35,32 +28,16 @@ def _decide(proposal_id: UUID, merchant_id: int, request: Request, *, approve: b
 
     if trace is None:
         raise HTTPException(status_code=404, detail="unknown trace")
-
-    now = datetime.now(UTC)
-    proposal.status = "approved" if approve else "rejected"
-    proposal.decided_at = now
+    proposal.status = "approved"
+    proposal.decided_at = datetime.now(UTC)
+    result = execute(proposal)
+    proposal.payload["execution"] = result
     seq = len(trace.steps)
-    steps: list[Step] = [
-        Step(
-            seq + 1,
-            "human",
-            "approve" if approve else "reject",
-            proposal.status,
-            {"proposal_id": str(proposal.id), "kind": proposal.kind, "summary": proposal.summary},
-        )
+    about = {"proposal_id": str(proposal.id), "kind": proposal.kind}
+    steps = [
+        Step(seq + 1, "human", "approve", "approved", about | {"summary": proposal.summary}),
+        Step(seq + 2, "code", "execute", "done", about | result),
     ]
-    if approve:
-        result = execute(proposal)
-        proposal.payload["execution"] = result
-        steps.append(
-            Step(
-                seq + 2,
-                "code",
-                "execute",
-                "done",
-                {"proposal_id": str(proposal.id), "kind": proposal.kind} | result,
-            )
-        )
     store.decide_proposal(proposal)
     store.append_steps(trace.id, steps)
 

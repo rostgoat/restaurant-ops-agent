@@ -15,25 +15,16 @@ from fastapi.testclient import TestClient
 
 from app.agent import Settings
 from app.main import create_app
-from app.store import Merchant
 
 from .fakes import FakeClient, FakeRunner, reply, rows, run_sql, text
-
-MERCHANTS = [
-    Merchant(1, "Mekong Noodle House", "Vietnamese", "America/Chicago"),
-    Merchant(2, "Corner Counter", "Cafe", "America/New_York"),
-]
 
 
 class FakeStore:
     def __init__(self):
         self.traces = {}
 
-    def merchants(self):
-        return list(MERCHANTS)
-
     def merchant_exists(self, merchant_id):
-        return any(m.id == merchant_id for m in MERCHANTS)
+        return merchant_id in (1, 2)
 
     def save_trace(self, trace):
         self.traces[trace.id] = trace
@@ -93,13 +84,6 @@ def counting_client():
 def test_health():
     api, _ = make()
     assert api.get("/health").json() == {"ok": True}
-
-
-def test_merchants_are_listed_for_the_picker():
-    api, _ = make()
-    body = api.get("/merchants").json()
-    assert [m["id"] for m in body] == [1, 2]
-    assert body[0]["name"] == "Mekong Noodle House"
 
 
 # ------------------------------------------------------------ who is asking
@@ -196,11 +180,12 @@ def test_a_configured_token_is_required_on_everything_but_health():
     api, _ = make()
     api.app.state.api_token = "s3cret"
     assert api.get("/health").status_code == 200
-    assert api.get("/merchants").status_code == 401
-    assert api.get("/merchants", headers={"X-API-Token": "wrong"}).status_code == 401
-    assert api.get("/merchants", headers={"X-API-Token": "s3cret"}).status_code == 200
+    probe = "/questions/stats?question=x"
+    assert api.get(probe, headers=as_merchant(1)).status_code == 401
+    assert api.get(probe, headers=as_merchant(1) | {"X-API-Token": "wrong"}).status_code == 401
+    assert api.get(probe, headers=as_merchant(1) | {"X-API-Token": "s3cret"}).status_code == 200
 
 
 def test_without_a_token_the_api_is_open_for_local_work():
     api, _ = make()
-    assert api.get("/merchants").status_code == 200
+    assert api.get("/questions/stats?question=x", headers=as_merchant(1)).status_code == 200

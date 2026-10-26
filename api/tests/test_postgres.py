@@ -93,7 +93,6 @@ def test_a_bad_column_is_a_query_error_with_the_database_message(runner):
 
 
 def test_merchants_come_from_the_database(store):
-    assert [m.id for m in store.merchants()] == [1, 2]
     assert store.merchant_exists(1)
     assert not store.merchant_exists(99)
 

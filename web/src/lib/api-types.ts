@@ -4,23 +4,6 @@
  */
 
 export interface paths {
-    "/merchants": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Merchants */
-        get: operations["merchants_merchants_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/health": {
         parameters: {
             query?: never;
@@ -98,25 +81,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Approve */
+        /**
+         * Approve
+         * @description A person approves a pending proposal. Code then records the action as a
+         *     simulated execution; nothing outside this database changes.
+         */
         post: operations["approve_proposals__proposal_id__approve_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/proposals/{proposal_id}/reject": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Reject */
-        post: operations["reject_proposals__proposal_id__reject_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -136,17 +106,6 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
-        };
-        /** MerchantOut */
-        MerchantOut: {
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
-            /** Cuisine */
-            cuisine: string;
-            /** Timezone */
-            timezone: string;
         };
         /** ProposalOut */
         ProposalOut: {
@@ -292,26 +251,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    merchants_merchants_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MerchantOut"][];
-                };
-            };
-        };
-    };
     health_health_get: {
         parameters: {
             query?: never;
@@ -436,39 +375,6 @@ export interface operations {
         };
     };
     approve_proposals__proposal_id__approve_post: {
-        parameters: {
-            query?: never;
-            header: {
-                "x-merchant-id": number;
-            };
-            path: {
-                proposal_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ProposalOut"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    reject_proposals__proposal_id__reject_post: {
         parameters: {
             query?: never;
             header: {

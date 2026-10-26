@@ -64,13 +64,6 @@ class TraceOut(BaseModel):
         return cls.model_validate(asdict(trace))
 
 
-class MerchantOut(BaseModel):
-    id: int
-    name: str
-    cuisine: str
-    timezone: str
-
-
 class QuestionStatsOut(BaseModel):
     asked: int
     answered: int

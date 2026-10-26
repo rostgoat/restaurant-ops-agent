@@ -11,7 +11,7 @@ from fastapi.responses import JSONResponse
 from app import config
 from app.agent.proposals import ProposalChecker, load_limits
 from app.policies import OpenAIEmbedder, PostgresPolicySearch
-from app.routes import ask, merchants, proposals, traces
+from app.routes import ask, health, proposals, traces
 from app.sql.execute import PostgresRunner
 from app.store import Store
 
@@ -62,7 +62,7 @@ def create_app(lifespan=lifespan, web_origin: str = "http://localhost:3000") -> 
         CORSMiddleware, allow_origins=[web_origin], allow_methods=["*"], allow_headers=["*"]
     )
     app.middleware("http")(require_token)
-    app.include_router(merchants.router)
+    app.include_router(health.router)
     app.include_router(ask.router)
     app.include_router(traces.router)
     app.include_router(proposals.router)
