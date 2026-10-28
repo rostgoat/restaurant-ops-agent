@@ -2,20 +2,27 @@
 """
 Generate the synthetic point-of-sale dataset from the merchant profiles.
 
-    python data/generate.py --out data/out --months 12 --seed 42
+    python data/generate.py --out data/out --months 24 --seed 42
     python data/generate.py --out data/append/2026-10-20 --append-day 2026-10-20 --seed 42
 
 Writes one CSV per table plus load.sql. Deterministic: the same seed and
 arguments always produce the same dataset, so the repo stores a config and a
 generator rather than a dump.
 
-Two things it models that independent sampling would get wrong:
+Things it models that independent sampling would get wrong:
 
-  Channel markup. Delivery marketplaces list the same items at a markup, so
-  basket size stays flat while ticket value runs higher.
+  One price per item per channel. The list price in store and online; the
+  list price plus the profile's markup on the delivery marketplaces.
 
   Missing tips. Marketplaces do not pass tips to the POS, so tip_cents is
   NULL for those channels rather than 0.
+
+  Identity by channel. Online orders always carry a customer; marketplace
+  orders never do; walk-ins sometimes do.
+
+  Named discounts, a promotion window, a loyalty reward, seasonal items and
+  regulars who stop coming, so the questions in the evaluation have answers
+  that are in the data and not only in the prompt.
 """
 
 from __future__ import annotations
@@ -23,7 +30,8 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-from dataclasses import dataclass
+from collections import deque
+from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -37,6 +45,7 @@ DAYPARTS = [
     ("afternoon", range(15, 17)),
     ("dinner", range(17, 22)),
 ]
+MARKETPLACE = ("doordash", "uber_eats", "grubhub")
 
 
 def daypart_of(hour: int) -> str:
@@ -131,34 +140,68 @@ class Writer:
             fh.close()
 
 
-def build_catalog(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer):
-    """Categories and items. Returns per-category item pools for order building."""
+@dataclass
+class Pool:
+    """One category's items, for building baskets."""
+
+    name: str
+    share: float
+    item_ids: np.ndarray
+    prices: np.ndarray
+    season: dict | None = None
+
+    def sells_on(self, day: date) -> bool:
+        if not self.season:
+            return True
+        key = day.strftime("%m-%d")
+
+        return self.season["from"] <= key <= self.season["to"]
+
+
+ITEM_COLUMNS = [
+    "id",
+    "merchant_id",
+    "category_id",
+    "name",
+    "price_cents",
+    "cost_cents",
+    "is_active",
+]
+
+
+def build_catalog(profile: dict, ids: Ids, rng: np.random.Generator, w: Writer) -> list[Pool]:
     cat_w = w.table("categories", ["id", "merchant_id", "name"])
-    item_w = w.table(
-        "items", ["id", "merchant_id", "category_id", "name", "price_cents", "is_active"]
-    )
-    pools: list[tuple[float, np.ndarray, np.ndarray]] = []
+    item_w = w.table("items", ITEM_COLUMNS)
+    pools = []
 
     for spec in profile["categories"]:
         cid = ids.take("category")
         cat_w.writerow([cid, profile["id"], spec["name"]])
-        count = max(1, int(spec["item_count"]))
-        prices = np.maximum(25, from_percentiles(rng, spec["price_cents"], count).round(-1)).astype(
-            int
-        )
         item_ids = []
 
-        for i, price in enumerate(prices, start=1):
+        for item in spec["items"]:
             iid = ids.take("item")
             item_ids.append(iid)
-            item_w.writerow([iid, profile["id"], cid, f"{spec['name']} {i}", int(price), "true"])
-        pools.append((float(spec["line_share"]), np.array(item_ids), prices))
-    shares = np.array([p[0] for p in pools])
+            cost = _food_cost(rng, item["price_cents"], spec["cost_pct"])
+            item_w.writerow(
+                [iid, profile["id"], cid, item["name"], item["price_cents"], cost, "true"]
+            )
+        prices = np.array([item["price_cents"] for item in spec["items"]])
+        pools.append(
+            Pool(spec["name"], spec["line_share"], np.array(item_ids), prices, spec.get("season"))
+        )
 
-    return pools, shares / shares.sum()
+    return pools
 
 
-def read_catalog(profile: dict, catalog: Path):
+def _food_cost(rng: np.random.Generator, price: int, cost_pct: float) -> int:
+    """Each item's cost sits near its category's ratio, not exactly on it."""
+    jitter = 1 + (rng.random() - 0.5) * 0.2
+
+    return max(1, int(round(price * cost_pct * jitter)))
+
+
+def read_catalog(profile: dict, catalog: Path) -> list[Pool]:
     mid = profile["id"]
 
     with open(catalog / "categories.csv", newline="") as fh:
@@ -180,15 +223,22 @@ def read_catalog(profile: dict, catalog: Path):
     for spec in profile["categories"]:
         items = by_category[category_ids[spec["name"]]]
         pools.append(
-            (
-                float(spec["line_share"]),
+            Pool(
+                spec["name"],
+                spec["line_share"],
                 np.array([item_id for item_id, _ in items]),
                 np.array([price for _, price in items]),
+                spec.get("season"),
             )
         )
-    shares = np.array([p[0] for p in pools])
 
-    return pools, shares / shares.sum()
+    return pools
+
+
+def pool_weights(pools: list[Pool], day: date) -> np.ndarray:
+    shares = np.array([p.share if p.sells_on(day) else 0.0 for p in pools])
+
+    return shares / shares.sum()
 
 
 def read_customer_ids(profile: dict, catalog: Path) -> np.ndarray:
@@ -201,7 +251,13 @@ def read_customer_ids(profile: dict, catalog: Path) -> np.ndarray:
 
 
 def build_customers(
-    profile: dict, ids: Ids, rng: np.random.Generator, w: Writer, start: datetime, size: int
+    profile: dict,
+    ids: Ids,
+    rng: np.random.Generator,
+    w: Writer,
+    start: datetime,
+    span_days: int,
+    size: int,
 ) -> np.ndarray:
     c = profile["customers"]
     cw = w.table(
@@ -219,7 +275,6 @@ def build_customers(
         ],
     )
     ids_out = []
-    span_days = 365
 
     for _ in range(size):
         cid = ids.take("customer")
@@ -249,7 +304,7 @@ def build_customers(
 ORDER_COLUMNS = [
     "id", "merchant_id", "customer_id", "created_at", "channel", "source_raw",
     "fulfillment_type", "state", "item_count", "gross_sales_cents", "discount_cents",
-    "tax_cents", "tip_cents", "total_cents",
+    "discount_name", "tax_cents", "tip_cents", "total_cents",
 ]  # fmt: skip
 ORDER_ITEM_COLUMNS = [
     "id",
@@ -264,7 +319,56 @@ PAYMENT_COLUMNS = [
     "id", "order_id", "merchant_id", "created_at", "amount_cents", "tip_cents",
     "processing_fee_cents", "refunded_amount_cents", "card_brand", "entry_method", "status",
 ]  # fmt: skip
-MARKETPLACE = ("doordash", "uber_eats", "grubhub")
+
+
+@dataclass
+class Customers:
+    """Who orders: the directory, which regulars are still coming, who has
+    never been seen yet, and each loyalty member's stamp count."""
+
+    ids: np.ndarray
+    regulars: np.ndarray
+    stopped: dict[int, date]
+    fresh: deque
+    seen: set = field(default_factory=set)
+    stamps: dict[int, int] = field(default_factory=dict)
+
+    def active_regulars(self, day: date) -> np.ndarray:
+        if not self.stopped:
+            return self.regulars
+
+        return np.array([r for r in self.regulars if day < self.stopped.get(int(r), date.max)])
+
+    def new_customer(self) -> int | None:
+        while self.fresh:
+            cid = self.fresh.popleft()
+
+            if cid not in self.seen:
+                return cid
+
+        return None
+
+
+def customers_from(profile: dict, rng: np.random.Generator, ids: np.ndarray) -> Customers:
+    regulars = ids[ids % REGULAR_EVERY == 0] if len(ids) else ids
+    churn = profile["customers"].get("regular_churn")
+    stopped = _stop_dates(rng, regulars, churn) if churn else {}
+    fresh = deque(int(c) for c in rng.permutation(ids))
+
+    return Customers(ids, regulars, stopped, fresh)
+
+
+def _stop_dates(rng: np.random.Generator, regulars: np.ndarray, churn: dict) -> dict[int, date]:
+    """Some regulars stop coming on a day inside the churn window."""
+    start = date.fromisoformat(churn["from"])
+    span = (date.fromisoformat(churn["to"]) - start).days
+    stopped = {}
+
+    for r in regulars:
+        if rng.random() < churn["share"]:
+            stopped[int(r)] = start + timedelta(days=int(rng.integers(0, span + 1)))
+
+    return stopped
 
 
 def generate_orders(
@@ -273,12 +377,9 @@ def generate_orders(
     rng: np.random.Generator,
     w: Writer,
     days: list[date],
-    pools,
-    pool_p,
-    customer_ids: np.ndarray,
+    pools: list[Pool],
+    customers: Customers,
 ):
-    """Every rng call happens in the same order as before, so seed 42 still
-    yields the same dataset. Keep it that way when editing."""
     writers = (
         w.table("orders", ORDER_COLUMNS),
         w.table("order_items", ORDER_ITEM_COLUMNS),
@@ -287,54 +388,88 @@ def generate_orders(
     channels = profile["channels"]
     hour_w = np.array(profile["hour_of_day_weights"], dtype=float)
     hour_p = hour_w / hour_w.sum()
-    regulars = (
-        customer_ids[customer_ids % REGULAR_EVERY == 0] if len(customer_ids) else customer_ids
-    )
+    shares = {c: channels[c]["share"] for c in channels}
 
     for day in days:
-        n = _orders_on(rng, profile, day)
+        n = _orders_on(rng, profile, day, pools)
 
         if n == 0:
             continue
+        pool_p = pool_weights(pools, day)
+        promo = _promo_on(profile, day)
         hours = rng.choice(24, size=n, p=hour_p)
-        chans = pick(rng, {c: channels[c]["share"] for c in channels}, n)
-        baskets = np.maximum(1, from_percentiles(rng, profile["basket_size"], n).round()).astype(
-            int
-        )
+        chans = pick(rng, shares, n)
+        baskets = from_percentiles(rng, profile["basket_size"], n)
 
         for k in range(n):
             _write_order(
-                profile, ids, rng, writers, pools, pool_p, customer_ids, regulars,
-                day, chans[k], int(hours[k]), int(baskets[k]),
+                profile, ids, rng, writers, pools, pool_p, customers,
+                day, chans[k], int(hours[k]), float(baskets[k]), promo,
             )  # fmt: skip
 
+        if promo:
+            _promo_orders(profile, ids, rng, writers, pools, pool_p, customers, day, promo, hour_p)
 
-def _orders_on(rng: np.random.Generator, profile: dict, day: date) -> int:
-    """orders_per_month spread over 52 weeks, then split by weekday weight."""
+
+def _orders_on(rng: np.random.Generator, profile: dict, day: date, pools: list[Pool]) -> int:
+    """orders_per_month spread over 52 weeks, then split by weekday weight.
+    A seasonal category in season lifts the day by its own share."""
     dow_w = profile["day_of_week_weights"]
     share = dow_w[DOW[day.weekday()]] / sum(dow_w.values())
     expected = profile["orders_per_month"] * 12 * share / 52.0
 
+    for pool in pools:
+        if pool.season and pool.sells_on(day):
+            expected *= 1 + pool.season.get("order_lift", 0.0)
+
     return int(rng.poisson(max(0.1, expected)))
 
 
+def _promo_on(profile: dict, day: date) -> dict | None:
+    for promo in profile.get("promotions", []):
+        if promo["from"] <= day.isoformat() <= promo["to"]:
+            return promo
+
+    return None
+
+
+def _promo_orders(profile, ids, rng, writers, pools, pool_p, customers, day, promo, hour_p):
+    """The extra orders a promotion brings, on top of the day's usual count."""
+    lo, hi = promo["hours"]
+    shares = {c: profile["channels"][c]["share"] for c in promo["channels"]}
+    reach = float(hour_p[lo:hi].sum()) * sum(shares.values())
+    usual = _orders_on(rng, profile, day, pools)
+    extra = int(rng.poisson(usual * reach * promo["order_lift"]))
+
+    if extra == 0:
+        return
+    hours = rng.integers(lo, hi, size=extra)
+    chans = pick(rng, shares, extra)
+    baskets = from_percentiles(rng, profile["basket_size"], extra)
+
+    for k in range(extra):
+        _write_order(
+            profile, ids, rng, writers, pools, pool_p, customers,
+            day, chans[k], int(hours[k]), float(baskets[k]), promo,
+        )  # fmt: skip
+
+
 def _write_order(
-    profile, ids, rng, writers, pools, pool_p, customer_ids, regulars, day, chan, hour, size
+    profile, ids, rng, writers, pools, pool_p, customers, day, chan, hour, size, promo
 ):
     ow, oiw, pw = writers
     ch = profile["channels"][chan]
-    dname = DOW[day.weekday()]
     created = _created_at(rng, profile, day, hour)
-
-    if "basket_size_override" in ch:
-        size = max(1, int(from_percentiles(rng, ch["basket_size_override"], 1)[0]))
-    # Moves ticket value, not basket size.
-    occasion = profile["daypart_value_multiplier"].get(daypart_of(hour), 1.0) * profile[
-        "day_of_week_value_multiplier"
-    ].get(dname, 1.0)
+    size = _basket_size(rng, profile, ch, day, hour, size)
     oid = ids.take("order")
-    lines, gross = _basket(rng, pools, pool_p, size, ch["value_multiplier"], occasion)
-    discount = _discount(rng, profile["discount"], gross)
+    markup = _markup(profile, chan)
+    lines, gross = _basket(rng, pools, pool_p, size, markup)
+    applies = _promo_applies(promo, chan, hour)
+    cust = _customer(rng, profile, customers, chan, day, applies)
+    discount, name = _discount(rng, profile, gross, promo if applies else None)
+
+    if not discount and cust:
+        discount, name = _loyalty_reward(profile, customers, cust, pools, lines)
     taxable = gross - discount
     tax_rate = profile["tax_rate_bps"] / 10_000
     tax = int(round(taxable * tax_rate))
@@ -344,11 +479,10 @@ def _write_order(
     state = pick(rng, profile["order_state_mix"], 1)[0]
     fulfil = pick(rng, ch["fulfillment"], 1)[0]
     raw = ch["source_raw"][int(rng.integers(0, len(ch["source_raw"])))]
-    cust = _customer(rng, profile, customer_ids, regulars)
     mid = profile["id"]
     ow.writerow(
         [oid, mid, cust, created.isoformat(), chan, raw if raw is not None else "", fulfil,
-         state, size, gross, discount, tax, tip, total]
+         state, size, gross, discount, name, tax, tip, total]
     )  # fmt: skip
 
     for item_id, qty, unit, line_total in lines:
@@ -356,6 +490,31 @@ def _write_order(
 
     if state == "completed":
         _write_payment(pw, ids, rng, profile, chan, oid, created, total, tip, cust)
+
+
+def _basket_size(rng, profile: dict, ch: dict, day: date, hour: int, size: float) -> int:
+    if "basket_size_override" in ch:
+        size = float(from_percentiles(rng, ch["basket_size_override"], 1)[0])
+    occasion = profile["daypart_basket_multiplier"].get(daypart_of(hour), 1.0) * profile[
+        "day_of_week_basket_multiplier"
+    ].get(DOW[day.weekday()], 1.0)
+
+    return max(1, int(round(size * occasion)))
+
+
+def _markup(profile: dict, chan: str) -> float:
+    if chan in MARKETPLACE:
+        return 1 + profile["marketplace_markup_pct"] / 100
+
+    return 1.0
+
+
+def _promo_applies(promo: dict | None, chan: str, hour: int) -> bool:
+    if promo is None:
+        return False
+    lo, hi = promo["hours"]
+
+    return chan in promo["channels"] and lo <= hour < hi
 
 
 def _created_at(rng: np.random.Generator, profile: dict, day: date, hour: int) -> datetime:
@@ -370,30 +529,66 @@ def _created_at(rng: np.random.Generator, profile: dict, day: date, hour: int) -
     )
 
 
-def _basket(rng, pools, pool_p, size: int, markup: float, occasion: float):
-    """The markup lives on unit price, which is how marketplaces actually
-    price, so basket size stays flat across channels."""
+def _basket(rng, pools: list[Pool], pool_p, size: int, markup: float):
+    """One price per item per channel: the list price, marked up on the
+    marketplaces. The pool is the category; the line is one of its items."""
     lines = []
     gross = 0
 
     for _ in range(size):
-        pi = rng.choice(len(pools), p=pool_p)
-        _, item_ids, prices = pools[pi]
-        j = int(rng.integers(0, len(item_ids)))
+        pool = pools[rng.choice(len(pools), p=pool_p)]
+        j = int(rng.integers(0, len(pool.item_ids)))
         qty = 1 if rng.random() > 0.08 else 2
-        unit = int(round(prices[j] * markup * occasion))
-        lines.append((int(item_ids[j]), qty, unit, unit * qty))
+        unit = int(round(pool.prices[j] * markup))
+        lines.append((int(pool.item_ids[j]), qty, unit, unit * qty))
         gross += unit * qty
 
     return lines, gross
 
 
-def _discount(rng: np.random.Generator, disc: dict, gross: int) -> int:
-    if rng.random() >= disc["attach_rate"]:
-        return 0
-    rate = float(from_percentiles(rng, disc["rate_pct"], 1)[0]) / 100
+def _discount(rng: np.random.Generator, profile: dict, gross: int, promo: dict | None):
+    disc = profile["discount"]
 
-    return min(gross, int(round(gross * min(1.0, rate))))
+    if promo and rng.random() < promo["attach_rate"]:
+        return int(round(gross * promo["discount_pct"] / 100)), promo["name"]
+
+    if rng.random() >= disc["attach_rate"]:
+        return 0, ""
+    rate = float(from_percentiles(rng, disc["rate_pct"], 1)[0]) / 100
+    name = pick(rng, disc["names"], 1)[0]
+
+    return min(gross, int(round(gross * min(1.0, rate)))), name
+
+
+def _loyalty_reward(profile: dict, customers: Customers, cust: str, pools, lines):
+    """Stamps per eligible drink; enough stamps make the next eligible drink
+    free. The stamp count only moves for identified customers."""
+    loyalty = profile.get("loyalty")
+
+    if not loyalty:
+        return 0, ""
+    earning = _pools_named(pools, loyalty["earning_categories"])
+    reward = _pools_named(pools, loyalty["reward_categories"])
+    cid = int(cust)
+    stamps = customers.stamps.get(cid, 0)
+    free = 0
+    name = ""
+
+    if stamps >= loyalty["stamps_for_reward"]:
+        free_line = next((line for line in lines if line[0] in reward), None)
+
+        if free_line:
+            free = free_line[2]
+            name = loyalty["reward_name"]
+            stamps -= loyalty["stamps_for_reward"]
+    stamps += sum(qty for item_id, qty, _, _ in lines if item_id in earning)
+    customers.stamps[cid] = stamps
+
+    return free, name
+
+
+def _pools_named(pools: list[Pool], names: list[str]) -> set[int]:
+    return {int(i) for p in pools if p.name in names for i in p.item_ids}
 
 
 def _tip(rng: np.random.Generator, profile: dict, ch: dict, gross: int) -> int:
@@ -404,15 +599,32 @@ def _tip(rng: np.random.Generator, profile: dict, ch: dict, gross: int) -> int:
     return int(round(gross * rate))
 
 
-def _customer(rng, profile: dict, customer_ids: np.ndarray, regulars: np.ndarray) -> str:
+def _customer(rng, profile: dict, customers: Customers, chan: str, day: date, promo: bool) -> str:
+    """Identity depends on the channel; a promotion order is more often a
+    customer never seen before."""
     c = profile["customers"]
+    rate = profile["channels"][chan].get("identified_rate", 0.0)
 
-    if not len(customer_ids) or rng.random() >= c["identified_order_rate"]:
+    if not len(customers.ids) or rng.random() >= rate:
         return ""
-    from_regulars = rng.random() < c["regular_order_share"]
-    pool = regulars if len(regulars) and from_regulars else customer_ids
+    cid = _pick_customer(rng, c, customers, day, promo)
+    customers.seen.add(cid)
 
-    return str(int(rng.choice(pool)))
+    return str(cid)
+
+
+def _pick_customer(rng, c: dict, customers: Customers, day: date, promo: bool) -> int:
+    if promo and rng.random() < c["promo_new_customer_share"]:
+        fresh = customers.new_customer()
+
+        if fresh is not None:
+            return fresh
+    regulars = customers.active_regulars(day)
+
+    if len(regulars) and rng.random() < c["regular_order_share"]:
+        return int(rng.choice(regulars))
+
+    return int(rng.choice(customers.ids))
 
 
 def _write_payment(pw, ids, rng, profile, chan, oid, created, total, tip, cust) -> None:
@@ -461,7 +673,7 @@ def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", type=Path, default=Path("data/out"))
     ap.add_argument("--profiles", type=Path, default=Path("data/profiles"))
-    ap.add_argument("--months", type=int, default=12)
+    ap.add_argument("--months", type=int, default=24)
     ap.add_argument(
         "--append-day",
         type=str,
@@ -499,25 +711,28 @@ def catalog_for_append(profile: dict, args: argparse.Namespace, day: date):
     # Seeded by day as well, or every appended day would replay the same
     # random stream and look alike.
     rng = np.random.default_rng(args.seed + profile["id"] + day.toordinal())
-    pools, pool_p = read_catalog(profile, args.catalog)
+    pools = read_catalog(profile, args.catalog)
+    customers = customers_from(profile, rng, read_customer_ids(profile, args.catalog))
 
-    return rng, pools, pool_p, read_customer_ids(profile, args.catalog)
+    return rng, pools, customers
 
 
 def catalog_for_backfill(profile: dict, args: argparse.Namespace, ids: Ids, w: Writer, mw):
     rng = np.random.default_rng(args.seed + profile["id"])
     mw.writerow([profile[k] for k in ("id", "name", "cuisine", "timezone", "opened_at")])
-    pools, pool_p = build_catalog(profile, ids, rng, w)
-    customers = build_customers(
+    pools = build_catalog(profile, ids, rng, w)
+    span_days = args.months * 30
+    customer_ids = build_customers(
         profile,
         ids,
         rng,
         w,
-        datetime.now(ZoneInfo(profile["timezone"])) - timedelta(days=365),
-        size=min(5000, profile["customers"]["directory_size"] // 20),
+        datetime.now(ZoneInfo(profile["timezone"])) - timedelta(days=span_days),
+        span_days,
+        size=profile["customers"]["directory_size"] // 2,
     )
 
-    return rng, pools, pool_p, customers
+    return rng, pools, customers_from(profile, rng, customer_ids)
 
 
 def main() -> None:
@@ -537,10 +752,10 @@ def main() -> None:
         profile = json.loads(path.read_text())
 
         if append:
-            rng, pools, pool_p, customers = catalog_for_append(profile, args, day)
+            rng, pools, customers = catalog_for_append(profile, args, day)
         else:
-            rng, pools, pool_p, customers = catalog_for_backfill(profile, args, ids, w, mw)
-        generate_orders(profile, ids, rng, w, days, pools, pool_p, customers)
+            rng, pools, customers = catalog_for_backfill(profile, args, ids, w, mw)
+        generate_orders(profile, ids, rng, w, days, pools, customers)
         print(f"  {path.name}: {len(days)} days")
     w.close()
     (args.out / "load.sql").write_text(APPEND_SQL if append else LOAD_SQL)

@@ -32,7 +32,7 @@ jobs:
       - run: pip install -e "api[dev]" numpy
       - name: generate and load the dataset
         run: |
-          python data/generate.py --out data/out --months 12 --seed 42
+          python data/generate.py --out data/out --months 24 --seed 42
           psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f data/schema.sql
           cd data/out && psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f load.sql
       - run: ruff check api/app api/tests api/scripts

@@ -45,3 +45,6 @@ pgdata/
 # Session context for Claude Code, kept local
 CLAUDE.md
 .neon
+
+# local debugging helper
+api/dump.py

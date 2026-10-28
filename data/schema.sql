@@ -37,6 +37,7 @@ CREATE TABLE items (
     category_id integer NOT NULL REFERENCES categories(id),
     name        text    NOT NULL,
     price_cents integer NOT NULL CHECK (price_cents >= 0),
+    cost_cents  integer NOT NULL CHECK (cost_cents >= 0),  -- food cost, what the item costs to make
     is_active   boolean NOT NULL DEFAULT true
 );
 
@@ -76,6 +77,7 @@ CREATE TABLE orders (
     item_count        integer     NOT NULL CHECK (item_count >= 0),
     gross_sales_cents integer     NOT NULL CHECK (gross_sales_cents >= 0),
     discount_cents    integer     NOT NULL DEFAULT 0,
+    discount_name     text,       -- the discount as the till names it; null when none
     tax_cents         integer     NOT NULL DEFAULT 0,
     -- Null, not zero: delivery marketplaces do not pass tips through at all.
     -- Averaging without accounting for that is wrong.

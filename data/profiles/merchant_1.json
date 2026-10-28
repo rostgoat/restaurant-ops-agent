@@ -4,77 +4,111 @@
   "cuisine": "Vietnamese",
   "timezone": "America/Chicago",
   "opened_at": "2025-06-01",
-  "_shape": "Delivery-dominated. Bimodal lunch and dinner service. Low repeat rate, high ticket. Third-party marketplaces carry roughly two thirds of volume and price 15-25% above the counter.",
-
+  "_shape": "Delivery-dominated. Bimodal lunch and dinner service. Low repeat rate, high ticket. Third-party marketplaces carry roughly two thirds of volume and list every item 25% above the counter price.",
   "orders_per_month": 8550,
   "tax_rate_bps": 1025,
-
   "hour_of_day_weights": [
-    13, 12, 8, 4, 5, 8, 5, 22, 41, 163, 750, 12225,
-    15179, 13546, 11303, 10228, 10926, 16717, 21802, 20017, 11026, 394, 26, 20
+    13,
+    12,
+    8,
+    4,
+    5,
+    8,
+    5,
+    22,
+    41,
+    163,
+    750,
+    12225,
+    15179,
+    13546,
+    11303,
+    10228,
+    10926,
+    16717,
+    21802,
+    20017,
+    11026,
+    394,
+    26,
+    20
   ],
-
   "day_of_week_weights": {
-    "Mon": 19584, "Tue": 17959, "Wed": 17556, "Thu": 18433,
-    "Fri": 21294, "Sat": 23669, "Sun": 26740
+    "Mon": 19584,
+    "Tue": 17959,
+    "Wed": 17556,
+    "Thu": 18433,
+    "Fri": 21294,
+    "Sat": 23669,
+    "Sun": 26740
   },
-
-  "day_of_week_value_multiplier": {
-    "Mon": 0.98, "Tue": 0.96, "Wed": 0.96, "Thu": 0.97,
-    "Fri": 1.0, "Sat": 1.02, "Sun": 1.06
-  },
-
-  "daypart_value_multiplier": {
-    "early_morning": 0.95,
-    "lunch": 0.91,
-    "afternoon": 0.96,
-    "dinner": 1.09,
-    "late_night": 0.79
-  },
-
   "channels": {
     "in_store": {
       "share": 0.331,
-      "value_multiplier": 0.76,
       "tips": true,
       "tip_attach_rate": 0.51,
-      "fulfillment": { "in_store": 0.18, "pickup": 0.82 },
-      "source_raw": ["Point of Sale", null]
+      "fulfillment": {
+        "in_store": 0.18,
+        "pickup": 0.82
+      },
+      "source_raw": [
+        "Point of Sale",
+        null
+      ],
+      "identified_rate": 0.3
     },
     "uber_eats": {
       "share": 0.232,
-      "value_multiplier": 1.15,
       "tips": false,
-      "fulfillment": { "delivery": 0.94, "pickup": 0.06 },
-      "source_raw": ["Uber Eats", "Uber Eats Pickup", "Uber Eats - Postmates"]
+      "fulfillment": {
+        "delivery": 0.94,
+        "pickup": 0.06
+      },
+      "source_raw": [
+        "Uber Eats",
+        "Uber Eats Pickup",
+        "Uber Eats - Postmates"
+      ],
+      "identified_rate": 0.0
     },
     "square_online": {
       "share": 0.232,
-      "value_multiplier": 1.04,
       "tips": true,
       "tip_attach_rate": 0.44,
-      "fulfillment": { "pickup": 0.71, "delivery": 0.29 },
-      "source_raw": ["Square Online", "Square Online Store"]
+      "fulfillment": {
+        "pickup": 0.71,
+        "delivery": 0.29
+      },
+      "source_raw": [
+        "Square Online",
+        "Square Online Store"
+      ],
+      "identified_rate": 1.0
     },
     "doordash": {
       "share": 0.177,
-      "value_multiplier": 1.04,
       "tips": false,
-      "fulfillment": { "delivery": 0.9, "pickup": 0.1 },
+      "fulfillment": {
+        "delivery": 0.9,
+        "pickup": 0.1
+      },
       "source_raw": [
         "DoorDash",
         "DoorDash Pickup",
         "DoorDash - Caviar",
         "DoorDash - Storefront"
-      ]
+      ],
+      "identified_rate": 0.0
     },
     "grubhub": {
       "share": 0.0275,
-      "value_multiplier": 1.1,
       "tips": true,
       "tip_attach_rate": 0.017,
       "_note": "Six spellings of one channel, so that grouping on the raw label gives a different answer than grouping on the normalized channel.",
-      "fulfillment": { "delivery": 0.93, "pickup": 0.07 },
+      "fulfillment": {
+        "delivery": 0.93,
+        "pickup": 0.07
+      },
       "source_raw": [
         "Grubhub",
         "GrubHub",
@@ -82,45 +116,52 @@
         "GrubHub Pickup",
         "Grubhub - Seamless",
         "Grubhub - Yelp"
-      ]
+      ],
+      "identified_rate": 0.0
     }
   },
-
   "order_value_cents": {
-    "p10": 1370, "p25": 1943, "p50": 2803, "p75": 4082,
-    "p90": 5521, "p99": 9807, "max": 162401
+    "p10": 1370,
+    "p25": 1943,
+    "p50": 2803,
+    "p75": 4082,
+    "p90": 5521,
+    "p99": 9807,
+    "max": 162401
   },
-
-  "basket_size": { "p25": 1, "p50": 2, "p75": 3, "p90": 4, "p99": 8, "max": 304 },
-
-  "tip_rate_pct": { "p10": 10.9, "p25": 12.0, "p50": 15.0, "p75": 18.0, "p90": 20.0 },
-
+  "basket_size": {
+    "p25": 1,
+    "p50": 2,
+    "p75": 3,
+    "p90": 4,
+    "p99": 8,
+    "max": 304
+  },
+  "tip_rate_pct": {
+    "p10": 10.9,
+    "p25": 12.0,
+    "p50": 15.0,
+    "p75": 18.0,
+    "p90": 20.0
+  },
   "discount": {
     "attach_rate": 0.192,
-    "rate_pct": { "p10": 12.0, "p25": 17.8, "p50": 23.8, "p75": 30.0, "p90": 44.1, "max": 100 }
+    "rate_pct": {
+      "p10": 12.0,
+      "p25": 17.8,
+      "p50": 23.8,
+      "p75": 30.0,
+      "p90": 44.1,
+      "max": 100
+    },
+    "names": {
+      "Manager Comp": 0.35,
+      "Staff Meal": 0.25,
+      "Student 10%": 0.25,
+      "Marketplace Promo": 0.15
+    }
   },
-
-  "item_price_cents": {
-    "p10": 300, "p25": 699, "p50": 1299, "p75": 1695, "p90": 1895, "p99": 2150
-  },
-
-  "categories": [
-    { "name": "Noodle Soups",     "line_share": 0.286, "item_count": 8,  "price_cents": { "p25": 1395, "p50": 1595, "p75": 1795 } },
-    { "name": "Sandwiches",       "line_share": 0.205, "item_count": 10, "price_cents": { "p25": 895,  "p50": 1095, "p75": 1295 } },
-    { "name": "Appetizers",       "line_share": 0.176, "item_count": 6,  "price_cents": { "p25": 695,  "p50": 895,  "p75": 1095 } },
-    { "name": "Rice Dishes",      "line_share": 0.111, "item_count": 8,  "price_cents": { "p25": 1295, "p50": 1495, "p75": 1695 } },
-    { "name": "Drinks",           "line_share": 0.084, "item_count": 17, "price_cents": { "p25": 299,  "p50": 399,  "p75": 599 } },
-    { "name": "Specialty Drinks", "line_share": 0.072, "item_count": 18, "price_cents": { "p25": 549,  "p50": 649,  "p75": 749 } },
-    { "name": "Snacks",           "line_share": 0.034, "item_count": 46, "price_cents": { "p25": 250,  "p50": 399,  "p75": 599 } },
-    { "name": "Salads",           "line_share": 0.017, "item_count": 2,  "price_cents": { "p25": 995,  "p50": 1195, "p75": 1395 } },
-    { "name": "Sides",            "line_share": 0.012, "item_count": 9,  "price_cents": { "p25": 299,  "p50": 449,  "p75": 599 } },
-    { "name": "Catering",         "line_share": 0.001, "item_count": 27, "price_cents": { "p25": 4599, "p50": 6999, "p75": 9999 } },
-    { "name": "Merchandise",      "line_share": 0.001, "item_count": 11, "price_cents": { "p25": 1200, "p50": 2000, "p75": 2800 } },
-    { "name": "Uncategorized",    "line_share": 0.001, "item_count": 13, "price_cents": { "p25": 399,  "p50": 699,  "p75": 1299 } }
-  ],
-
   "customers": {
-    "identified_order_rate": 0.126,
     "directory_size": 96359,
     "has_email_rate": 0.59,
     "has_phone_rate": 0.62,
@@ -131,17 +172,37 @@
     "regular_order_share": 0.35,
     "serial_refund_rate": 0.7,
     "repeat_rate": 0.184,
-    "orders_per_customer": { "p50": 1, "p90": 2, "p99": 7, "max": 59 },
+    "orders_per_customer": {
+      "p50": 1,
+      "p90": 2,
+      "p99": 7,
+      "max": 59
+    },
     "days_between_orders": {
-      "p10": 2, "p25": 12, "p50": 34, "p75": 82, "p90": 158, "p99": 313
+      "p10": 2,
+      "p25": 12,
+      "p50": 34,
+      "p75": 82,
+      "p90": 158,
+      "p99": 313
+    },
+    "promo_new_customer_share": 0.35,
+    "regular_churn": {
+      "share": 0.25,
+      "from": "2026-06-01",
+      "to": "2026-08-31"
     }
   },
-
   "payments": {
     "cash_share": 0.08,
     "refund_rate": 0.00444,
     "failure_rate": 0.0121,
-    "processing_fee_rate_pct": { "p25": 2.73, "p50": 3.02, "p75": 3.66, "p90": 4.38 },
+    "processing_fee_rate_pct": {
+      "p25": 2.73,
+      "p50": 3.02,
+      "p75": 3.66,
+      "p90": 4.38
+    },
     "card_brand_mix": {
       "VISA": 0.616,
       "MASTERCARD": 0.197,
@@ -157,6 +218,403 @@
       "SWIPED": 0.003
     }
   },
-
-  "order_state_mix": { "completed": 0.9457, "draft": 0.0343, "canceled": 0.0144 }
+  "order_state_mix": {
+    "completed": 0.9457,
+    "draft": 0.0343,
+    "canceled": 0.0144
+  },
+  "daypart_basket_multiplier": {
+    "early_morning": 0.95,
+    "lunch": 0.91,
+    "afternoon": 0.96,
+    "dinner": 1.09,
+    "late_night": 0.79
+  },
+  "day_of_week_basket_multiplier": {
+    "Mon": 0.98,
+    "Tue": 0.96,
+    "Wed": 0.96,
+    "Thu": 0.97,
+    "Fri": 1.0,
+    "Sat": 1.02,
+    "Sun": 1.06
+  },
+  "marketplace_markup_pct": 25,
+  "promotions": [
+    {
+      "name": "Lunch 20",
+      "from": "2026-08-03",
+      "to": "2026-08-30",
+      "hours": [
+        11,
+        14
+      ],
+      "channels": [
+        "in_store",
+        "square_online"
+      ],
+      "discount_pct": 20,
+      "attach_rate": 0.6,
+      "order_lift": 0.18
+    }
+  ],
+  "categories": [
+    {
+      "name": "Noodle Soups",
+      "line_share": 0.286,
+      "cost_pct": 0.3,
+      "items": [
+        {
+          "name": "Rare Beef Pho",
+          "price_cents": 1595
+        },
+        {
+          "name": "Well-Done Brisket Pho",
+          "price_cents": 1595
+        },
+        {
+          "name": "Rare Beef and Brisket Pho",
+          "price_cents": 1695
+        },
+        {
+          "name": "Chicken Pho",
+          "price_cents": 1495
+        },
+        {
+          "name": "Beef Meatball Pho",
+          "price_cents": 1595
+        },
+        {
+          "name": "Special Combination Pho",
+          "price_cents": 1795
+        },
+        {
+          "name": "Shrimp Pho",
+          "price_cents": 1795
+        },
+        {
+          "name": "Vegetable and Tofu Pho",
+          "price_cents": 1395
+        }
+      ]
+    },
+    {
+      "name": "Vermicelli Bowls",
+      "line_share": 0.11,
+      "cost_pct": 0.3,
+      "items": [
+        {
+          "name": "Spicy Hue Beef Noodle Soup",
+          "price_cents": 1695
+        },
+        {
+          "name": "Grilled Pork Vermicelli Bowl",
+          "price_cents": 1495
+        },
+        {
+          "name": "Spring Roll Vermicelli Bowl",
+          "price_cents": 1395
+        },
+        {
+          "name": "Grilled Pork and Spring Roll Vermicelli Bowl",
+          "price_cents": 1595
+        },
+        {
+          "name": "Crab and Tomato Noodle Soup",
+          "price_cents": 1595
+        },
+        {
+          "name": "Wonton Egg Noodle Soup",
+          "price_cents": 1495
+        },
+        {
+          "name": "Phnom Penh Noodle Soup",
+          "price_cents": 1695
+        },
+        {
+          "name": "Vegetarian Vermicelli Bowl",
+          "price_cents": 1295
+        }
+      ]
+    },
+    {
+      "name": "Vietnamese Sandwiches",
+      "line_share": 0.205,
+      "cost_pct": 0.28,
+      "items": [
+        {
+          "name": "Cold Cut Sandwich",
+          "price_cents": 995
+        },
+        {
+          "name": "Grilled Chicken Sandwich",
+          "price_cents": 1095
+        },
+        {
+          "name": "Meatball Sandwich",
+          "price_cents": 1095
+        },
+        {
+          "name": "Roast Pork Sandwich",
+          "price_cents": 1195
+        },
+        {
+          "name": "Lemongrass Beef Sandwich",
+          "price_cents": 1195
+        },
+        {
+          "name": "Fried Egg Sandwich",
+          "price_cents": 895
+        },
+        {
+          "name": "Tofu Sandwich",
+          "price_cents": 895
+        }
+      ]
+    },
+    {
+      "name": "Rice Plates",
+      "line_share": 0.111,
+      "cost_pct": 0.32,
+      "items": [
+        {
+          "name": "Grilled Pork Chop on Rice",
+          "price_cents": 1495
+        },
+        {
+          "name": "Pork Chop with Shredded Pork and Egg Cake on Rice",
+          "price_cents": 1695
+        },
+        {
+          "name": "Grilled Lemongrass Chicken on Rice",
+          "price_cents": 1495
+        },
+        {
+          "name": "Shaking Beef on Rice",
+          "price_cents": 1895
+        },
+        {
+          "name": "Caramelized Shrimp on Rice",
+          "price_cents": 1695
+        },
+        {
+          "name": "House Fried Rice",
+          "price_cents": 1395
+        },
+        {
+          "name": "Vegetable and Tofu on Rice",
+          "price_cents": 1295
+        }
+      ]
+    },
+    {
+      "name": "Appetizers",
+      "line_share": 0.176,
+      "cost_pct": 0.3,
+      "items": [
+        {
+          "name": "Salad Rolls (2)",
+          "price_cents": 795
+        },
+        {
+          "name": "Spring Rolls (3)",
+          "price_cents": 795
+        },
+        {
+          "name": "Fish Sauce Chicken Wings",
+          "price_cents": 1195
+        },
+        {
+          "name": "Beef Wrapped in Betel Leaf",
+          "price_cents": 1095
+        },
+        {
+          "name": "Green Papaya Salad",
+          "price_cents": 1095
+        },
+        {
+          "name": "Sizzling Crepe",
+          "price_cents": 1395
+        },
+        {
+          "name": "Crispy Shrimp",
+          "price_cents": 1095
+        },
+        {
+          "name": "Lemongrass Fried Tofu",
+          "price_cents": 895
+        }
+      ]
+    },
+    {
+      "name": "Sides",
+      "line_share": 0.012,
+      "cost_pct": 0.25,
+      "items": [
+        {
+          "name": "Steamed Rice",
+          "price_cents": 299
+        },
+        {
+          "name": "Extra Broth",
+          "price_cents": 399
+        },
+        {
+          "name": "Extra Noodles",
+          "price_cents": 299
+        },
+        {
+          "name": "Extra Meat",
+          "price_cents": 499
+        },
+        {
+          "name": "Pickled Vegetables",
+          "price_cents": 249
+        },
+        {
+          "name": "Fried Egg",
+          "price_cents": 250
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "line_share": 0.156,
+      "cost_pct": 0.2,
+      "items": [
+        {
+          "name": "Vietnamese Iced Coffee",
+          "price_cents": 549
+        },
+        {
+          "name": "Vietnamese Black Iced Coffee",
+          "price_cents": 499
+        },
+        {
+          "name": "Iced Tea",
+          "price_cents": 299
+        },
+        {
+          "name": "Sugarcane Juice",
+          "price_cents": 599
+        },
+        {
+          "name": "Lemon Soda",
+          "price_cents": 499
+        },
+        {
+          "name": "Avocado Smoothie",
+          "price_cents": 699
+        },
+        {
+          "name": "Mango Smoothie",
+          "price_cents": 699
+        },
+        {
+          "name": "Thai Iced Tea",
+          "price_cents": 549
+        },
+        {
+          "name": "Young Coconut Juice",
+          "price_cents": 599
+        }
+      ]
+    },
+    {
+      "name": "Desserts",
+      "line_share": 0.017,
+      "cost_pct": 0.25,
+      "items": [
+        {
+          "name": "Three Color Dessert",
+          "price_cents": 649
+        },
+        {
+          "name": "Thai Fruit Dessert",
+          "price_cents": 649
+        },
+        {
+          "name": "Vietnamese Flan",
+          "price_cents": 549
+        },
+        {
+          "name": "Pandan Sticky Rice",
+          "price_cents": 599
+        },
+        {
+          "name": "Mung Bean Pudding",
+          "price_cents": 549
+        }
+      ]
+    },
+    {
+      "name": "Catering",
+      "line_share": 0.001,
+      "cost_pct": 0.35,
+      "items": [
+        {
+          "name": "Pho Bar for 10",
+          "price_cents": 14999
+        },
+        {
+          "name": "Sandwich Platter for 12",
+          "price_cents": 10999
+        },
+        {
+          "name": "Spring Roll Tray of 24",
+          "price_cents": 5999
+        },
+        {
+          "name": "Rice Plate Buffet for 10",
+          "price_cents": 13999
+        },
+        {
+          "name": "Appetizer Sampler for 10",
+          "price_cents": 8999
+        },
+        {
+          "name": "Drink Bundle of 12",
+          "price_cents": 4999
+        }
+      ]
+    },
+    {
+      "name": "Merchandise",
+      "line_share": 0.001,
+      "cost_pct": 0.5,
+      "items": [
+        {
+          "name": "Mekong T-Shirt",
+          "price_cents": 2500
+        },
+        {
+          "name": "Chopstick Set",
+          "price_cents": 1500
+        },
+        {
+          "name": "Pho Spice Kit",
+          "price_cents": 1800
+        }
+      ]
+    },
+    {
+      "name": "Uncategorized",
+      "line_share": 0.001,
+      "cost_pct": 0.3,
+      "items": [
+        {
+          "name": "Open Food",
+          "price_cents": 1000
+        },
+        {
+          "name": "Open Drink",
+          "price_cents": 400
+        },
+        {
+          "name": "Delivery Bag Fee",
+          "price_cents": 100
+        }
+      ]
+    }
+  ]
 }

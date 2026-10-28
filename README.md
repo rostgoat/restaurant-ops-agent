@@ -49,7 +49,7 @@ Everything else runs in the same image against this checkout:
 ```bash
 docker compose run --rm tools python -m pytest                       # the API tests, database included
 docker compose run --rm tools python -m app.evals.run                # the evaluation set, against the frozen database
-docker compose run --rm tools python ../data/generate.py --out ../data/out --months 12 --seed 42
+docker compose run --rm tools python ../data/generate.py --out ../data/out --profiles ../data/profiles --months 24 --seed 42
 ```
 
 Model: Claude Sonnet 5.5. Embeddings: OpenAI text-embedding-3-small. Database:

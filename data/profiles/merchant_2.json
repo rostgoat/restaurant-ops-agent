@@ -4,90 +4,115 @@
   "cuisine": "Cafe",
   "timezone": "America/Denver",
   "opened_at": "2025-06-01",
-  "_shape": "Counter service, almost entirely in person. Single morning peak at 10am, dinner barely exists. High repeat rate with an 8-day median return gap. Low ticket, large rotating catalog. Day of week drives ticket value here rather than channel: weekends run about 22% above midweek.",
-
+  "_shape": "Counter service, almost entirely in person. Single morning peak at 10am, dinner barely exists. High repeat rate with an 8-day median return gap. Low ticket, small catalog with a seasonal drinks window from September to December. Day of week drives basket size here rather than channel: weekends run about 22% above midweek.",
   "orders_per_month": 5600,
   "tax_rate_bps": 880,
-
   "hour_of_day_weights": [
-    0, 0, 0, 0, 1, 1, 138, 6100, 11136, 14382, 15468, 13359,
-    11343, 9619, 7111, 2633, 643, 566, 726, 707, 514, 239, 21, 0
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    138,
+    6100,
+    11136,
+    14382,
+    15468,
+    13359,
+    11343,
+    9619,
+    7111,
+    2633,
+    643,
+    566,
+    726,
+    707,
+    514,
+    239,
+    21,
+    0
   ],
-
   "day_of_week_weights": {
-    "Mon": 7456, "Tue": 11061, "Wed": 11679, "Thu": 12457,
-    "Fri": 14469, "Sat": 19661, "Sun": 18330
+    "Mon": 7456,
+    "Tue": 11061,
+    "Wed": 11679,
+    "Thu": 12457,
+    "Fri": 14469,
+    "Sat": 19661,
+    "Sun": 18330
   },
-
-  "day_of_week_value_multiplier": {
-    "Mon": 0.91, "Tue": 0.84, "Wed": 0.85, "Thu": 0.85,
-    "Fri": 1.03, "Sat": 1.24, "Sun": 1.22
-  },
-
-  "daypart_value_multiplier": {
-    "early_morning": 1.07,
-    "lunch": 0.93,
-    "afternoon": 0.82,
-    "dinner": 1.25,
-    "late_night": 2.02
-  },
-
   "channels": {
     "in_store": {
       "share": 0.9955,
-      "value_multiplier": 1.0,
       "tips": true,
       "tip_attach_rate": 0.746,
-      "fulfillment": { "in_store": 0.9, "pickup": 0.1 },
-      "source_raw": [null, "Point of Sale"]
+      "fulfillment": {
+        "in_store": 0.9,
+        "pickup": 0.1
+      },
+      "source_raw": [
+        null,
+        "Point of Sale"
+      ],
+      "identified_rate": 0.25
     },
     "square_online": {
       "share": 0.0041,
-      "value_multiplier": 2.02,
       "tips": true,
       "tip_attach_rate": 0.08,
-      "fulfillment": { "pickup": 1.0 },
-      "source_raw": ["Payment Links", "Payment Link", "giftcard"]
+      "fulfillment": {
+        "pickup": 1.0
+      },
+      "source_raw": [
+        "Payment Links",
+        "Payment Link",
+        "giftcard"
+      ],
+      "identified_rate": 1.0
     }
   },
-
   "order_value_cents": {
-    "p10": 655, "p25": 859, "p50": 1237, "p75": 1997,
-    "p90": 2968, "p99": 5804, "max": 350975
+    "p10": 655,
+    "p25": 859,
+    "p50": 1237,
+    "p75": 1997,
+    "p90": 2968,
+    "p99": 5804,
+    "max": 350975
   },
-
-  "basket_size": { "p25": 1, "p50": 2, "p75": 2, "p90": 3, "p99": 6, "max": 235 },
-
-  "tip_rate_pct": { "p10": 11.0, "p25": 16.3, "p50": 19.6, "p75": 21.8, "p90": 21.9 },
-
+  "basket_size": {
+    "p25": 1,
+    "p50": 2,
+    "p75": 2,
+    "p90": 3,
+    "p99": 6,
+    "max": 235
+  },
+  "tip_rate_pct": {
+    "p10": 11.0,
+    "p25": 16.3,
+    "p50": 19.6,
+    "p75": 21.8,
+    "p90": 21.9
+  },
   "discount": {
     "attach_rate": 0.081,
-    "rate_pct": { "p10": 10.0, "p25": 15.0, "p50": 30.0, "p75": 64.5, "p90": 100, "max": 100 }
+    "rate_pct": {
+      "p10": 10.0,
+      "p25": 15.0,
+      "p50": 30.0,
+      "p75": 64.5,
+      "p90": 100,
+      "max": 100
+    },
+    "names": {
+      "Staff": 0.4,
+      "Remake Comp": 0.35,
+      "Regular 10%": 0.25
+    }
   },
-
-  "item_price_cents": {
-    "p10": 475, "p25": 600, "p50": 675, "p75": 750, "p90": 850, "p99": 1600
-  },
-
-  "_catalog_note": "Seasonal Specials is the largest category by SKU count but a small share of units sold: a long tail of rotating drinks that each sell very little. 'Most popular category' therefore has a different answer by item count than by units sold, which is one of the eval cases.",
-
-  "categories": [
-    { "name": "Signature Drinks",  "line_share": 0.271, "item_count": 24,  "price_cents": { "p25": 650, "p50": 700, "p75": 775 } },
-    { "name": "Pastries",          "line_share": 0.257, "item_count": 108, "price_cents": { "p25": 450, "p50": 550, "p75": 650 } },
-    { "name": "House Favorites",   "line_share": 0.121, "item_count": 54,  "price_cents": { "p25": 600, "p50": 675, "p75": 750 } },
-    { "name": "Seasonal Specials", "line_share": 0.091, "item_count": 361, "price_cents": { "p25": 700, "p50": 775, "p75": 875 } },
-    { "name": "Matcha",            "line_share": 0.086, "item_count": 21,  "price_cents": { "p25": 700, "p50": 775, "p75": 850 } },
-    { "name": "Uncategorized",     "line_share": 0.074, "item_count": 282, "price_cents": { "p25": 400, "p50": 600, "p75": 800 } },
-    { "name": "Specialty Drinks",  "line_share": 0.066, "item_count": 118, "price_cents": { "p25": 675, "p50": 775, "p75": 900 } },
-    { "name": "Merchandise",       "line_share": 0.013, "item_count": 48,  "price_cents": { "p25": 1500, "p50": 2400, "p75": 3500 } },
-    { "name": "Cold Case",         "line_share": 0.010, "item_count": 13,  "price_cents": { "p25": 400, "p50": 500, "p75": 650 } },
-    { "name": "Bubble Tea",        "line_share": 0.006, "item_count": 16,  "price_cents": { "p25": 700, "p50": 800, "p75": 900 } },
-    { "name": "Flights",           "line_share": 0.003, "item_count": 9,   "price_cents": { "p25": 1400, "p50": 1600, "p75": 1800 } },
-    { "name": "Catering",          "line_share": 0.002, "item_count": 18,  "price_cents": { "p25": 4000, "p50": 6800, "p75": 10000 } }
-  ],
-
   "customers": {
-    "identified_order_rate": 0.025,
     "directory_size": 34239,
     "has_email_rate": 0.045,
     "has_phone_rate": 0.233,
@@ -98,17 +123,38 @@
     "regular_order_share": 0.5,
     "serial_refund_rate": 0.5,
     "repeat_rate": 0.448,
-    "orders_per_customer": { "p50": 1, "p75": 3, "p90": 9, "p99": 32, "max": 97 },
+    "orders_per_customer": {
+      "p50": 1,
+      "p75": 3,
+      "p90": 9,
+      "p99": 32,
+      "max": 97
+    },
     "days_between_orders": {
-      "p10": 1, "p25": 3, "p50": 8, "p75": 23, "p90": 59, "p99": 210
+      "p10": 1,
+      "p25": 3,
+      "p50": 8,
+      "p75": 23,
+      "p90": 59,
+      "p99": 210
+    },
+    "promo_new_customer_share": 0.35,
+    "regular_churn": {
+      "share": 0.25,
+      "from": "2026-06-01",
+      "to": "2026-08-31"
     }
   },
-
   "payments": {
     "cash_share": 0.12,
     "refund_rate": 0.00167,
     "failure_rate": 0.006,
-    "processing_fee_rate_pct": { "p25": 3.21, "p50": 3.49, "p75": 3.81, "p90": 4.33 },
+    "processing_fee_rate_pct": {
+      "p25": 3.21,
+      "p50": 3.49,
+      "p75": 3.81,
+      "p90": 4.33
+    },
     "card_brand_mix": {
       "VISA": 0.711,
       "MASTERCARD": 0.178,
@@ -124,6 +170,239 @@
       "ON_FILE": 0.001
     }
   },
-
-  "order_state_mix": { "completed": 0.9952, "canceled": 0.0045, "draft": 0.0003 }
+  "order_state_mix": {
+    "completed": 0.9952,
+    "canceled": 0.0045,
+    "draft": 0.0003
+  },
+  "daypart_basket_multiplier": {
+    "early_morning": 1.07,
+    "lunch": 0.93,
+    "afternoon": 0.82,
+    "dinner": 1.25,
+    "late_night": 2.02
+  },
+  "day_of_week_basket_multiplier": {
+    "Mon": 0.91,
+    "Tue": 0.84,
+    "Wed": 0.85,
+    "Thu": 0.85,
+    "Fri": 1.03,
+    "Sat": 1.24,
+    "Sun": 1.22
+  },
+  "loyalty": {
+    "stamps_for_reward": 9,
+    "earning_categories": [
+      "Signature Drinks",
+      "House Favorites",
+      "Matcha",
+      "Seasonal Specials",
+      "Bubble Tea",
+      "Flights"
+    ],
+    "reward_categories": [
+      "Signature Drinks",
+      "House Favorites",
+      "Matcha"
+    ],
+    "reward_name": "Free Drink Reward"
+  },
+  "categories": [
+    {
+      "name": "Signature Drinks",
+      "line_share": 0.271,
+      "cost_pct": 0.22,
+      "items": [
+        {
+          "name": "Ridgeline Latte",
+          "price_cents": 625
+        },
+        {
+          "name": "Honey Lavender Latte",
+          "price_cents": 675
+        },
+        {
+          "name": "Maple Oat Cortado",
+          "price_cents": 575
+        },
+        {
+          "name": "Brown Sugar Shaken Espresso",
+          "price_cents": 650
+        },
+        {
+          "name": "Cardamom Cappuccino",
+          "price_cents": 600
+        },
+        {
+          "name": "Flat White",
+          "price_cents": 550
+        }
+      ]
+    },
+    {
+      "name": "House Favorites",
+      "line_share": 0.121,
+      "cost_pct": 0.18,
+      "items": [
+        {
+          "name": "Drip Coffee",
+          "price_cents": 350
+        },
+        {
+          "name": "Americano",
+          "price_cents": 425
+        },
+        {
+          "name": "Cold Brew",
+          "price_cents": 525
+        },
+        {
+          "name": "Chai Latte",
+          "price_cents": 575
+        },
+        {
+          "name": "Hot Chocolate",
+          "price_cents": 500
+        }
+      ]
+    },
+    {
+      "name": "Matcha",
+      "line_share": 0.086,
+      "cost_pct": 0.28,
+      "items": [
+        {
+          "name": "Ceremonial Matcha Latte",
+          "price_cents": 725
+        },
+        {
+          "name": "Iced Strawberry Matcha",
+          "price_cents": 775
+        },
+        {
+          "name": "Matcha Lemonade",
+          "price_cents": 650
+        }
+      ]
+    },
+    {
+      "name": "Seasonal Specials",
+      "line_share": 0.091,
+      "cost_pct": 0.3,
+      "season": {
+        "from": "09-01",
+        "to": "12-31",
+        "order_lift": 0.06
+      },
+      "items": [
+        {
+          "name": "Pumpkin Spice Latte",
+          "price_cents": 725
+        },
+        {
+          "name": "Maple Pecan Cold Brew",
+          "price_cents": 675
+        },
+        {
+          "name": "Apple Cider Chai",
+          "price_cents": 650
+        },
+        {
+          "name": "Peppermint Mocha",
+          "price_cents": 725
+        }
+      ]
+    },
+    {
+      "name": "Bubble Tea",
+      "line_share": 0.006,
+      "cost_pct": 0.3,
+      "items": [
+        {
+          "name": "Classic Milk Tea with Boba",
+          "price_cents": 695
+        },
+        {
+          "name": "Taro Milk Tea",
+          "price_cents": 725
+        }
+      ]
+    },
+    {
+      "name": "Flights",
+      "line_share": 0.003,
+      "cost_pct": 0.3,
+      "items": [
+        {
+          "name": "Espresso Flight",
+          "price_cents": 1500
+        }
+      ]
+    },
+    {
+      "name": "Pastries",
+      "line_share": 0.257,
+      "cost_pct": 0.35,
+      "items": [
+        {
+          "name": "Butter Croissant",
+          "price_cents": 450
+        },
+        {
+          "name": "Almond Croissant",
+          "price_cents": 525
+        },
+        {
+          "name": "Blueberry Muffin",
+          "price_cents": 425
+        },
+        {
+          "name": "Cinnamon Roll",
+          "price_cents": 550
+        },
+        {
+          "name": "Morning Bun",
+          "price_cents": 475
+        }
+      ]
+    },
+    {
+      "name": "Cold Case",
+      "line_share": 0.01,
+      "cost_pct": 0.4,
+      "items": [
+        {
+          "name": "Overnight Oats",
+          "price_cents": 650
+        },
+        {
+          "name": "Yogurt Parfait",
+          "price_cents": 700
+        }
+      ]
+    },
+    {
+      "name": "Merchandise",
+      "line_share": 0.013,
+      "cost_pct": 0.5,
+      "items": [
+        {
+          "name": "Ridgeline Whole Bean, 12 oz",
+          "price_cents": 1800
+        }
+      ]
+    },
+    {
+      "name": "Catering",
+      "line_share": 0.002,
+      "cost_pct": 0.35,
+      "items": [
+        {
+          "name": "Coffee Traveler for 12",
+          "price_cents": 2800
+        }
+      ]
+    }
+  ]
 }

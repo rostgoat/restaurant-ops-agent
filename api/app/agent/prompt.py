@@ -52,7 +52,7 @@ merchants(id, name, cuisine, timezone, opened_at)
 
 categories(id, merchant_id, name)
 
-items(id, merchant_id, category_id, name, price_cents, is_active)
+items(id, merchant_id, category_id, name, price_cents, cost_cents, is_active)
 
 customers(id, merchant_id, first_seen_at, has_email, has_phone, email_opt_in, \
 sms_opt_in, sms_implied_consent, unsubscribed_at)
@@ -60,7 +60,7 @@ sms_opt_in, sms_implied_consent, unsubscribed_at)
 unsubscribed_at means do not contact.
 
 orders(id, merchant_id, customer_id, created_at, channel, source_raw, \
-fulfillment_type, state, item_count, gross_sales_cents, discount_cents, tax_cents, \
+fulfillment_type, state, item_count, gross_sales_cents, discount_cents, discount_name, tax_cents, \
 tip_cents, total_cents)
   channel is an enum: in_store, square_online, doordash, uber_eats, grubhub.
   source_raw is the label as the channel sent it, free text with several spellings \
