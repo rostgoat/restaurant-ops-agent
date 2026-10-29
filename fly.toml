@@ -7,6 +7,8 @@ primary_region = "iad"
 
 [build]
   dockerfile = "api/Dockerfile"
+  # The last stage is the tools image, which has no command; the API is the runtime stage.
+  build-target = "runtime"
 
 [env]
   PORT = "8000"
