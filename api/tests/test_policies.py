@@ -73,11 +73,13 @@ def test_the_real_policies_read_cleanly():
         "House Policy",
         "Marketplace Terms",
         "Customer Messaging Policy",
+        "Definitions",
     }
     assert {c.document for c in by_merchant[2]} == {
         "House Policy",
         "Online Ordering and Loyalty Policy",
         "Customer Messaging Policy",
+        "Definitions",
     }
     assert all(c.label.split(" §")[1][0].isdigit() for c in chunks)
     assert all(c.body for c in chunks)

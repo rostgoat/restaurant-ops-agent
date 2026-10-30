@@ -41,7 +41,13 @@ SITE_COPY = ROOT / "web" / "src" / "content" / "eval-run.json"
 
 
 def load_cases() -> dict[str, Any]:
-    return json.loads(CASES.read_text())
+    cases = json.loads(CASES.read_text())
+
+    for case in cases["cases"]:
+        if "gold_file" in case:
+            case["gold_sql"] = (CASES.parent / case["gold_file"]).read_text()
+
+    return cases
 
 
 def gold_value(runner: PostgresRunner, case: dict[str, Any]) -> Any:

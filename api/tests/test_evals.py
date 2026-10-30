@@ -11,6 +11,7 @@ from uuid import uuid4
 from app.agent.proposals import Proposal
 from app.agent.trace import Trace
 from app.evals.grade import close, grade, numbers_in
+from app.evals.run import load_cases
 
 NOW = datetime(2026, 10, 24, tzinfo=UTC)
 
@@ -299,3 +300,10 @@ def test_a_proposal_escalated_to_the_owner_counts_as_not_executed():
 
 def test_spelled_out_numbers_count():
     assert (9.0, False, False) in numbers_in("Nine of your 1,711 customers")
+
+
+def test_each_gold_file_opens_with_its_case_id_and_question():
+    for case in load_cases()["cases"]:
+        if "gold_file" in case:
+            first_line = case["gold_sql"].splitlines()[0]
+            assert first_line == f"-- {case['id']}: {case['question']}"

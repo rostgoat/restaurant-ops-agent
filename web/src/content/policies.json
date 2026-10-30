@@ -1,5 +1,35 @@
 {
   "1": {
+    "Definitions §1, Scope": {
+      "document": "Definitions",
+      "number": 1,
+      "section": "Scope",
+      "body": "How Linh wants the words in her questions read. When a question uses one\nof these words, the meaning here is the one that applies."
+    },
+    "Definitions §2, Lunch": {
+      "document": "Definitions",
+      "number": 2,
+      "section": "Lunch",
+      "body": "Lunch is 11:00 to 13:59 local time, every day, on every channel."
+    },
+    "Definitions §3, The Lunch 20 Promotion": {
+      "document": "Definitions",
+      "number": 3,
+      "section": "The Lunch 20 Promotion",
+      "body": "Lunch 20 ran from August 3 to August 30, 2026, during lunch, in store and\non Square Online: 20% off the order. A promo order is a completed order\ncarrying the Lunch 20 discount. The promotion's window is those dates and\nhours on those two channels, and it is judged against the same dates,\nhours and channels in 2025. The promotion brought a customer in when their\nfirst order ever was a promo order."
+    },
+    "Definitions §4, Regulars": {
+      "document": "Definitions",
+      "number": 4,
+      "section": "Regulars",
+      "body": "A regular has three or more completed orders in three months. Summer is\nJune, July and August. A regular we lost over the summer had three or\nmore completed orders in March, April and May and has not ordered since\nthe end of August."
+    },
+    "Definitions §5, Marketplaces": {
+      "document": "Definitions",
+      "number": 5,
+      "section": "Marketplaces",
+      "body": "The marketplaces are DoorDash, Uber Eats and Grubhub. Square Online\ndelivery is our own and is not one. Commission rates are in Marketplace\nTerms §2. Prices on the marketplaces are 25% above the in-store price, so\nthe unit price on a marketplace order already includes the markup."
+    },
     "House Policy §1, Scope and Authority": {
       "document": "House Policy",
       "number": 1,
@@ -128,6 +158,36 @@
     }
   },
   "2": {
+    "Definitions §1, Scope": {
+      "document": "Definitions",
+      "number": 1,
+      "section": "Scope",
+      "body": "How Dana wants the words in questions read. When a question uses one of\nthese words, the meaning here is the one that applies."
+    },
+    "Definitions §2, Regulars": {
+      "document": "Definitions",
+      "number": 2,
+      "section": "Regulars",
+      "body": "A regular comes in about weekly: four or more completed orders in a month.\nSummer is June, July and August. A regular we lost over the summer had\nfour or more completed orders in May and has not ordered since the end of\nAugust."
+    },
+    "Definitions §3, Seasonal Specials": {
+      "document": "Definitions",
+      "number": 3,
+      "section": "Seasonal Specials",
+      "body": "Seasonal Specials are on the menu from September 1 to December 31 and off\nit the rest of the year. The launch is September 1. Comparing before and\nafter the launch means the four weeks after September 1 against the four\nweeks before it. The special worth keeping all year is the one that earned\nthe most total margin over last season, September to December 2025."
+    },
+    "Definitions §4, Drinks": {
+      "document": "Definitions",
+      "number": 4,
+      "section": "Drinks",
+      "body": "The drink categories are Signature Drinks, House Favorites, Matcha,\nSeasonal Specials, Bubble Tea and Flights. Pastries, Cold Case,\nMerchandise and Catering are not drinks."
+    },
+    "Definitions §5, Free Drinks": {
+      "document": "Definitions",
+      "number": 5,
+      "section": "Free Drinks",
+      "body": "A free loyalty drink is an order carrying the Free Drink Reward discount.\nThe discount amount is the drink's menu price."
+    },
     "House Policy §1, Scope and Authority": {
       "document": "House Policy",
       "number": 1,

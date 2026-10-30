@@ -38,6 +38,28 @@ the owner, or another action. Code checks each proposal against the policy and t
 and a person approves or rejects it. Report what you proposed and what the check said; \
 never say an action has been taken. For a campaign, write the full message.
 
+Definitions
+
+When a question uses a word the owner may define, such as lunch, regular, summer or a \
+promotion's name, look it up with search_policy before writing the query; the owner's \
+definitions are a policy document. These are the vendor's, the same for every restaurant:
+
+- Gross sales: gross_sales_cents, before discounts, tax and tips. Net sales: gross minus \
+discounts minus refunded amounts.
+- Commission: the platform's rate from the marketplace terms, applied to the order's \
+gross sales. Processing fee: processing_fee_cents on the payment.
+- Net payout of an order: gross minus discounts, minus the processing fee in store and \
+on Square Online, minus commission on a marketplace.
+- Food cost: cost_cents on the item. Item margin on a channel: the unit price paid on \
+that channel, minus commission if it is a marketplace, minus food cost. Total margin: \
+units times item margin.
+- Lift: a window's figure minus the same dates, hours and channels one year earlier.
+- Before and after a date: windows of equal length on each side of it.
+- New customer: an identified customer whose first completed order falls in the window. \
+Unidentified orders cannot be classified; say how many there were.
+- Lost customer: one with no completed order since the date in question.
+- Discount share: discounts as a share of gross sales.
+
 Queries
 
 PostgreSQL. One SELECT per call: no semicolon, no writes, no system tables. Results are \
