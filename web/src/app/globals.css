@@ -12,6 +12,8 @@
   --color-model: var(--model);
   --color-code: var(--code);
   --color-human: var(--human);
+  --color-sql-string: var(--sql-string);
+  --color-sql-number: var(--sql-number);
   --font-sans: var(--font-inter);
   --font-heading: var(--font-bricolage);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -58,6 +60,8 @@
   --model: #6d28d9;
   --code: #0e7490;
   --human: #be123c;
+  --sql-string: #9a5b00;
+  --sql-number: #116329;
   --background: #ffffff;
   --foreground: #1a1a1a;
   --card: #ffffff;
@@ -96,6 +100,8 @@
   --model: #b197fc;
   --code: #4fd1c5;
   --human: #ff8097;
+  --sql-string: #e3b341;
+  --sql-number: #7ee787;
   --background: #1c1c1e;
   --foreground: #f2f2f4;
   --card: #232326;

@@ -14,6 +14,7 @@ import { Clock, Coins, ListOrdered, RotateCcw } from "lucide-react";
 import type React from "react";
 import type { Step, Trace } from "@/lib/api";
 import { costWithoutCache } from "@/lib/pricing";
+import { tokenize, type SqlToken } from "@/lib/sql-tokens";
 import { count, dollars, seconds } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -416,10 +417,19 @@ function Title({ children }: { children: React.ReactNode }) {
 export function Sql({ sql }: { sql: string }) {
   return (
     <pre className="mt-2 overflow-x-auto rounded-md bg-muted px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
-      {sql}
+      {tokenize(sql).map((t, i) =>
+        t.type === "plain" ? t.text : <span key={i} className={TOKEN_CLASS[t.type]}>{t.text}</span>,
+      )}
     </pre>
   );
 }
+
+const TOKEN_CLASS: Record<Exclude<SqlToken["type"], "plain">, string> = {
+  keyword: "font-semibold",
+  string: "text-sql-string",
+  number: "text-sql-number",
+  comment: "italic text-muted-foreground",
+};
 
 type Check = { name: string; passed: boolean; detail: string | null };
 
