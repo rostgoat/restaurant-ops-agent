@@ -1,18 +1,9 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { ListTree } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { TraceLedger, TraceMeta } from "@/components/trace";
-import { TwoQueries } from "@/components/two-queries";
 import { RunHistory } from "@/components/every-case";
-import type { RunRecord } from "@/lib/evaluation";
-import { Answer } from "@/components/answer";
-import type { Trace } from "@/lib/api";
 import { MerchantBadge } from "@/components/merchant-badge";
+import { RunViewer } from "@/components/run-viewer";
+import type { RunRecord, RunView } from "@/lib/evaluation";
 
 export function FailureCard({
   id,
@@ -22,12 +13,10 @@ export function FailureCard({
   merchantId,
   question,
   expected,
-  reasons,
   diagnosis,
   goldSql,
-  modelSql,
   runs,
-  trace,
+  views,
 }: {
   id: string;
   headline?: string;
@@ -36,15 +25,11 @@ export function FailureCard({
   merchantId: number;
   question: string;
   expected: string;
-  reasons: string[];
   diagnosis?: string;
   goldSql?: string;
-  modelSql?: string | null;
   runs: RunRecord[];
-  trace: Trace;
+  views: RunView[];
 }) {
-  const [open, setOpen] = useState(false);
-
   return (
     <article className="border-t pt-8">
       <h3 className="text-2xl">{headline ?? `Case ${id}`}</h3>
@@ -75,46 +60,16 @@ export function FailureCard({
           <h4 className="mb-2 text-base">What should happen</h4>
           <p className="leading-relaxed">{expected}</p>
         </div>
-        <div>
-          <h4 className="mb-2 text-base">Why it failed</h4>
-          <ul className="list-disc space-y-1 pl-5 leading-relaxed">
-            {reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-        </div>
+        {diagnosis && (
+          <div>
+            <h4 className="mb-2 text-base">What the trace shows</h4>
+            <p className="leading-relaxed">{diagnosis}</p>
+          </div>
+        )}
       </div>
-      {diagnosis && (
-        <div className="mt-6">
-          <h4 className="mb-2 text-base">What the trace shows</h4>
-          <p className=" leading-relaxed">{diagnosis}</p>
-        </div>
-      )}
-      {goldSql && (
-        <div className="mt-6">
-          <TwoQueries gold={goldSql} model={modelSql ?? null} />
-        </div>
-      )}
-      {trace.answer && (
-        <div className="mt-6">
-          <h4 className="mb-2 text-base">What it answered</h4>
-          <Answer text={trace.answer} merchantId={merchantId} className="text-muted-foreground" />
-        </div>
-      )}
       <div className="mt-6">
-        <TraceMeta trace={trace} />
+        <RunViewer views={views} merchantId={merchantId} goldSql={goldSql} />
       </div>
-      <Collapsible open={open} onOpenChange={setOpen} className="mt-6">
-        <CollapsibleTrigger asChild>
-          <Button size="lg" variant={open ? "outline" : "default"} className="h-11 px-5 font-heading text-base">
-            <ListTree className="size-4" aria-hidden />
-            {open ? "Hide the trace" : "Show the trace"}
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-8">
-          <TraceLedger trace={trace} />
-        </CollapsibleContent>
-      </Collapsible>
     </article>
   );
 }

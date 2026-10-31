@@ -13,8 +13,8 @@ import {
   errors,
   failed,
   headline,
-  modelQuery,
   runs,
+  runViews,
   suite,
   suiteTitle,
   type Result,
@@ -266,12 +266,10 @@ function Failures({ results }: { results: Result[] }) {
           merchantId={r.case.merchant_id}
           question={r.case.question}
           expected={describeExpectation(r.case)}
-          reasons={r.grade.reasons}
           diagnosis={diagnosis[r.case.id]}
           goldSql={r.case.gold_sql}
-          modelSql={modelQuery(r.trace)}
           runs={runs}
-          trace={r.trace}
+          views={runViews(r.case.id)}
         />
       ))}
     </div>

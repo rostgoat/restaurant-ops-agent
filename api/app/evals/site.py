@@ -1,7 +1,8 @@
 """
-Writes web/src/content/runs.json: one slim record per run the changelog
-lists, so the site can show every run's outcomes without carrying every
-run's traces. The latest run's full copy stays in eval-run.json.
+Writes two files for the site from the runs the changelog lists:
+runs.json, one slim record per run with every case's outcome, and
+traces.json, every run's full trace per case. The latest run's complete
+copy stays in eval-run.json.
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[3]
 CHANGELOG = ROOT / "web" / "src" / "content" / "changelog.json"
 RUNS = ROOT / "api" / "evals" / "runs"
 OUT = ROOT / "web" / "src" / "content" / "runs.json"
+TRACES = ROOT / "web" / "src" / "content" / "traces.json"
 
 
 def slim(entry: dict[str, Any], run: dict[str, Any]) -> dict[str, Any]:
@@ -43,11 +45,16 @@ def slim(entry: dict[str, Any], run: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def traces(run: dict[str, Any]) -> dict[str, Any]:
+    return {r["case"]["id"]: r["trace"] for r in run["results"]}
+
+
 def main() -> None:
     entries = json.loads(CHANGELOG.read_text())
-    records = [slim(e, json.loads((RUNS / f"{e['run']}.json").read_text())) for e in entries]
-    OUT.write_text(json.dumps(records, indent=1) + "\n")
-    print(f"wrote {OUT} with {len(records)} runs")
+    loaded = [(e, json.loads((RUNS / f"{e['run']}.json").read_text())) for e in entries]
+    OUT.write_text(json.dumps([slim(e, run) for e, run in loaded], indent=1) + "\n")
+    TRACES.write_text(json.dumps({e["run"]: traces(run) for e, run in loaded}) + "\n")
+    print(f"wrote {OUT} and {TRACES} with {len(loaded)} runs")
 
 
 if __name__ == "__main__":

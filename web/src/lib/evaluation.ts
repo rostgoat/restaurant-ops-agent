@@ -2,6 +2,7 @@ import type { Trace } from "@/lib/api";
 import run from "@/content/eval-run.json";
 import changelogFile from "@/content/changelog.json";
 import runsFile from "@/content/runs.json";
+import tracesFile from "@/content/traces.json";
 
 export type Result = {
   case: {
@@ -77,6 +78,28 @@ export type RunRecord = {
   >;
 };
 export const runs = runsFile as RunRecord[];
+const traces = tracesFile as Record<string, Record<string, Trace>>;
+
+// One case as each run saw it: the grade, the trace, and the model's last query.
+export type RunView = {
+  run: string;
+  label: string;
+  outcome: string;
+  reasons: string[];
+  trace: Trace;
+  modelSql: string | null;
+};
+
+export function runViews(id: string): RunView[] {
+  return runs.flatMap((r, i) => {
+    const trace = traces[r.run]?.[id];
+    const o = r.outcomes[id];
+
+    if (!trace || !o) return [];
+
+    return [{ run: r.run, label: `Run ${i + 1}`, outcome: o.outcome, reasons: o.reasons, trace, modelSql: modelQuery(trace) }];
+  });
+}
 
 export const suiteTitle: Record<string, string> = {
   sql: "SQL: the figure, on questions where a word needs a definition",
