@@ -1,4 +1,5 @@
 import { format } from "sql-formatter";
+import { Clamped } from "@/components/clamped";
 import { Sql } from "@/components/trace";
 
 // The query a person wrote for what the question means, beside the query
@@ -12,7 +13,9 @@ export function TwoQueries({ gold, model }: { gold: string; model: string | null
           The question read the way the owner means it. Run on the frozen database for the figure the grader
           expects.
         </p>
-        <Sql sql={stripHeader(gold)} />
+        <Clamped label="the query I wrote">
+          <Sql sql={stripHeader(gold)} />
+        </Clamped>
       </div>
       <div>
         <h3 className="mb-1 text-base">The query the model wrote</h3>
@@ -20,7 +23,13 @@ export function TwoQueries({ gold, model }: { gold: string; model: string | null
           Its last query, laid out for reading. The trace has it as sent. The guard added the restaurant filter
           and the row limit before it ran.
         </p>
-        {model ? <Sql sql={readable(model)} /> : <p className="mt-2 text-sm text-muted-foreground">No query ran.</p>}
+        {model ? (
+          <Clamped label="the model's query">
+            <Sql sql={readable(model)} />
+          </Clamped>
+        ) : (
+          <p className="mt-2 text-sm text-muted-foreground">No query ran.</p>
+        )}
       </div>
     </div>
   );
