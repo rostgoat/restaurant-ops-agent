@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RunHistory } from "@/components/every-case";
 import { RunViewer } from "@/components/run-viewer";
-import { data, describeExpectation, diagnosis, runs, runViews, suiteTitle } from "@/lib/evaluation";
+import { data, describeExpectation, runs, runViews, suiteTitle } from "@/lib/evaluation";
 import { pageMetadata } from "@/lib/site";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -64,18 +64,10 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         ))}
       </p>
 
-      <div id="expectation" className="mt-12 grid scroll-mt-28 gap-8 md:grid-cols-2">
-        <div>
-          <h2 className="mb-2 text-xl">What should happen</h2>
-          <p className="text-lg leading-relaxed">{describeExpectation(c)}</p>
-          {c.note && <p className="mt-3 leading-relaxed text-muted-foreground">{c.note}</p>}
-        </div>
-        {diagnosis[c.id] && (
-          <div>
-            <h2 className="mb-2 text-xl">What the trace shows</h2>
-            <p className="text-lg leading-relaxed">{diagnosis[c.id]}</p>
-          </div>
-        )}
+      <div id="expectation" className="mt-12 max-w-[70ch] scroll-mt-28">
+        <h2 className="mb-2 text-xl">What should happen</h2>
+        <p className="text-lg leading-relaxed">{describeExpectation(c)}</p>
+        {c.note && <p className="mt-3 leading-relaxed text-muted-foreground">{c.note}</p>}
       </div>
 
       <section id="runs" className="mt-12 scroll-mt-28">

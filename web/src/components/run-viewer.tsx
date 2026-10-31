@@ -49,16 +49,24 @@ export function RunViewer({
         ))}
       </div>
 
-      <div className="mt-6">
-        <Heading className={headingClass}>What the grader found in {view.label.toLowerCase()}</Heading>
-        {view.reasons.length > 0 ? (
-          <ul className="list-disc space-y-1 pl-5 leading-relaxed">
-            {view.reasons.map((reason) => (
-              <li key={reason}>{reason}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="leading-relaxed">Passed.</p>
+      <div className="mt-6 grid gap-8 md:grid-cols-2">
+        <div>
+          <Heading className={headingClass}>What the grader found in {view.label.toLowerCase()}</Heading>
+          {view.reasons.length > 0 ? (
+            <ul className="list-disc space-y-1 pl-5 leading-relaxed">
+              {view.reasons.map((reason) => (
+                <li key={reason}>{reason}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="leading-relaxed">Passed.</p>
+          )}
+        </div>
+        {view.diagnosis && (
+          <div>
+            <Heading className={headingClass}>What the {view.label.toLowerCase()} trace shows</Heading>
+            <p className="leading-relaxed">{view.diagnosis}</p>
+          </div>
         )}
       </div>
 

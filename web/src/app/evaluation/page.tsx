@@ -79,7 +79,7 @@ export default function EvaluationPage() {
         title="Does it read a word the owner's way?"
         question="A query can pass all eight safety checks and still answer a different question from the one the owner asked. I wanted to know how often that happens, because nothing in the system would tell me."
         ran={`${sql.length} questions where a word has to be read the owner's way: lunch, regular, summer, lift, net payout. For each one I wrote the query myself, ran it on the frozen database, and kept the figure. The model never sees my query. The grader reads every number in the model's answer and passes the case if one of them is within tolerance of mine.`}
-        found={`${passed(sql)} of ${sql.length}. The miss is a query that converted time zones in the wrong direction on a retry after a timeout, so September started five hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64.`}
+        found={`${passed(sql)} of ${sql.length}. The miss is a query that converted time zones in the wrong direction on a retry after a timeout, so September started ten hours early and ended ten hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64.`}
         decided="Nothing catches this at runtime, and nothing in the guard could, because the query is safe. So I measure it instead of pretending to enforce it, and I put my query beside the model's on every case so a reader can see where the two read a word differently. The cost is that the measurement is only as good as the ten questions, and I wrote them."
       >
         <Failures results={sql} />

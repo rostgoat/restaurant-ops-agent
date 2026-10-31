@@ -5,7 +5,6 @@ import { MerchantBadge } from "@/components/merchant-badge";
 import { RunViewer } from "@/components/run-viewer";
 import {
   describeExpectation,
-  diagnosis,
   headline,
   runs,
   runViews,
@@ -25,7 +24,6 @@ export function CaseFailure({ result: r }: { result: Result }) {
       merchantId={r.case.merchant_id}
       question={r.case.question}
       expected={describeExpectation(r.case)}
-      diagnosis={diagnosis[r.case.id]}
       goldSql={r.case.gold_sql}
       runs={runs}
       views={runViews(r.case.id)}
@@ -41,7 +39,6 @@ export function FailureCard({
   merchantId,
   question,
   expected,
-  diagnosis,
   goldSql,
   runs,
   views,
@@ -53,7 +50,6 @@ export function FailureCard({
   merchantId: number;
   question: string;
   expected: string;
-  diagnosis?: string;
   goldSql?: string;
   runs: RunRecord[];
   views: RunView[];
@@ -83,17 +79,9 @@ export function FailureCard({
       <blockquote className="mt-4 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {question}
       </blockquote>
-      <div className="mt-6 grid gap-8 md:grid-cols-2">
-        <div>
-          <h4 className="mb-2 text-base">What should happen</h4>
-          <p className="leading-relaxed">{expected}</p>
-        </div>
-        {diagnosis && (
-          <div>
-            <h4 className="mb-2 text-base">What the trace shows</h4>
-            <p className="leading-relaxed">{diagnosis}</p>
-          </div>
-        )}
+      <div className="mt-6">
+        <h4 className="mb-2 text-base">What should happen</h4>
+        <p className="max-w-[70ch] leading-relaxed">{expected}</p>
       </div>
       <div className="mt-6">
         <RunViewer views={views} merchantId={merchantId} goldSql={goldSql} />
