@@ -62,18 +62,27 @@ export default function EvaluationPage() {
       <PageOutline items={outline} />
       <section>
         <Kicker page="Evaluation" />
-        <h1 className="mt-4 max-w-[30ch] text-4xl sm:text-6xl">
-          Where a wrong answer is caught, where it is only measured, and where it is not.
+        <h1 className="mt-4 max-w-[36ch] text-4xl sm:text-6xl">
+          I built an agent that answers a restaurant owner&apos;s questions. Then I tried to find out
+          what happens when it is wrong.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
+          Three kinds of wrong turned up. An action that breaks a rule is caught by code before
+          anyone sees it. A query that is safe but answers the wrong question is not caught by
+          anything, so I measure how often it happens. A cited section that does not support the
+          answer is neither caught nor measured yet. This page is the record of finding that out,
+          one run at a time, with the numbers.
+        </p>
+        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           The{" "}
           <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
             scenarios
           </Link>{" "}
-          are stories. This page is the experiment behind them. {s.cases} questions with the right
-          answer written down in advance go through the same agent against a frozen copy of the
-          data, and code grades each answer. I run it again after every change, and each run is
-          an entry below: what changed, what the score did, and what I concluded.
+          are stories. This is the experiment behind them: {s.cases} questions with the right
+          answer written down before the model sees them, the same agent and the same prompt as the
+          site, a frozen copy of the data, and code doing the grading. I run it again after every
+          change, and each run is an entry below with what changed, what the score did, and what I
+          concluded.
         </p>
       </section>
 
@@ -88,10 +97,10 @@ export default function EvaluationPage() {
       <Experiment
         slug="meaning"
         title="Does it read a word the owner's way?"
-        question="A query can pass every safety check and still answer a different question from the one asked. How often does that happen?"
-        ran={`${sql.length} questions where the answer turns on a definition. Each has a query I wrote for what the question means, run on the frozen database for the expected figure. The model never sees it. The grader looks for that figure in the answer.`}
-        found={`${passed(sql)} of ${sql.length}. The one miss is a query that passed all eight guard checks and ran clean.`}
-        decided="Nothing in the system catches this kind of wrong at runtime, and nothing in the guard could, because the query is safe. So it is measured here instead of enforced. The query I wrote and the query the model wrote are shown side by side on every case, so the difference is readable."
+        question="A query can pass all eight safety checks and still answer a different question from the one the owner asked. I wanted to know how often that happens, because nothing in the system would tell me."
+        ran={`${sql.length} questions where a word has to be read the owner's way: lunch, regular, summer, lift, net payout. For each one I wrote the query myself, ran it on the frozen database, and kept the figure. The model never sees my query. The grader reads every number in the model's answer and passes the case if one of them is within tolerance of mine.`}
+        found={`${passed(sql)} of ${sql.length}. The miss is a query that converted time zones in the wrong direction on a retry after a timeout, so September started five hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64.`}
+        decided="Nothing catches this at runtime, and nothing in the guard could, because the query is safe. So I measure it instead of pretending to enforce it, and I put my query beside the model's on every case so a reader can see where the two read a word differently. The cost is that the measurement is only as good as the ten questions, and I wrote them."
       >
         <SqlTable results={sql} />
         <Failures results={sql} />
@@ -100,10 +109,10 @@ export default function EvaluationPage() {
       <Experiment
         slug="retrieval"
         title="Does it find the right rule?"
-        question="When the owner asks what is allowed, the model searches their policies and is shown only sections that score above a similarity threshold. Does the right section get through?"
-        ran={`${policy.length} policy questions, each with the section I expect cited. The threshold is ${s.retrieval_threshold.toFixed(2)}, a number I picked on 23 October from ten captured runs, where real matches scored above 0.55 and near misses below 0.49.`}
-        found={`${passed(policy)} of ${policy.length}. ${pct(s.retrieval.recall)} of the expected sections were shown to the model, and ${pct(s.retrieval.precision)} of the sections shown were expected. Two of the misses are the same failure: the right section exists and scores under the threshold, so the model is shown nothing and says the policies do not cover it.`}
-        decided="On the earlier 52-case set I ran the policy questions at five thresholds and repeated the middle three, because one run of each swung by two cases. At 0.40 every expected section was shown on every repeat. The two errors are not equal: an extra section is mostly ignored, a hidden one makes the model say there is no rule, which the owner cannot see through. The threshold moves to 0.40 on the next run. One miss scored 0.28 and no threshold reaches it; that one is a search wording problem."
+        question="When the owner asks what is allowed, the model searches their policies and only sees sections that score above a similarity threshold. If the right section scores under the line, the model is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
+        ran={`${policy.length} policy questions, each with the section I expect cited. The threshold is ${s.retrieval_threshold.toFixed(2)}, a number I picked on 23 October from ten captured runs because real matches scored above 0.55 and near misses below 0.49. Ten runs is not a measurement. It is a guess that happened to split cleanly.`}
+        found={`${passed(policy)} of ${policy.length}. Two of the misses are the same failure: the right section exists and scored 0.47 and 0.28, so the model was shown nothing and said the policies do not cover it. ${pct(s.retrieval.recall)} of the sections I expected were shown, and ${pct(s.retrieval.precision)} of the sections shown were ones I expected.`}
+        decided="On the earlier 52-case set I ran the policy questions at five thresholds and repeated the middle three, because one run swung by two cases. At 0.40 every expected section was shown on every repeat, at the cost of showing more sections that did not apply. The two errors are not equal. An extra section is mostly ignored. A hidden one makes the model say there is no rule, and the owner has no way to see through that. So the threshold moves to 0.40 on the next run. The miss at 0.28 will not be fixed by any threshold. That one is the wording of the search, and it is still open."
       >
         <Failures results={policy.filter((r) => r.case.id !== "pol-11")} />
       </Experiment>
@@ -111,10 +120,10 @@ export default function EvaluationPage() {
       <Experiment
         slug="citations"
         title="Does it cite only what it was shown?"
-        question="An answer that cites a section the model was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. Does it fire?"
-        ran="Every policy case. The citations step runs on every answer, and the grader recomputes it from the answer text, so a regrade uses today's parser."
-        found="It fired once, on an answer that was otherwise right: the model wrote [§5] without the document name, and the step failed it."
-        decided="This is the check working. The gap it leaves is support: it knows a cited section was shown, not that the section says what the answer claims. That is the one of Dom's three questions with no code behind it yet."
+        question="An answer that cites a section the model was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
+        ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
+        found="It fired once, on an answer that was right. The model wrote [§5] without the document name and the step failed it. A formatting slip, caught by code, and counted against the model because that is what the check is for."
+        decided="This is the check doing its job. What it does not do is read. It knows a cited section was shown, not that the section says what the answer claims. That is the third kind of wrong, the one with no code behind it, and I have not built it because I do not yet know how to check support without a second model whose own errors I would then have to measure."
       >
         <Failures results={policy.filter((r) => r.case.id === "pol-11")} />
       </Experiment>
@@ -122,10 +131,10 @@ export default function EvaluationPage() {
       <Experiment
         slug="actions"
         title="Does code hold the line on actions?"
-        question="When the model proposes an action, code re-derives every rule from the limits file and the database before a person sees it. Does anything that breaks a rule get through?"
-        ran={`${propose.length} proposals: disputes inside and outside their window, campaigns over and under the discount cap, an audience the model counted wrong, a comp over the manager's limit. Plus ${guarded.length} questions that must be declined, scoped or answered without a search.`}
-        found={`${passed(propose)} of ${propose.length} proposals, ${passed(guarded)} of ${guarded.length} of the rest. The checker counted 563 consenting customers where the model said everyone with a phone number, and blocked a 25% campaign under a 20% cap.`}
-        decided="This is the strongest part, because it is the only part where the model's output is input and the verdict is code. It is the part of the project worth extending."
+        question="When the model proposes an action, code re-derives every rule from the limits file and the database before a person sees it. I wanted to know whether anything that breaks a rule gets through."
+        ran={`${propose.length} proposals: disputes inside and outside their window, campaigns over and under the discount cap, an audience the model counted wrong, a comp over the manager's limit. And ${guarded.length} questions that must be declined, scoped to the asking restaurant, or answered without a search.`}
+        found={`${passed(propose)} of ${propose.length}, and ${passed(guarded)} of ${guarded.length}. The checker counted 563 customers with verified consent where the model said everyone with a phone number, 29,762 of them. It blocked a 25% campaign under a 20% cap and a dispute filed 26 days after a 7-day window.`}
+        decided="This is the strongest part of the system, and the reason is structural, not clever: the model's proposal is an input, and the verdict comes from code reading the same rules a person would. It is the part worth extending. The cost is that every rule has to be written down as a limit a program can check, and the owners' policies are written for people."
       >
         <Failures results={[...propose, ...guarded]} />
       </Experiment>
@@ -133,10 +142,10 @@ export default function EvaluationPage() {
       <Experiment
         slug="model"
         title="Would a bigger model help?"
-        question="The agent runs on Sonnet 5.5 at medium effort. Is the model the bottleneck?"
-        ran="On the earlier 52-case set: Sonnet at low effort, and Opus 5.5 at medium effort, each once."
-        found="Sonnet low passed one more case than medium. Opus passed two fewer, at 2.4 times the cost, and failed the same ways: a retrieval miss, a defensible reading of net, and addressing the asker as the owner."
-        decided="The model is not the bottleneck; what it is shown is. This experiment has not been rerun on the current set, so it stays here as a conclusion from the old one until it is."
+        question="The agent runs on Sonnet 5.5 at medium effort. I wanted to know whether a bigger model would fix the misses, because that is the first thing anyone suggests."
+        ran="On the earlier 52-case set, Sonnet at low effort and Opus 5.5 at medium, once each."
+        found="Sonnet low passed one more case than medium. Opus passed two fewer at 2.4 times the cost, and failed the same ways: a retrieval miss, a defensible reading of net, and addressing the asker as the owner."
+        decided="The model is not the bottleneck. What it is shown is. I have not rerun this on the current set, so it stays here as a conclusion from the old one, and I would not quote it as more than that until I do."
       />
 
       <EveryCase />
@@ -145,16 +154,18 @@ export default function EvaluationPage() {
         <h2 id="limitations" className="mb-6 scroll-mt-28 text-3xl">Limitations</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            The graders check less than a person would. The SQL grader looks for the expected
-            figure among the numbers in the answer. It cannot tell a right number reached by a wrong
-            query from a right answer, and an answer that states the right figure and the wrong
-            one both passes. The policy grader checks that the right section is cited and that a
-            few phrases appear. It does not judge whether the explanation is sound.
+            The graders check less than a person would. The SQL grader looks for my figure among
+            the numbers in the answer, so a right number reached by a wrong query passes, and an
+            answer that states the right figure and the wrong one both passes too. I saw that
+            happen on one case. The policy grader checks that the right section is cited and that
+            a few phrases appear. It does not judge whether the explanation is sound.
           </p>
           <p>
-            {s.cases} cases catch regressions. They do not pin down a rate. Ground truth is
-            hand-written: a query I wrote for each SQL case, the section I named for each policy
-            case, and the status the trace records for refusals and proposals.
+            {s.cases} cases catch regressions. They do not pin down a rate, and one run of each
+            setting is one sample, which I learned the hard way when a repeat swung by two cases.
+            Ground truth is mine: a query I wrote for each SQL case, the section I named for each
+            policy case, and the status the trace records for refusals and proposals. If I read a
+            word wrong, the gold is wrong, and the eval will not tell me.
           </p>
           <p>
             Every case runs through the same code path as the site, with the same prompt, tools
