@@ -26,8 +26,8 @@ export const metadata = pageMetadata(
 const outline = [
   { slug: "runs", title: "The runs" },
   { slug: "meaning", title: "Does the agent interpret the question how an owner would?" },
-  { slug: "retrieval", title: "Does it find the right rule?" },
-  { slug: "citations", title: "Does it cite only what it was shown?" },
+  { slug: "retrieval", title: "Does the agent find the right rule?" },
+  { slug: "citations", title: "Does the agent cite only what it was shown?" },
   { slug: "actions", title: "Does code hold the line on actions?" },
   { slug: "every-case", title: "Every case" },
   { slug: "limitations", title: "Limitations" },
@@ -88,11 +88,11 @@ export default function EvaluationPage() {
       <Experiment
         number={2}
         slug="retrieval"
-        title="Does it find the right rule?"
-        question="When the owner asks what is allowed, the model searches their policies and only sees sections that score above a similarity threshold. If the right section scores under the line, the model is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
-        ran={`${policy.length} policy questions, each with the section I expect cited. The first run used a threshold of 0.50, a number I picked on 23 October from ten captured runs because real matches scored above 0.55 and near misses below 0.49. Ten runs is not a measurement. It is a guess that happened to split cleanly. The second run changed that one number to ${s.retrieval_threshold.toFixed(2)} and nothing else.`}
-        found={`11 of ${policy.length} both times, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the model was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place a question the policies really do not cover, health inspections, pulls in the Allergies section at 0.41, and the model cites it to say it does not apply, which my grader counts as a fail. Recall went from 86% to ${pct(s.retrieval.recall)}. Precision went from 46% to ${pct(s.retrieval.precision)}.`}
-        decided="The two errors are still not equal. An extra section shown is mostly ignored, and when the model did lean on one it said out loud that it did not apply. A hidden one makes the model say there is no rule, and the owner has no way to see through that. So 0.40 stays. What it bought was one rescued rule. What it cost was 17 points of precision and one grade, and what it exposed is that my rule for a not-covered case, nothing shown and nothing cited, is stricter than the behaviour I want. That rule is mine to fix and I have not decided how. The miss at 0.28 is unchanged. No threshold reaches it. That one is the wording of the search, and it is still open."
+        title="Does the agent find the right rule?"
+        question="When an owner asks what is allowed, the agent searches their policies and only sees the sections that score above a similarity threshold. If the right section scores under that line, the agent is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
+        ran={`${policy.length} policy questions, each with the section I expect it to cite. The first run used a threshold of 0.50, a number I picked from ten captured runs because real matches scored above 0.55 and near misses below 0.49. The second run changed that one number to ${s.retrieval_threshold.toFixed(2)} and nothing else.`}
+        found={`11 of ${policy.length} both times, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counts as a fail. Recall went from 86% to ${pct(s.retrieval.recall)}. Precision went from 46% to ${pct(s.retrieval.precision)}.`}
+        decided="The two errors are not equal. An extra section shown is mostly ignored, and when the agent did lean on one it said that it did not apply. A hidden section makes the agent say there is no rule, and the owner has no way to see through that. So 0.40 stays. It rescued one rule, cost 17 points of precision and one grade, and showed that my rule for a not-covered case (nothing shown, nothing cited) is stricter than the behaviour I want. The miss at 0.28 is unchanged. No threshold reaches it. That one is about the wording of the search, and it is still open."
       >
         <Failures results={policy.filter((r) => r.case.id !== "pol-11")} />
       </Experiment>
@@ -100,11 +100,11 @@ export default function EvaluationPage() {
       <Experiment
         number={3}
         slug="citations"
-        title="Does it cite only what it was shown?"
-        question="An answer that cites a section the model was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
+        title="Does the agent cite only what it was shown?"
+        question="An answer that cites a section the agent was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
         ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
-        found="It fired twice across the two runs, both times on an answer that was right. The model cited the first section with its full label, then shortened the next ones to [§5] or [§4, Frequency], and the step failed them. A formatting slip, caught by code, and counted against the model because that is what the check is for."
-        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could let the step accept a short label when it matches exactly one retrieved section, or tell the model in the prompt to write the full label every time. I lean to the second, because the check is the thing I trust and I would rather not teach it to guess. Not done yet. What the step still does not do is read. It knows a cited section was shown, not that the section says what the answer claims. That is the third kind of wrong, the one with no code behind it, and I have not built it because I do not yet know how to check support without a second model whose own errors I would then have to measure."
+        found="It fired twice across the two runs, both times on an answer that was right. The agent cited the first section with its full label, then shortened the next ones to [§5] or [§4, Frequency], and the step failed them. A formatting slip, caught by code, and counted against the agent because that is what the check is for."
+        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could let the step accept a short label when it matches exactly one retrieved section, or tell the agent in the prompt to write the full label every time. I lean to the second, because the check is the part I trust and I would rather not teach it to guess. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
       >
         <Failures results={policy.filter((r) => r.case.id === "pol-11")} />
       </Experiment>
@@ -113,10 +113,10 @@ export default function EvaluationPage() {
         number={4}
         slug="actions"
         title="Does code hold the line on actions?"
-        question="When the model proposes an action, code re-derives every rule from the limits file and the database before a person sees it. I wanted to know whether anything that breaks a rule gets through."
-        ran={`${propose.length} proposals: disputes inside and outside their window, campaigns over and under the discount cap, an audience the model counted wrong, a comp over the manager's limit. And ${guarded.length} questions that must be declined, scoped to the asking restaurant, or answered without a search.`}
-        found={`${passed(propose)} of ${propose.length}, and ${passed(guarded)} of ${guarded.length}. The checker counted 563 customers with verified consent where the model said everyone with a phone number, 29,762 of them. It blocked a 25% campaign under a 20% cap and a dispute filed 26 days after a 7-day window.`}
-        decided="This is the strongest part of the system, and the reason is structural, not clever: the model's proposal is an input, and the verdict comes from code reading the same rules a person would. It is the part worth extending. The cost is that every rule has to be written down as a limit a program can check, and the owners' policies are written for people."
+        question="When the agent proposes an action, code re-derives every rule from the limits file and the database before a person sees it. I wanted to know whether anything that breaks a rule gets through."
+        ran={`${propose.length} proposals: disputes inside and outside their window, campaigns over and under the discount cap, an audience the agent counted wrong, a comp over the manager's limit. And ${guarded.length} questions that must be declined, scoped to the asking restaurant, or answered without a search.`}
+        found={`${passed(propose)} of ${propose.length}, and ${passed(guarded)} of ${guarded.length}. The checker counted 563 customers with verified consent where the agent said everyone with a phone number, 29,762 of them. It blocked a 25% campaign under a 20% cap and a dispute filed 26 days after a 7-day window.`}
+        decided="This is the strongest part of the system, and the reason is structural: the agent's proposal is an input, and the verdict comes from code reading the same rules a person would. It is the part worth extending. The cost is that every rule has to be written down as a limit a program can check, and the owners' policies are written for people."
       >
         <Failures results={[...propose, ...guarded]} />
       </Experiment>
