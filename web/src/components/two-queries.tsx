@@ -1,3 +1,4 @@
+import { format } from "sql-formatter";
 import { Sql } from "@/components/trace";
 
 // The query a person wrote for what the question means, beside the query
@@ -16,12 +17,21 @@ export function TwoQueries({ gold, model }: { gold: string; model: string | null
       <div>
         <h3 className="mb-1 text-base">The query the model wrote</h3>
         <p className="text-sm text-muted-foreground">
-          Its last query, as it sent it. The guard added the restaurant filter and the row limit before it ran.
+          Its last query, laid out for reading. The trace has it as sent. The guard added the restaurant filter
+          and the row limit before it ran.
         </p>
-        {model ? <Sql sql={model} /> : <p className="mt-2 text-sm text-muted-foreground">No query ran.</p>}
+        {model ? <Sql sql={readable(model)} /> : <p className="mt-2 text-sm text-muted-foreground">No query ran.</p>}
       </div>
     </div>
   );
+}
+
+function readable(sql: string): string {
+  try {
+    return format(sql, { language: "postgresql", keywordCase: "upper", expressionWidth: 72 });
+  } catch {
+    return sql;
+  }
 }
 
 function stripHeader(sql: string): string {
