@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { PageOutline } from "@/components/page-outline";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RunHistory } from "@/components/every-case";
 import { RunViewer } from "@/components/run-viewer";
@@ -52,17 +51,12 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         Evaluation case {c.id}, from the {(suiteTitle[c.suite] ?? c.suite).split(":")[0].toLowerCase()} suite
       </p>
       <h1 className="mt-4 text-3xl sm:text-5xl">{c.question}</h1>
-      <div className="mt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
         <RunHistory id={c.id} runs={runs} />
+        <p className="flex items-center gap-2">
+          Asked as <MerchantBadge merchantId={c.merchant_id} />
+        </p>
       </div>
-      <p className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        Asked as <MerchantBadge merchantId={c.merchant_id} />
-        {(c.tags ?? []).map((t) => (
-          <Badge key={t} variant="secondary">
-            {t}
-          </Badge>
-        ))}
-      </p>
 
       <div id="expectation" className="mt-12 max-w-[70ch] scroll-mt-28">
         <h2 className="mb-2 text-xl">What should happen</h2>

@@ -10,7 +10,6 @@ export type Result = {
     suite: string;
     merchant_id: number;
     question: string;
-    tags?: string[];
     value_kind?: string;
     gold_sql?: string;
     note?: string;
