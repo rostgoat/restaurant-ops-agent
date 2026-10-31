@@ -24,18 +24,25 @@ export default async function HomePage() {
     <>
       <section>
         <Kicker />
-        <h1 className="mt-4 max-w-[30ch] text-4xl sm:text-6xl">
-          An AI agent that answers a restaurant&apos;s questions and never acts
-          on its own.
+        <h1 className="mt-4 max-w-[36ch] text-4xl sm:text-6xl">
+          I built an agent that answers a restaurant owner&apos;s questions. Then I tried to find out
+          what happens when it is wrong.
         </h1>
-        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
-          The <span className="font-semibold text-model">model</span> turns a
-          plain question into SQL and reads the restaurant&apos;s own written
-          policies. <span className="font-semibold text-code">Code</span>{" "}
-          decides what may run, keeps each restaurant to its own data and its
-          own rules, and records every step with what it cost. A{" "}
-          <span className="font-semibold text-human">person</span> approves
-          every action before it happens.
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">Three kinds of wrong turned up.</p>
+        <ol className="mt-4 list-decimal space-y-2 pl-6 text-xl leading-relaxed text-muted-foreground">
+          <li>An action that breaks a rule. Caught by code before anyone sees it.</li>
+          <li>
+            A query that is safe but answers the wrong question. Not caught by anything, so I
+            measure how often it happens.
+          </li>
+          <li>A cited section that does not support the answer. Neither caught nor measured yet.</li>
+        </ol>
+        <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
+          The{" "}
+          <Link href="/evaluation" className="text-primary underline-offset-4 hover:underline">
+            evaluation
+          </Link>{" "}
+          is the record of finding that out, one run at a time, with the numbers.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
@@ -43,7 +50,7 @@ export default async function HomePage() {
             size="lg"
             className="h-11 px-5 font-heading text-base"
           >
-            <Link href="/scenarios">See the scenarios</Link>
+            <Link href="/evaluation">See the runs</Link>
           </Button>
           <Button
             asChild

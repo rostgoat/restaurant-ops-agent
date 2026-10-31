@@ -24,7 +24,7 @@ const QUESTIONS_PER_DAY = 20;
 
 export const metadata = pageMetadata(
   "Evaluation",
-  `${data.summary.cases} questions with a known right answer, graded by code, run after run. Where a wrong answer is caught, where it is only measured, and where it is not.`,
+  `The same ${data.summary.cases} questions, re-run each time I change one variable. Each run says what moved, what it cost, and what I decided.`,
   "/evaluation",
 );
 
@@ -53,31 +53,20 @@ export default function EvaluationPage() {
       <section>
         <Kicker page="Evaluation" />
         <h1 className="mt-4 max-w-[36ch] text-4xl sm:text-6xl">
-          I built an agent that answers a restaurant owner&apos;s questions. Then I tried to find out
-          what happens when it is wrong.
+          The experiment. The same {s.cases} questions, re-run each time I change one variable.
         </h1>
-        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">Three kinds of wrong turned up.</p>
-        <ol className="mt-4 list-decimal space-y-2 pl-6 text-xl leading-relaxed text-muted-foreground">
-          <li>An action that breaks a rule. Caught by code before anyone sees it.</li>
-          <li>
-            A query that is safe but answers the wrong question. Not caught by anything, so I
-            measure how often it happens.
-          </li>
-          <li>A cited section that does not support the answer. Neither caught nor measured yet.</li>
-        </ol>
-        <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
-          This page is the record of finding that out, one run at a time, with the numbers.
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
+          So far that variable is the retrieval threshold. Next is the citation label and the
+          model. Each run below says what moved, what it cost, and what I decided.
         </p>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           The{" "}
           <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
             scenarios
           </Link>{" "}
-          are stories. This is the experiment behind them: {s.cases} questions with the right
-          answer written down before the model sees them, the same agent and the same prompt as the
-          site, a frozen copy of the data, and code doing the grading. I run it again after every
-          change, and each run is an entry below with what changed, what the score did, and what I
-          concluded.
+          are stories. This is the experiment behind them: the right answer written down before
+          the model sees the question, the same agent and the same prompt as the site, a frozen
+          copy of the data, and code doing the grading.
         </p>
       </section>
 
