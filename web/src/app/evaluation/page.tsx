@@ -75,13 +75,6 @@ export default function EvaluationPage() {
           data, and code grades each answer. I run it again after every change, and each run is
           an entry below: what changed, what the score did, and what I concluded.
         </p>
-        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          A SQL answer must contain the figure a query I wrote returns from that database, on
-          questions where a word like lunch, regular or lift has to be read the way the owner means
-          it. A policy answer must cite the section I named and must not quote the other
-          restaurant&apos;s rules. A refusal is graded on its status. A proposal is graded on the
-          status the checker gave it.
-        </p>
       </section>
 
       <Runs />
