@@ -1,4 +1,3 @@
-import { dollars } from "@/lib/format";
 import type { Trace } from "@/lib/api";
 import run from "@/content/eval-run.json";
 import changelogFile from "@/content/changelog.json";
@@ -243,7 +242,9 @@ function figure(r: Result): string {
   const kind = (r.case as Record<string, unknown>).value_kind;
   const expected = r.grade.expected;
 
-  if (kind === "cents" && typeof expected === "number") return dollars(expected);
+  if (kind === "cents" && typeof expected === "number") {
+    return `$${expected.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
   if (kind === "count" && typeof expected === "number") return expected.toLocaleString("en-US");
 
   return `the words ${String(expected)}`;
