@@ -56,12 +56,17 @@ export default function EvaluationPage() {
           I built an agent that answers a restaurant owner&apos;s questions. Then I tried to find out
           what happens when it is wrong.
         </h1>
-        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
-          Three kinds of wrong turned up. An action that breaks a rule is caught by code before
-          anyone sees it. A query that is safe but answers the wrong question is not caught by
-          anything, so I measure how often it happens. A cited section that does not support the
-          answer is neither caught nor measured yet. This page is the record of finding that out,
-          one run at a time, with the numbers.
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">Three kinds of wrong turned up.</p>
+        <ol className="mt-4 list-decimal space-y-2 pl-6 text-xl leading-relaxed text-muted-foreground">
+          <li>An action that breaks a rule. Caught by code before anyone sees it.</li>
+          <li>
+            A query that is safe but answers the wrong question. Not caught by anything, so I
+            measure how often it happens.
+          </li>
+          <li>A cited section that does not support the answer. Neither caught nor measured yet.</li>
+        </ol>
+        <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
+          This page is the record of finding that out, one run at a time, with the numbers.
         </p>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
           The{" "}
