@@ -51,11 +51,11 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         Evaluation case {c.id}, from the {(suiteTitle[c.suite] ?? c.suite).split(":")[0].toLowerCase()} suite
       </p>
       <h1 className="mt-4 text-3xl sm:text-5xl">{c.question}</h1>
-      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+      <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+        Asked as <MerchantBadge merchantId={c.merchant_id} />
+      </p>
+      <div className="mt-3">
         <RunHistory id={c.id} runs={runs} />
-        <p className="flex items-center gap-2">
-          Asked as <MerchantBadge merchantId={c.merchant_id} />
-        </p>
       </div>
 
       <div id="expectation" className="mt-12 max-w-[70ch] scroll-mt-28">
