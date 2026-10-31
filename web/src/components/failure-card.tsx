@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
+import { TwoQueries } from "@/components/two-queries";
 import type { Trace } from "@/lib/api";
 import { MerchantBadge } from "@/components/merchant-badge";
 
@@ -18,6 +19,8 @@ export function FailureCard({
   expected,
   reasons,
   diagnosis,
+  goldSql,
+  modelSql,
   trace,
 }: {
   id: string;
@@ -28,6 +31,8 @@ export function FailureCard({
   expected: string;
   reasons: string[];
   diagnosis?: string;
+  goldSql?: string;
+  modelSql?: string | null;
   trace: Trace;
 }) {
   const [open, setOpen] = useState(false);
@@ -68,6 +73,11 @@ export function FailureCard({
         <div className="mt-6">
           <h3 className="mb-2 text-base">What the trace shows</h3>
           <p className=" leading-relaxed">{diagnosis}</p>
+        </div>
+      )}
+      {goldSql && (
+        <div className="mt-6">
+          <TwoQueries gold={goldSql} model={modelSql ?? null} />
         </div>
       )}
       {trace.answer && (

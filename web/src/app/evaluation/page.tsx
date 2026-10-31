@@ -15,21 +15,21 @@ import { PageOutline } from "@/components/page-outline";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { StatusBadge } from "@/components/trace";
 import { count, dollars, seconds } from "@/lib/format";
-import { compare, data, describeExpectation, diagnosis, errors, failures, suiteTitle, type Compare } from "@/lib/evaluation";
+import { compare, data, describeExpectation, diagnosis, errors, failures, modelQuery, suiteTitle, type Compare } from "@/lib/evaluation";
 
 const QUESTIONS_PER_DAY = 20;
 
 export const metadata = pageMetadata(
   "Evaluation",
-  "52 questions with a known right answer, graded by code. Every failure shown in full, and the same cases on other models, efforts and retrieval thresholds.",
+  `${data.summary.cases} questions with a known right answer, graded by code. Every failure shown in full, with the query a person wrote beside the query the model wrote.`,
   "/evaluation",
 );
 
 const outline = [
-  { slug: "every-case", title: "Every case" },
   { slug: "failures", title: "The failures" },
+  { slug: "every-case", title: "Every case" },
   { slug: "by-suite", title: "By suite" },
-  { slug: "comparison", title: "Other models, efforts and thresholds" },
+  ...(compare.runs.length > 1 ? [{ slug: "comparison", title: "Other models, efforts and thresholds" }] : []),
   { slug: "limitations", title: "Limitations" },
 ];
 
@@ -74,8 +74,9 @@ export default function EvaluationPage() {
           {failures.length === 1 ? " The one case that fails is shown in full below." : failures.length > 1 ? ` The ${failures.length} cases that fail are shown in full below.` : ""}
         </p>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          Last run {when}. A SQL answer must contain the figure a hand-written query returns
-          from that database. A policy answer must cite the section I named and must not quote the
+          Last run {when}. A SQL answer must contain the figure a query I wrote returns from that
+          database, on questions where a word like lunch, regular or lift has to be read the way the
+          owner means it. A policy answer must cite the section I named and must not quote the
           other restaurant&apos;s rules. A refusal is graded on its status. A proposal is graded on
           the status the checker gave it.
         </p>
@@ -87,9 +88,9 @@ export default function EvaluationPage() {
         <Figure value={perMonth !== null ? `$${perMonth.toFixed(2)}` : "n/a"} label={`per restaurant per month at ${QUESTIONS_PER_DAY} questions a day, an assumption, not a measurement`} />
       </section>
 
-      <EveryCase />
-
       <FailuresSection />
+
+      <EveryCase />
 
       <section className="mt-24">
         <h2 id="by-suite" className="mb-6 scroll-mt-28 text-3xl">By suite</h2>
@@ -305,6 +306,8 @@ function FailuresSection() {
                 expected={describeExpectation(r.case)}
                 reasons={r.grade.reasons}
                 diagnosis={diagnosis[r.case.id]}
+                goldSql={r.case.gold_sql}
+                modelSql={modelQuery(r.trace)}
                 trace={r.trace}
               />
             ))}

@@ -16,7 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { compare, data, describeExpectation, diagnosis, suiteTitle, type Outcome } from "@/lib/evaluation";
+import { TwoQueries } from "@/components/two-queries";
+import { compare, data, describeExpectation, diagnosis, modelQuery, suiteTitle, type Outcome } from "@/lib/evaluation";
 import { pageMetadata } from "@/lib/site";
 import { count } from "@/lib/format";
 
@@ -57,6 +58,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
       <PageOutline
         items={[
           { slug: "expectation", title: "What should happen, and what the grader found" },
+          ...(c.gold_sql ? [{ slug: "queries", title: "The two queries" }] : []),
           { slug: "answer", title: "What it answered" },
           { slug: "other-runs", title: "Other models and thresholds" },
           { slug: "trace", title: "The trace" },
@@ -104,6 +106,13 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
           {diagnosis[c.id] && <p className="mt-3 leading-relaxed text-muted-foreground">{diagnosis[c.id]}</p>}
         </div>
       </div>
+
+      {c.gold_sql && (
+        <section id="queries" className="mt-12 scroll-mt-28">
+          <h2 className="mb-3 text-xl">The two queries</h2>
+          <TwoQueries gold={c.gold_sql} model={modelQuery(r.trace)} />
+        </section>
+      )}
 
       {r.trace.answer && (
         <section id="answer" className="mt-12 scroll-mt-28">

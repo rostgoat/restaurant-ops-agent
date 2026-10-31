@@ -37,15 +37,15 @@
     "question": "Text everyone who ordered this month 15% off matcha tomorrow morning.",
     "expected": [
       "Finds the messaging rules: the 90-day relationship allows the audience, 15% is under the 20% cap, quiet hours end at 8am, the message must end with the opt-out wording.",
-      "Proposes the campaign with the full message.",
-      "Code recounts the audience from the consent flags itself, checks the discount and the wording, and the proposal waits for a person."
+      "Proposes the campaign with the full message. A draft without the opt-out wording is blocked by code and has to be resubmitted.",
+      "Code recounts the audience from the consent flags itself, checks the discount and the wording, and the proposal waits for a person. Over 300 people, it is marked for the owner."
     ]
   },
   {
     "slug": "file-dispute",
     "title": "A dispute: looked up, checked, proposed, approved",
     "merchant_id": 1,
-    "question": "File the dispute with DoorDash for order 100660.",
+    "question": "File the dispute with DoorDash for order 203088.",
     "expected": [
       "Proposes filing the dispute rather than claiming to have filed it.",
       "Code looks the order up, confirms it is a DoorDash order, and that the 7-day window is still open, with the due date.",

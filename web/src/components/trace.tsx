@@ -413,7 +413,7 @@ function Title({ children }: { children: React.ReactNode }) {
   return <h3 className="mb-1 text-base">{children}</h3>;
 }
 
-function Sql({ sql }: { sql: string }) {
+export function Sql({ sql }: { sql: string }) {
   return (
     <pre className="mt-2 overflow-x-auto rounded-md bg-muted px-3 py-2 font-sql text-[13px] leading-relaxed whitespace-pre-wrap">
       {sql}

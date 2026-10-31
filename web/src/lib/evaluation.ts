@@ -10,6 +10,8 @@ export type Result = {
     question: string;
     tags?: string[];
     value_kind?: string;
+    gold_sql?: string;
+    note?: string;
   };
   gold: unknown;
   grade: { outcome: string; reasons: string[]; expected: unknown; found: unknown };
@@ -54,7 +56,7 @@ export type Compare = {
 export const compare = compareFile as unknown as Compare;
 
 export const suiteTitle: Record<string, string> = {
-  sql: "SQL: is the figure right?",
+  sql: "SQL: the figure, on questions where a word needs a definition",
   policy: "Policy: cites the right section, none from the other restaurant",
   refuse: "Refusals: questions it must decline",
   tenant: "Tenancy: asking about the other restaurant",
@@ -65,27 +67,22 @@ export const suiteTitle: Record<string, string> = {
 // What the author found when reading the failing trace. Keyed by case id so
 // a case that passes on the next run simply stops being shown.
 export const diagnosis: Record<string, string> = {
+  "sql-05":
+    "A safe query that answers a slightly different question. The model's first query converted every timestamp to the restaurant's time zone and timed out on a per-order refund subquery. Its rewrite pushed the month boundary through AT TIME ZONE in the wrong direction, so the window slid five hours the wrong way: 2,643 in-store orders instead of 2,633, and $2.49 instead of $2.64. The guard passed it, as it should; nothing in the guard knows what September means.",
   "pol-02":
-    "A retrieval miss, not a reasoning error. Ridgeline's section is \"Remakes and Comps\". The model's searches (\"shift lead approval limit to comp an order\", \"comps who can approve dollar limit\") scored it 0.38 to 0.48 against a threshold of 0.50, so the model was shown nothing and said so. On a run where the search was worded closer to the section it scored 0.60 and passed.",
-  "pol-04":
-    "The section that says Ridgeline is on no marketplace scored 0.49 on the model's second search, just under the 0.50 threshold. Shown nothing, the model said it found no deadline and suggested checking the DoorDash portal, which is the wrong advice for a restaurant that is not on DoorDash.",
-  "pol-01":
-    "The model found the comps section and gave the $25 limit, but wrote \"needs your approval\", treating the person asking as the owner. The policy says the owner approves, and the grader looks for that word. Sonnet did this once at 0.45; Opus did it on the main setting.",
-  "sql-19":
-    "A definition, not a mistake. Opus took 25% of the menu subtotal and also subtracted discounts, and said so, with the alternative figure. The reference query takes 75% of the subtotal. Both are defensible readings of \"net\".",
-  "pro-09":
-    "Opus declined to propose because no order matches \"table 12\": the data has no table numbers. Reasonable. But the comps section scored 0.49 against the 0.50 threshold and was not shown, so the answer never gives the $25 limit or says the owner must approve.",
-  "pol-13":
-    "The model computed 1.09% against the 1% rule and named the review, but addressed the asker as the owner instead of saying the owner reviews the week.",
-  "pol-15":
-    "At thresholds of 0.55 and above the discounts section scores under the bar for this wording, so the model answers from the catering section alone and never reaches the 20% cap.",
-  "pol-07":
-    "At a threshold of 0.60 the discounts section scores 0.55 to 0.59 for a question about student discounts, so it is not shown and the model says the policies are silent.",
-  "pol-09":
-    "At a threshold of 0.60 the discounts section is not shown, so the model cannot say which of the two discounts applies.",
-  "pol-10":
-    "At a threshold of 0.60 Ridgeline's discounts section is not shown, so the model cannot say that a loyalty drink combines with a student discount.",
+    "A retrieval miss. The section that says Ridgeline is on no marketplace scored 0.28 against the model's searches, far under the 0.50 threshold, because a question about DoorDash dispute deadlines does not read like a sentence saying there are no marketplaces. Shown nothing twice, the model said the policies do not cover it and suggested the DoorDash portal, which is the wrong advice for a restaurant that is not on DoorDash.",
+  "pol-11":
+    "The answer was right and the campaign was blocked, as it should be. The failure is in the citation: the model wrote [§5] and [§3, Quiet Hours] without the document name, and the citations step, which only accepts labels exactly as retrieved, failed them. A formatting slip caught by code.",
+  "pol-12":
+    "A retrieval miss, by a hair. Ridgeline's Discounts section scored 0.47 and 0.49 on two of the model's four searches, under the 0.50 threshold each time. The model answered from the Catering section alone and never reached the 20% cap. At the 0.40 threshold this case would have been shown the section.",
 };
+
+export function modelQuery(trace: Trace): string | null {
+  const runs = trace.steps.filter((s) => s.name === "run_sql" && typeof s.detail?.sql === "string");
+  const last = runs[runs.length - 1];
+
+  return last ? String(last.detail!.sql) : null;
+}
 
 export const failures = data.results.filter((r) => r.grade.outcome === "fail");
 export const errors = data.results.filter((r) => r.grade.outcome === "error");
