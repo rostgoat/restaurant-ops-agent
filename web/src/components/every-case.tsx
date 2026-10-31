@@ -26,7 +26,6 @@ export function EveryCase({ cases, runs }: { cases: Case[]; runs: RunRecord[] })
           {runs.map((r, i) => (
             <TableHead key={r.run} className="whitespace-nowrap">
               Run {i + 1}
-              <span className="ml-1 font-sql text-xs font-normal text-muted-foreground">{r.retrieval_threshold.toFixed(2)}</span>
             </TableHead>
           ))}
         </TableRow>
