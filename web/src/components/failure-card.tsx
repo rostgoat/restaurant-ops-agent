@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
 import { TwoQueries } from "@/components/two-queries";
+import { RunHistory } from "@/components/every-case";
+import type { RunRecord } from "@/lib/evaluation";
 import { Answer } from "@/components/answer";
 import type { Trace } from "@/lib/api";
 import { MerchantBadge } from "@/components/merchant-badge";
@@ -24,6 +26,7 @@ export function FailureCard({
   diagnosis,
   goldSql,
   modelSql,
+  runs,
   trace,
 }: {
   id: string;
@@ -37,6 +40,7 @@ export function FailureCard({
   diagnosis?: string;
   goldSql?: string;
   modelSql?: string | null;
+  runs: RunRecord[];
   trace: Trace;
 }) {
   const [open, setOpen] = useState(false);
@@ -44,12 +48,15 @@ export function FailureCard({
   return (
     <article className="border-t pt-8">
       <h3 className="text-2xl">{headline ?? `Case ${id}`}</h3>
-      <p className="mt-2 mb-3 text-sm text-muted-foreground">
+      <p className="mt-2 text-sm text-muted-foreground">
         <Link href={`/evaluation/${id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
           {id}
         </Link>
         , from the {suite.split(":")[0].toLowerCase()} suite
       </p>
+      <div className="mt-2 mb-3">
+        <RunHistory id={id} runs={runs} />
+      </div>
       <div className="flex flex-wrap items-center gap-2">
         {tags.map((t) => (
           <Badge key={t} variant="secondary">

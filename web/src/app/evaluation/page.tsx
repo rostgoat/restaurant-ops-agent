@@ -1,20 +1,10 @@
 import Link from "next/link";
 import { Kicker } from "@/components/kicker";
 import { pageMetadata } from "@/lib/site";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { EveryCase } from "@/components/every-case";
 import { FailureCard } from "@/components/failure-card";
 import { PageOutline } from "@/components/page-outline";
-import { MerchantBadge } from "@/components/merchant-badge";
-import { StatusBadge } from "@/components/trace";
-import { count, dollars, seconds } from "@/lib/format";
+import { dollars } from "@/lib/format";
 import {
   changelog,
   data,
@@ -24,6 +14,7 @@ import {
   failed,
   headline,
   modelQuery,
+  runs,
   suite,
   suiteTitle,
   type Result,
@@ -102,7 +93,6 @@ export default function EvaluationPage() {
         found={`${passed(sql)} of ${sql.length}. The miss is a query that converted time zones in the wrong direction on a retry after a timeout, so September started five hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64.`}
         decided="Nothing catches this at runtime, and nothing in the guard could, because the query is safe. So I measure it instead of pretending to enforce it, and I put my query beside the model's on every case so a reader can see where the two read a word differently. The cost is that the measurement is only as good as the ten questions, and I wrote them."
       >
-        <SqlTable results={sql} />
         <Failures results={sql} />
       </Experiment>
 
@@ -142,7 +132,17 @@ export default function EvaluationPage() {
         <Failures results={[...propose, ...guarded]} />
       </Experiment>
 
-      <EveryCase />
+      <section className="mt-24">
+        <h2 id="every-case" className="mb-6 scroll-mt-28 text-3xl">Every case</h2>
+        <EveryCase cases={data.results.map((r) => r.case)} runs={runs} />
+        {errors.length > 0 && (
+          <p className="mt-8 text-sm text-muted-foreground">
+            {errors.length} {errors.length === 1 ? "case" : "cases"} ended in an error from the API
+            or the harness and {errors.length === 1 ? "is" : "are"} left out of the pass rate rather
+            than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
+          </p>
+        )}
+      </section>
 
       <section className="mt-24">
         <h2 id="limitations" className="mb-6 scroll-mt-28 text-3xl">Limitations</h2>
@@ -270,91 +270,11 @@ function Failures({ results }: { results: Result[] }) {
           diagnosis={diagnosis[r.case.id]}
           goldSql={r.case.gold_sql}
           modelSql={modelQuery(r.trace)}
+          runs={runs}
           trace={r.trace}
         />
       ))}
     </div>
-  );
-}
-
-function SqlTable({ results }: { results: Result[] }) {
-  return (
-    <Table className="mt-10 min-w-[720px]">
-      <TableHeader>
-        <TableRow>
-          <TableHead>Case</TableHead>
-          <TableHead>Question</TableHead>
-          <TableHead className="text-right">Expected</TableHead>
-          <TableHead className="text-right">Answered</TableHead>
-          <TableHead>Result</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {results.map((r) => (
-          <TableRow key={r.case.id}>
-            <TableCell className="font-sql text-xs">
-              <Link href={`/evaluation/${r.case.id}`} className="text-primary underline-offset-4 hover:underline">
-                {r.case.id}
-              </Link>
-            </TableCell>
-            <TableCell className="whitespace-normal">{r.case.question}</TableCell>
-            <TableCell className="text-right font-sql text-[13px] whitespace-nowrap">{figure(r.grade.expected, r.case.value_kind)}</TableCell>
-            <TableCell className="text-right font-sql text-[13px] whitespace-nowrap">{r.grade.found === null ? "–" : figure(r.grade.found, r.case.value_kind)}</TableCell>
-            <TableCell>
-              <OutcomeBadge outcome={r.grade.outcome} />
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
-function EveryCase() {
-  return (
-    <section className="mt-24">
-      <h2 id="every-case" className="mb-6 scroll-mt-28 text-3xl">Every case</h2>
-      <Table className="min-w-[760px]">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Case</TableHead>
-            <TableHead>Question</TableHead>
-            <TableHead>Asked as</TableHead>
-            <TableHead>Result</TableHead>
-            <TableHead className="text-right">Time</TableHead>
-            <TableHead className="text-right">Cost</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data.results.map((r) => (
-            <TableRow key={r.case.id}>
-              <TableCell className="font-sql text-xs">
-                <Link href={`/evaluation/${r.case.id}`} className="text-primary underline-offset-4 hover:underline">
-                  {r.case.id}
-                </Link>
-              </TableCell>
-              <TableCell className="whitespace-normal">{r.case.question}</TableCell>
-              <TableCell className="whitespace-nowrap">
-                <MerchantBadge merchantId={r.case.merchant_id} />
-              </TableCell>
-              <TableCell>
-                <OutcomeBadge outcome={r.grade.outcome} />{" "}
-                <StatusBadge status={r.trace.status} />
-              </TableCell>
-              <TableCell className="text-right font-sql text-[13px]">{seconds(r.trace.latency_ms)}</TableCell>
-              <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {errors.length > 0 && (
-        <p className="mt-8 text-sm text-muted-foreground">
-          {errors.length} {errors.length === 1 ? "case" : "cases"} ended in an error from the API
-          or the harness and {errors.length === 1 ? "is" : "are"} left out of the pass rate rather
-          than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
-        </p>
-      )}
-    </section>
   );
 }
 
@@ -367,37 +287,12 @@ function Figure({ value, label }: { value: string; label: string }) {
   );
 }
 
-function OutcomeBadge({ outcome }: { outcome: string }) {
-  const tone =
-    outcome === "pass"
-      ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-      : outcome === "fail"
-        ? "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
-        : "border-amber-500/30 bg-amber-500/15 text-amber-800 dark:text-amber-300";
-
-  return (
-    <Badge variant="outline" className={`font-heading ${tone}`}>
-      {outcome}
-    </Badge>
-  );
-}
-
 function passed(results: Result[]): number {
   return results.filter((r) => r.grade.outcome === "pass").length;
 }
 
 function pct(v: number | null): string {
   return v === null ? "n/a" : `${Math.round(v * 100)}%`;
-}
-
-function figure(v: unknown, kind: string | undefined): string {
-  if (typeof v !== "number") return String(v ?? "–");
-
-  if (kind === "cents") return v.toLocaleString("en-US", { style: "currency", currency: "USD" });
-
-  if (kind === "pct") return `${v}%`;
-
-  return count(v);
 }
 
 function longDate(iso: string): string {

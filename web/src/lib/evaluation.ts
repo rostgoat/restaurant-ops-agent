@@ -1,6 +1,7 @@
 import type { Trace } from "@/lib/api";
 import run from "@/content/eval-run.json";
 import changelogFile from "@/content/changelog.json";
+import runsFile from "@/content/runs.json";
 
 export type Result = {
   case: {
@@ -55,6 +56,28 @@ export type Entry = {
 };
 export const changelog = changelogFile as Entry[];
 
+export type RunRecord = {
+  run: string;
+  date: string;
+  retrieval_threshold: number;
+  model: string;
+  passed: number;
+  scored: number;
+  outcomes: Record<
+    string,
+    {
+      outcome: string;
+      status: string;
+      reasons: string[];
+      expected: unknown;
+      found: unknown;
+      cost_usd: number;
+      latency_ms: number;
+    }
+  >;
+};
+export const runs = runsFile as RunRecord[];
+
 export const suiteTitle: Record<string, string> = {
   sql: "SQL: the figure, on questions where a word needs a definition",
   policy: "Policy: cites the right section, none from the other restaurant",
@@ -72,7 +95,7 @@ export const diagnosis: Record<string, string> = {
   "pol-02":
     "A retrieval miss. The section that says Ridgeline is on no marketplace scored 0.28 against the model's searches, far under the 0.50 threshold, because a question about DoorDash dispute deadlines does not read like a sentence saying there are no marketplaces. Shown nothing twice, the model said the policies do not cover it and suggested the DoorDash portal, which is the wrong advice for a restaurant that is not on DoorDash.",
   "pol-11":
-    "The answer was right and the campaign was blocked, as it should be. The failure is in the citation: the model wrote [§5] and [§3, Quiet Hours] without the document name, and the citations step, which only accepts labels exactly as retrieved, failed them. A formatting slip caught by code.",
+    "The answer was right and the campaign was blocked, as it should be. The failure is in the citation: the model wrote the first label in full, then shortened the next ones to the section alone, and the citations step, which only accepts labels exactly as retrieved, failed them. A formatting slip caught by code, on both runs.",
   "pol-03":
     "The same slip as pol-11, on a different question. The model cited Quiet Hours with its full label, then shortened the next two to [§4, Frequency] and [§5, Offers in Messages]. The citations step accepts labels exactly as retrieved and failed them. The answer itself is right: no texts between 8pm and 9am.",
   "pol-05":

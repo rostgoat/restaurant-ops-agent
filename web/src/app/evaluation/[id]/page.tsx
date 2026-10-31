@@ -9,7 +9,8 @@ import { TraceLedger } from "@/components/trace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TwoQueries } from "@/components/two-queries";
-import { data, describeExpectation, diagnosis, modelQuery, suiteTitle } from "@/lib/evaluation";
+import { RunHistory } from "@/components/every-case";
+import { data, describeExpectation, diagnosis, modelQuery, runs, suiteTitle } from "@/lib/evaluation";
 import { pageMetadata } from "@/lib/site";
 import { count } from "@/lib/format";
 
@@ -63,6 +64,9 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         Evaluation case {c.id}, from the {(suiteTitle[c.suite] ?? c.suite).split(":")[0].toLowerCase()} suite
       </p>
       <h1 className="mt-4 text-3xl sm:text-5xl">{c.question}</h1>
+      <div className="mt-4">
+        <RunHistory id={c.id} runs={runs} />
+      </div>
       <p className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         Asked as <MerchantBadge merchantId={c.merchant_id} />
         {(c.tags ?? []).map((t) => (
