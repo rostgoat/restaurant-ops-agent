@@ -25,7 +25,7 @@ export const metadata = pageMetadata(
 
 const outline = [
   { slug: "runs", title: "The runs" },
-  { slug: "meaning", title: "Does it read a word the owner's way?" },
+  { slug: "meaning", title: "Does the agent interpret the question how an owner would?" },
   { slug: "retrieval", title: "Does it find the right rule?" },
   { slug: "citations", title: "Does it cite only what it was shown?" },
   { slug: "actions", title: "Does code hold the line on actions?" },
@@ -76,11 +76,11 @@ export default function EvaluationPage() {
       <Experiment
         number={1}
         slug="meaning"
-        title="Does it read a word the owner's way?"
+        title="Does the agent interpret the question how an owner would?"
         question="A query can pass all eight safety checks and still answer a different question from the one the owner asked. I wanted to know how often that happens, because nothing in the system would tell me."
-        ran={`${sql.length} questions where a word has to be read the owner's way: lunch, regular, summer, lift, net payout. For each one I wrote the query myself, ran it on the frozen database, and kept the figure. The model never sees my query. The grader reads every number in the model's answer and passes the case if one of them is within tolerance of mine.`}
+        ran="Ten questions where specific words carry a unique definition for each owner: 'lunch', 'regular', 'summer', 'lift', 'net payout'. For each one I wrote the query, ran it against a frozen database, and kept the figure. The model never sees the query. The grader reads every number in the model's answer and passes the case if one of them is within the case's tolerance of mine."
         found={`${passed(sql)} of ${sql.length}. The miss is a query that converted time zones in the wrong direction on a retry after a timeout, so September started ten hours early and ended ten hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64.`}
-        decided="Nothing catches this at runtime, and nothing in the guard could, because the query is safe. So I measure it instead of pretending to enforce it, and I put my query beside the model's on every case so a reader can see where the two read a word differently. The cost is that the measurement is only as good as the ten questions, and I wrote them."
+        decided="Nothing catches this at runtime, and nothing in the guard could, because the query is safe. So I measure it instead of pretending to enforce it, and I put my query beside the model's on every case so a reader can see where the two read a word differently."
       >
         <Failures results={sql} />
       </Experiment>
