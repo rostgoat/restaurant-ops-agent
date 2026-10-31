@@ -77,6 +77,14 @@ export const diagnosis: Record<string, string> = {
     "A retrieval miss, by a hair. Ridgeline's Discounts section scored 0.47 and 0.49 on two of the model's four searches, under the 0.50 threshold each time. The model answered from the Catering section alone and never reached the 20% cap. At the 0.40 threshold this case would have been shown the section.",
 };
 
+// One line naming the failure in plain words, shown as the card's heading.
+export const headline: Record<string, string> = {
+  "sql-05": "A query that runs clean, looks right, and returns the wrong number",
+  "pol-02": "The rule exists, the search never shows it, and the agent says there is no rule",
+  "pol-12": "The rule is hidden by a hair and the agent answers from the wrong section",
+  "pol-11": "A right answer with a sloppy citation, caught by code",
+};
+
 export function modelQuery(trace: Trace): string | null {
   const runs = trace.steps.filter((s) => s.name === "run_sql" && typeof s.detail?.sql === "string");
   const last = runs[runs.length - 1];

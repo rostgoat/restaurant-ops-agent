@@ -15,7 +15,7 @@ import { PageOutline } from "@/components/page-outline";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { StatusBadge } from "@/components/trace";
 import { count, dollars, seconds } from "@/lib/format";
-import { compare, data, describeExpectation, diagnosis, errors, failures, modelQuery, suiteTitle, type Compare } from "@/lib/evaluation";
+import { compare, data, describeExpectation, diagnosis, errors, failures, headline, modelQuery, suiteTitle, type Compare } from "@/lib/evaluation";
 
 const QUESTIONS_PER_DAY = 20;
 
@@ -295,10 +295,12 @@ function FailuresSection() {
           </p>
         ) : (
           <div className="space-y-12">
-            {failures.map((r) => (
+            {failures.map((r, i) => (
               <FailureCard
                 key={r.case.id}
                 id={r.case.id}
+                number={i + 1}
+                headline={headline[r.case.id]}
                 suite={suiteTitle[r.case.suite] ?? r.case.suite}
                 tags={r.case.tags ?? []}
                 merchantId={r.case.merchant_id}
