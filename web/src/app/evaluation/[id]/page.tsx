@@ -60,7 +60,7 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
 
       <div id="expectation" className="mt-12 max-w-[70ch] scroll-mt-28">
         <h2 className="mb-2 text-xl">What should happen</h2>
-        <p className="text-lg leading-relaxed">{describeExpectation(c)}</p>
+        <p className="text-lg leading-relaxed">{describeExpectation(r)}</p>
         {c.note && <p className="mt-3 leading-relaxed text-muted-foreground">{c.note}</p>}
       </div>
 

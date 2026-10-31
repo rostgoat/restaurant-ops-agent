@@ -21,7 +21,7 @@ export function CaseFailure({ result: r }: { result: Result }) {
       suite={suiteTitle[r.case.suite] ?? r.case.suite}
       merchantId={r.case.merchant_id}
       question={r.case.question}
-      expected={describeExpectation(r.case)}
+      expected={describeExpectation(r)}
       goldSql={r.case.gold_sql}
       runs={runs}
       views={runViews(r.case.id)}
