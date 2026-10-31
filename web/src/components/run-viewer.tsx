@@ -65,7 +65,11 @@ export function RunViewer({
         {view.diagnosis && (
           <div>
             <Heading className={headingClass}>What the {view.label.toLowerCase()} trace shows</Heading>
-            <p className="leading-relaxed">{view.diagnosis}</p>
+            <ul className="list-disc space-y-1 pl-5 leading-relaxed">
+              {view.diagnosis.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
           </div>
         )}
       </div>

@@ -90,7 +90,7 @@ export type RunView = {
   reasons: string[];
   trace: Trace;
   modelSql: string | null;
-  diagnosis?: string;
+  diagnosis?: string[];
 };
 
 export function runViews(id: string): RunView[] {
@@ -114,43 +114,76 @@ export const suiteTitle: Record<string, string> = {
 };
 
 // What the author found when reading each run's trace, keyed by case and run,
-// so the text changes with the run a reader has picked.
-export const diagnosis: Record<string, Record<string, string>> = {
+// so the text changes with the run a reader has picked. One point per line.
+export const diagnosis: Record<string, Record<string, string[]>> = {
   "sql-05": {
-    [RUN1]:
-      "A safe query that answers a slightly different question. The first query converted every order's timestamp to the restaurant's time zone and looked up the card fee with a subquery per order, and it timed out. The rewrite converted the two month boundaries instead, which is the faster shape, but it wrote the literal as a timestamptz and pushed it through AT TIME ZONE the wrong way. The window came out ten hours early at both ends: 2,643 in-store orders instead of 2,633, 1,271 DoorDash instead of 1,269, and $2.49 instead of $2.64. The guard passed it, as it should. Nothing in the guard knows what September means.",
-    [RUN2]:
-      "The same slip from a different start. The first query again timed out on a per-order fee subquery, and the rewrite again put the month boundaries through AT TIME ZONE in the wrong direction, ten hours early at both ends, with the same 2,643 and 1,271 orders and the same $2.49. This time the model wrote a caveat that the boundaries may be off by a few hours and that it did not expect the averages to move much. Right about the cause, wrong about the size: 6%, and the tolerance is 3%.",
+    [RUN1]: [
+      "The first query converted every order's timestamp to the restaurant's time zone and looked up the card fee with a subquery per order. It timed out.",
+      "The rewrite converted the two month boundaries instead, which is the faster shape, but wrote the literal as a timestamptz and pushed it through AT TIME ZONE the wrong way.",
+      "The window came out ten hours early at both ends: 2,643 in-store orders instead of 2,633, 1,271 DoorDash instead of 1,269, and $2.49 instead of $2.64.",
+      "The guard passed it, as it should. Nothing in the guard knows what September means.",
+    ],
+    [RUN2]: [
+      "The same slip from a different start. The first query timed out on a per-order fee subquery again.",
+      "The rewrite again put the month boundaries through AT TIME ZONE in the wrong direction, ten hours early at both ends, with the same 2,643 and 1,271 orders and the same $2.49.",
+      "This time the model wrote a caveat that the boundaries may be off by a few hours and that it did not expect the averages to move much. Right about the cause, wrong about the size: 6%, and the tolerance is 3%.",
+    ],
   },
   "pol-02": {
-    [RUN1]:
-      "A retrieval miss. The section that says Ridgeline is on no marketplace scored 0.28 against the model's second search, far under the 0.50 threshold, because a question about DoorDash dispute deadlines does not read like a sentence saying there are no marketplaces. Shown nothing by either search, the model said the policies do not cover it and pointed at the DoorDash portal, which is the wrong advice for a restaurant that is not on DoorDash.",
-    [RUN2]:
-      "The lower threshold did not reach it. The right section scored 0.30 and stayed hidden. What the 0.40 line let through was House Policy §5, Online Orders, at 0.41, and the model cited it to say it covers Square Online pickup and does not apply to DoorDash. That is honest reading of the wrong section. The answer still says there is no deadline, and the owner still has no way to see that the real rule is one sentence away.",
+    [RUN1]: [
+      "The section that says Ridgeline is on no marketplace scored 0.28 against the model's second search, far under the 0.50 threshold. A question about DoorDash dispute deadlines does not read like a sentence saying there are no marketplaces.",
+      "Shown nothing by either search, the model said the policies do not cover it and pointed at the DoorDash portal.",
+      "That is the wrong advice for a restaurant that is not on DoorDash.",
+    ],
+    [RUN2]: [
+      "The lower threshold did not reach it. The right section scored 0.30 and stayed hidden.",
+      "What the 0.40 line let through was House Policy §5, Online Orders, at 0.41. The model cited it to say it covers Square Online pickup and does not apply to DoorDash. Honest reading of the wrong section.",
+      "The answer still says there is no deadline, and the owner still has no way to see that the real rule is one sentence away.",
+    ],
   },
   "pol-03": {
-    [RUN1]:
-      "Passed. Quiet Hours scored 0.67 and was shown with three neighbours, the answer said no texts between 8pm and 9am, and all three citations carried the full document name, so the citations step passed them.",
-    [RUN2]:
-      "The same answer, and a formatting slip. The model cited Quiet Hours and the audience section with their full labels, then shortened the next two to [§4, Frequency] and [§5, Offers in Messages]. The citations step accepts labels exactly as retrieved and failed them. The answer itself is right: no texts between 8pm and 9am.",
+    [RUN1]: [
+      "Passed. Quiet Hours scored 0.67 and was shown with three neighbours.",
+      "The answer said no texts between 8pm and 9am, and all three citations carried the full document name, so the citations step passed them.",
+    ],
+    [RUN2]: [
+      "The same answer, and a formatting slip. The model cited Quiet Hours and the audience section with their full labels, then shortened the next two to [§4, Frequency] and [§5, Offers in Messages].",
+      "The citations step accepts labels exactly as retrieved and failed them.",
+      "The answer itself is right: no texts between 8pm and 9am.",
+    ],
   },
   "pol-05": {
-    [RUN1]:
-      "Passed. The best match for health inspections was the Allergies section at 0.41, under the 0.50 line, so the model was shown nothing, said the policies do not cover it, and cited nothing.",
-    [RUN2]:
-      "At 0.40 the Allergies section, still at 0.41, was shown. The model still said the policies do not cover health inspections, and it cited the section to say so. My grader's rule for a not-covered case is that nothing is shown and nothing is cited, so this counts as a fail. The answer is right. The grade is the price of the lower threshold, and the rule is mine to reconsider.",
+    [RUN1]: [
+      "Passed. The best match for health inspections was the Allergies section at 0.41, under the 0.50 line.",
+      "The model was shown nothing, said the policies do not cover it, and cited nothing.",
+    ],
+    [RUN2]: [
+      "At 0.40 the Allergies section, still at 0.41, was shown.",
+      "The model still said the policies do not cover health inspections, and it cited the section to say so.",
+      "My grader's rule for a not-covered case is that nothing is shown and nothing is cited, so this counts as a fail. The answer is right.",
+      "The grade is the price of the lower threshold, and the rule is mine to reconsider.",
+    ],
   },
   "pol-11": {
-    [RUN1]:
-      "The answer was right and the campaign was blocked, as it should be. The failure is in the citation: the model wrote the first two labels in full, then shortened the next three to [§3, Quiet Hours], [§5] and [§6, Required Wording], and the citations step, which only accepts labels exactly as retrieved, failed them. A formatting slip caught by code.",
-    [RUN2]:
-      "Right answer again, campaign blocked again, and one short label this time instead of three: [§6, Required Wording] after three full ones. The same check failed it for the same reason.",
+    [RUN1]: [
+      "The answer was right and the campaign was blocked, as it should be.",
+      "The model wrote the first two labels in full, then shortened the next three to [§3, Quiet Hours], [§5] and [§6, Required Wording].",
+      "The citations step only accepts labels exactly as retrieved and failed them. A formatting slip caught by code.",
+    ],
+    [RUN2]: [
+      "Right answer again, campaign blocked again.",
+      "One short label this time instead of three: [§6, Required Wording] after three full ones. The same check failed it for the same reason.",
+    ],
   },
   "pol-12": {
-    [RUN1]:
-      "A retrieval miss by a hair. Across four searches the Discounts section scored 0.47 and 0.49, under the 0.50 line both times, so the model never saw it. It cited Catering alone and said the policies do not say whether a lead can approve 25% off.",
-    [RUN2]:
-      "Passed. At 0.40 the Discounts section came through at 0.43 on the first search. The model answered no, a discount over 20% needs the owner, and cited Discounts and Catering with full labels.",
+    [RUN1]: [
+      "Across four searches the Discounts section scored 0.47 and 0.49, under the 0.50 line both times, so the model never saw it.",
+      "It cited Catering alone and said the policies do not say whether a lead can approve 25% off.",
+    ],
+    [RUN2]: [
+      "Passed. At 0.40 the Discounts section came through at 0.43 on the first search.",
+      "The model answered no, a discount over 20% needs the owner, and cited Discounts and Catering with full labels.",
+    ],
   },
 };
 
