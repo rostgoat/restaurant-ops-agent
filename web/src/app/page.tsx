@@ -1,25 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Kicker } from "@/components/kicker";
-import { ScenarioCard } from "@/components/scenario-card";
+import { CaseFailure } from "@/components/failure-card";
 import { Button } from "@/components/ui/button";
-import { questionStats } from "@/lib/api";
+import { data } from "@/lib/evaluation";
 import { SITE_DESCRIPTION } from "@/lib/site";
-import type { Scenario } from "@/lib/scenarios";
-import fileDispute from "@/content/scenarios/file-dispute.json";
 
-const scenario = fileDispute as Scenario;
-
-export const instant = false;
+const example = data.results.find((r) => r.case.id === "sql-05")!;
 
 export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
 };
 
-export default async function HomePage() {
-  const stats = await questionStats(scenario.merchant_id, scenario.question);
-
+export default function HomePage() {
   return (
     <>
       <section>
@@ -66,11 +60,10 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-28">
-        <ScenarioCard
-          scenario={scenario}
-          kicker="Scenario 5 of 5: a dispute the model proposes, code checks, and the owner approves."
-          stats={stats}
-        />
+        <p className="mb-3 font-heading text-base text-primary">
+          The second kind of wrong, as it happened: safe to run, clean to read, wrong by 6%.
+        </p>
+        <CaseFailure result={example} />
       </section>
     </>
   );

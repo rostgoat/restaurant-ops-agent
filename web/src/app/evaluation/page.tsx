@@ -2,21 +2,16 @@ import Link from "next/link";
 import { Kicker } from "@/components/kicker";
 import { pageMetadata } from "@/lib/site";
 import { EveryCase } from "@/components/every-case";
-import { FailureCard } from "@/components/failure-card";
+import { CaseFailure } from "@/components/failure-card";
 import { PageOutline } from "@/components/page-outline";
 import { dollars } from "@/lib/format";
 import {
   changelog,
   data,
-  describeExpectation,
-  diagnosis,
   errors,
   failed,
-  headline,
   runs,
-  runViews,
   suite,
-  suiteTitle,
   type Result,
 } from "@/lib/evaluation";
 
@@ -251,20 +246,7 @@ function Failures({ results }: { results: Result[] }) {
   return (
     <div className="mt-12 space-y-12">
       {cards.map((r) => (
-        <FailureCard
-          key={r.case.id}
-          id={r.case.id}
-          headline={headline[r.case.id]}
-          suite={suiteTitle[r.case.suite] ?? r.case.suite}
-          tags={r.case.tags ?? []}
-          merchantId={r.case.merchant_id}
-          question={r.case.question}
-          expected={describeExpectation(r.case)}
-          diagnosis={diagnosis[r.case.id]}
-          goldSql={r.case.gold_sql}
-          runs={runs}
-          views={runViews(r.case.id)}
-        />
+        <CaseFailure key={r.case.id} result={r} />
       ))}
     </div>
   );

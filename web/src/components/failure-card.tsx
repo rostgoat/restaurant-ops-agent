@@ -3,7 +3,35 @@ import { Badge } from "@/components/ui/badge";
 import { RunHistory } from "@/components/every-case";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { RunViewer } from "@/components/run-viewer";
-import type { RunRecord, RunView } from "@/lib/evaluation";
+import {
+  describeExpectation,
+  diagnosis,
+  headline,
+  runs,
+  runViews,
+  suiteTitle,
+  type Result,
+  type RunRecord,
+  type RunView,
+} from "@/lib/evaluation";
+
+export function CaseFailure({ result: r }: { result: Result }) {
+  return (
+    <FailureCard
+      id={r.case.id}
+      headline={headline[r.case.id]}
+      suite={suiteTitle[r.case.suite] ?? r.case.suite}
+      tags={r.case.tags ?? []}
+      merchantId={r.case.merchant_id}
+      question={r.case.question}
+      expected={describeExpectation(r.case)}
+      diagnosis={diagnosis[r.case.id]}
+      goldSql={r.case.gold_sql}
+      runs={runs}
+      views={runViews(r.case.id)}
+    />
+  );
+}
 
 export function FailureCard({
   id,
