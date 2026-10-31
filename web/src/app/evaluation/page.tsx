@@ -43,7 +43,6 @@ const outline = [
   { slug: "retrieval", title: "Does it find the right rule?" },
   { slug: "citations", title: "Does it cite only what it was shown?" },
   { slug: "actions", title: "Does code hold the line on actions?" },
-  { slug: "model", title: "Would a bigger model help?" },
   { slug: "every-case", title: "Every case" },
   { slug: "limitations", title: "Limitations" },
 ];
@@ -95,6 +94,7 @@ export default function EvaluationPage() {
       </section>
 
       <Experiment
+        number={1}
         slug="meaning"
         title="Does it read a word the owner's way?"
         question="A query can pass all eight safety checks and still answer a different question from the one the owner asked. I wanted to know how often that happens, because nothing in the system would tell me."
@@ -107,28 +107,31 @@ export default function EvaluationPage() {
       </Experiment>
 
       <Experiment
+        number={2}
         slug="retrieval"
         title="Does it find the right rule?"
         question="When the owner asks what is allowed, the model searches their policies and only sees sections that score above a similarity threshold. If the right section scores under the line, the model is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
-        ran={`${policy.length} policy questions, each with the section I expect cited. The threshold is ${s.retrieval_threshold.toFixed(2)}, a number I picked on 23 October from ten captured runs because real matches scored above 0.55 and near misses below 0.49. Ten runs is not a measurement. It is a guess that happened to split cleanly.`}
-        found={`${passed(policy)} of ${policy.length}. Two of the misses are the same failure: the right section exists and scored 0.47 and 0.28, so the model was shown nothing and said the policies do not cover it. ${pct(s.retrieval.recall)} of the sections I expected were shown, and ${pct(s.retrieval.precision)} of the sections shown were ones I expected.`}
-        decided="On the earlier 52-case set I ran the policy questions at five thresholds and repeated the middle three, because one run swung by two cases. At 0.40 every expected section was shown on every repeat, at the cost of showing more sections that did not apply. The two errors are not equal. An extra section is mostly ignored. A hidden one makes the model say there is no rule, and the owner has no way to see through that. So the threshold moves to 0.40 on the next run. The miss at 0.28 will not be fixed by any threshold. That one is the wording of the search, and it is still open."
+        ran={`${policy.length} policy questions, each with the section I expect cited. The first run used a threshold of 0.50, a number I picked on 23 October from ten captured runs because real matches scored above 0.55 and near misses below 0.49. Ten runs is not a measurement. It is a guess that happened to split cleanly. The second run changed that one number to ${s.retrieval_threshold.toFixed(2)} and nothing else.`}
+        found={`11 of ${policy.length} both times, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the model was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place a question the policies really do not cover, health inspections, pulls in the Allergies section at 0.41, and the model cites it to say it does not apply, which my grader counts as a fail. Recall went from 86% to ${pct(s.retrieval.recall)}. Precision went from 46% to ${pct(s.retrieval.precision)}.`}
+        decided="The two errors are still not equal. An extra section shown is mostly ignored, and when the model did lean on one it said out loud that it did not apply. A hidden one makes the model say there is no rule, and the owner has no way to see through that. So 0.40 stays. What it bought was one rescued rule. What it cost was 17 points of precision and one grade, and what it exposed is that my rule for a not-covered case, nothing shown and nothing cited, is stricter than the behaviour I want. That rule is mine to fix and I have not decided how. The miss at 0.28 is unchanged. No threshold reaches it. That one is the wording of the search, and it is still open."
       >
         <Failures results={policy.filter((r) => r.case.id !== "pol-11")} />
       </Experiment>
 
       <Experiment
+        number={3}
         slug="citations"
         title="Does it cite only what it was shown?"
         question="An answer that cites a section the model was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
         ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
-        found="It fired once, on an answer that was right. The model wrote [§5] without the document name and the step failed it. A formatting slip, caught by code, and counted against the model because that is what the check is for."
-        decided="This is the check doing its job. What it does not do is read. It knows a cited section was shown, not that the section says what the answer claims. That is the third kind of wrong, the one with no code behind it, and I have not built it because I do not yet know how to check support without a second model whose own errors I would then have to measure."
+        found="It fired twice across the two runs, both times on an answer that was right. The model cited the first section with its full label, then shortened the next ones to [§5] or [§4, Frequency], and the step failed them. A formatting slip, caught by code, and counted against the model because that is what the check is for."
+        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could let the step accept a short label when it matches exactly one retrieved section, or tell the model in the prompt to write the full label every time. I lean to the second, because the check is the thing I trust and I would rather not teach it to guess. Not done yet. What the step still does not do is read. It knows a cited section was shown, not that the section says what the answer claims. That is the third kind of wrong, the one with no code behind it, and I have not built it because I do not yet know how to check support without a second model whose own errors I would then have to measure."
       >
         <Failures results={policy.filter((r) => r.case.id === "pol-11")} />
       </Experiment>
 
       <Experiment
+        number={4}
         slug="actions"
         title="Does code hold the line on actions?"
         question="When the model proposes an action, code re-derives every rule from the limits file and the database before a person sees it. I wanted to know whether anything that breaks a rule gets through."
@@ -138,15 +141,6 @@ export default function EvaluationPage() {
       >
         <Failures results={[...propose, ...guarded]} />
       </Experiment>
-
-      <Experiment
-        slug="model"
-        title="Would a bigger model help?"
-        question="The agent runs on Sonnet 5.5 at medium effort. I wanted to know whether a bigger model would fix the misses, because that is the first thing anyone suggests."
-        ran="On the earlier 52-case set, Sonnet at low effort and Opus 5.5 at medium, once each."
-        found="Sonnet low passed one more case than medium. Opus passed two fewer at 2.4 times the cost, and failed the same ways: a retrieval miss, a defensible reading of net, and addressing the asker as the owner."
-        decided="The model is not the bottleneck. What it is shown is. I have not rerun this on the current set, so it stays here as a conclusion from the old one, and I would not quote it as more than that until I do."
-      />
 
       <EveryCase />
 
@@ -161,9 +155,9 @@ export default function EvaluationPage() {
             a few phrases appear. It does not judge whether the explanation is sound.
           </p>
           <p>
-            {s.cases} cases catch regressions. They do not pin down a rate, and one run of each
-            setting is one sample, which I learned the hard way when a repeat swung by two cases.
-            Ground truth is mine: a query I wrote for each SQL case, the section I named for each
+            {s.cases} cases catch regressions. They do not pin down a rate, and one run of a
+            setting is one sample: the model words its own searches differently each time, so the
+            same case can pass today and fail tomorrow. Ground truth is mine: a query I wrote for each SQL case, the section I named for each
             policy case, and the status the trace records for refusals and proposals. If I read a
             word wrong, the gold is wrong, and the eval will not tell me.
           </p>
@@ -203,9 +197,7 @@ function Runs() {
               ))}
             </ul>
             <p className="mt-4 text-lg leading-relaxed">
-              <strong>Result.</strong>{" "}
-              {e === latest && `${data.summary.passed} of ${data.summary.scored}, ${dollars(data.summary.cost_total_usd)} for the run. `}
-              {e.conclusion}
+              <strong>Result.</strong> {e.result} {e.conclusion}
             </p>
           </li>
         ))}
@@ -215,6 +207,7 @@ function Runs() {
 }
 
 function Experiment({
+  number,
   slug,
   title,
   question,
@@ -223,6 +216,7 @@ function Experiment({
   decided,
   children,
 }: {
+  number: number;
   slug: string;
   title: string;
   question: string;
@@ -233,7 +227,8 @@ function Experiment({
 }) {
   return (
     <section className="mt-24">
-      <h2 id={slug} className="mb-8 scroll-mt-28 text-3xl">{title}</h2>
+      <p className="font-sql text-xs text-muted-foreground">Experiment {number} of 4</p>
+      <h2 id={slug} className="mt-2 mb-8 scroll-mt-28 text-3xl">{title}</h2>
       <dl className="grid gap-x-10 gap-y-6 text-lg leading-relaxed md:grid-cols-[10rem_1fr]">
         <Beat term="The question">{question}</Beat>
         <Beat term="What I ran">{ran}</Beat>

@@ -32,7 +32,7 @@ class Settings:
     retrieval_limit: int = 4
     # Set from ten captured cases: real matches scored 0.55 to 0.70, near misses
     # 0.37 to 0.49. The evaluation set is where this becomes a measured value.
-    retrieval_threshold: float = 0.50
+    retrieval_threshold: float = 0.40
     workspace_id: str | None = None
 
 

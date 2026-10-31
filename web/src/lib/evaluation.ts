@@ -50,6 +50,7 @@ export type Entry = {
   date: string;
   title: string;
   changed: string[];
+  result: string;
   conclusion: string;
 };
 export const changelog = changelogFile as Entry[];
@@ -72,16 +73,19 @@ export const diagnosis: Record<string, string> = {
     "A retrieval miss. The section that says Ridgeline is on no marketplace scored 0.28 against the model's searches, far under the 0.50 threshold, because a question about DoorDash dispute deadlines does not read like a sentence saying there are no marketplaces. Shown nothing twice, the model said the policies do not cover it and suggested the DoorDash portal, which is the wrong advice for a restaurant that is not on DoorDash.",
   "pol-11":
     "The answer was right and the campaign was blocked, as it should be. The failure is in the citation: the model wrote [§5] and [§3, Quiet Hours] without the document name, and the citations step, which only accepts labels exactly as retrieved, failed them. A formatting slip caught by code.",
-  "pol-12":
-    "A retrieval miss, by a hair. Ridgeline's Discounts section scored 0.47 and 0.49 on two of the model's four searches, under the 0.50 threshold each time. The model answered from the Catering section alone and never reached the 20% cap. At the 0.40 threshold this case would have been shown the section.",
+  "pol-03":
+    "The same slip as pol-11, on a different question. The model cited Quiet Hours with its full label, then shortened the next two to [§4, Frequency] and [§5, Offers in Messages]. The citations step accepts labels exactly as retrieved and failed them. The answer itself is right: no texts between 8pm and 9am.",
+  "pol-05":
+    "At 0.50 nothing scored above the line and the model said the policies do not cover health inspections. At 0.40 the Allergies section scored 0.41 and was shown. The model still said the policies do not cover it, and cited the section to say it does not apply. My grader's rule for a not-covered case is that nothing is shown and nothing is cited, so this counts as a fail. The answer is right. The grade is the price of the lower threshold, and the rule is mine to reconsider.",
 };
 
 // One line naming the failure in plain words, shown as the card's heading.
 export const headline: Record<string, string> = {
   "sql-05": "A query that runs clean, looks right, and returns the wrong number",
   "pol-02": "The rule exists, the search never shows it, and the agent says there is no rule",
-  "pol-12": "The rule is hidden by a hair and the agent answers from the wrong section",
   "pol-11": "A right answer with a sloppy citation, caught by code",
+  "pol-03": "The same sloppy citation, on a different question",
+  "pol-05": "A question the policies do not cover, and a section shown anyway",
 };
 
 export function modelQuery(trace: Trace): string | null {

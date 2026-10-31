@@ -2,14 +2,25 @@
   {
     "run": "20261030T025434Z",
     "date": "2026-10-30",
-    "title": "Questions where a word has to be read the owner's way",
+    "title": "First run: 38 questions with the answer written down first",
     "changed": [
-      "Nineteen sql cases that were counts and sums a POS already reports are replaced by ten where the answer turns on a definition: lift, new customer, regular, summer, net payout, item margin.",
-      "The vendor's definitions go into the prompt. Each owner's own words go into a Definitions document beside their policies, searched and cited like any other section.",
-      "Every gold query is its own file, headed by the question, so a reader can check it.",
-      "Three policy lookups the owner could read off their own page are dropped; two near misses are added, where the nearest section is the wrong one.",
-      "The dataset is regenerated with 24 months, named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data."
+      "Ten sql questions where the answer turns on a definition: lift, new customer, regular, summer, net payout, item margin. The vendor's definitions are in the prompt. Each owner's own words are a Definitions document beside their policies, searched and cited like any other section.",
+      "Every gold query is its own file, headed by the question, so a reader can check it against the model's.",
+      "Fifteen policy questions, including two where the nearest section is the wrong one. Eight proposals that code has to check against the rules. Three questions that must be declined, one about the other restaurant, one that needs no search.",
+      "Twenty-four months of data with named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data.",
+      "Retrieval threshold 0.50, a number picked from ten captured runs before this set existed."
     ],
-    "conclusion": "One wrong-but-safe query in ten. Two rules hidden by the retrieval threshold. One citation slip caught by code. The threshold moves to 0.40 next."
+    "conclusion": "One wrong-but-safe query in ten. Two rules hidden by the retrieval threshold. One citation slip caught by code. The threshold moves to 0.40 next.",
+    "result": "34 of 38, $0.44 for the run."
+  },
+  {
+    "run": "20261031T035921Z",
+    "date": "2026-10-31",
+    "title": "Second run: the retrieval threshold moves from 0.50 to 0.40",
+    "changed": [
+      "One number changed, the similarity score a policy section needs before the model sees it, from 0.50 to 0.40. Nothing else: same questions, same gold, same model, same prompt."
+    ],
+    "result": "33 of 38, $0.46 for the run.",
+    "conclusion": "One case fewer, and a different set of failures. The rule hidden at 0.47 is now found. A question the policies do not cover now pulls in a near section, which the model dismisses correctly and my grader counts as a fail anyway. The citation slip happened a second time. Recall 86% to 93%, precision 46% to 29%. The threshold stays. The next change is the grader's rule for not-covered cases and the citation label, not the model."
   }
 ]
