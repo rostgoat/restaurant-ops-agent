@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { TraceLedger, TraceMeta } from "@/components/trace";
 import { TwoQueries } from "@/components/two-queries";
+import { Answer } from "@/components/answer";
 import type { Trace } from "@/lib/api";
 import { MerchantBadge } from "@/components/merchant-badge";
 
@@ -83,7 +84,7 @@ export function FailureCard({
       {trace.answer && (
         <div className="mt-6">
           <h3 className="mb-2 text-base">What it answered</h3>
-          <p className="leading-relaxed text-muted-foreground">{trace.answer}</p>
+          <Answer text={trace.answer} merchantId={merchantId} className="text-muted-foreground" />
         </div>
       )}
       <div className="mt-6">
