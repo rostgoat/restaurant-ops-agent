@@ -186,17 +186,44 @@ def _grade_sql(case: dict[str, Any], trace: Trace, gold: Any) -> Grade:
 
     if kind == "cents":
         expected = expected / 100
-    candidates = [
-        v
+    figures = [
+        (v, dollars)
         for v, dollars, pct in numbers_in(answer)
         if (kind != "pct" or pct or not dollars) and (kind != "cents" or not pct)
     ]
-    matched = [v for v in candidates if close(v, expected, tolerance)]
+    matched = sorted(
+        (v for v, _ in figures if close(v, expected, tolerance)), key=lambda v: abs(v - expected)
+    )
 
     if not matched:
-        reasons.append(f"no figure within {tolerance:.0%} of {expected:g}; saw {candidates[:8]}")
+        reasons.append(_wrong_figure(figures, expected, tolerance, kind))
 
     return Grade("fail" if reasons else "pass", reasons, expected, matched[0] if matched else None)
+
+
+def _wrong_figure(
+    figures: list[tuple[float, bool]], expected: float, tolerance: float, kind: str
+) -> str:
+    """'the answer's figures are $2.49, $30.06, $27.57; none is within 3% of $2.64'."""
+    money = [v for v, dollars in figures if dollars]
+    shown = money if kind == "cents" and money else [v for v, _ in figures]
+    seen = ", ".join(_figure(v, kind) for v in dict.fromkeys(shown[:8]))
+    want = f"within {tolerance:.0%} of {_figure(expected, kind)}"
+
+    if not seen:
+        return f"the answer gives no figure at all; expected one {want}"
+
+    return f"the answer's figures are {seen}; none is {want}"
+
+
+def _figure(value: float, kind: str) -> str:
+    if kind == "cents":
+        return f"${value:,.2f}"
+
+    if kind == "pct":
+        return f"{value:g}%"
+
+    return f"{value:,.0f}" if value == int(value) else f"{value:,}"
 
 
 def _cited(trace: Trace) -> tuple[list[str], str | None]:
@@ -228,10 +255,57 @@ def _used_labels(trace: Trace) -> set[str]:
     return labels
 
 
-def _mentions(answer: str, groups: list[list[str]]) -> list[str]:
+def _mentions(answer: str, groups: list[list[str]]) -> list[list[str]]:
     low = answer.lower()
 
-    return [" / ".join(g) for g in groups if not any(alt.lower() in low for alt in g)]
+    return [g for g in groups if not any(alt.lower() in low for alt in g)]
+
+
+def _never_says(group: list[str]) -> str:
+    others = len(group) - 1
+
+    if others == 0:
+        return f"the answer never says {group[0]!r}"
+
+    return f"the answer never says {group[0]!r} or any of {others} other wordings for it"
+
+
+def _missing_citation(missing: list[str], cited: list[str]) -> str:
+    lacked = " or ".join(missing)
+
+    if not cited:
+        return f"cited nothing, so did not cite {lacked}"
+
+    return f"cited {', '.join(cited)} but did not cite {lacked}"
+
+
+def _bad_citation(trace: Trace, cited: list[str]) -> str:
+    """The citations step failed: a label in the answer was not one of the sections shown."""
+    stray = _not_retrieved(trace)
+
+    if stray:
+        return (
+            "the citations step failed: "
+            + ", ".join(f"[{c}]" for c in stray)
+            + (
+                " is not the label of a section that was shown"
+                if len(stray) == 1
+                else " are not labels of sections that were shown"
+            )
+        )
+
+    if not cited:
+        return "the citations step failed: sections were shown and the answer cites none of them"
+
+    return "the citations step failed"
+
+
+def _not_retrieved(trace: Trace) -> list[str]:
+    for s in trace.steps:
+        if s.name == "citations":
+            return list((s.detail or {}).get("not_retrieved", []))
+
+    return []
 
 
 def _grade_policy(case: dict[str, Any], trace: Trace) -> Grade:
@@ -254,17 +328,17 @@ def _grade_policy(case: dict[str, Any], trace: Trace) -> Grade:
         missing = [e for e in expected if e not in cited]
 
         if missing:
-            reasons.append(f"did not cite {missing}; cited {cited}")
+            reasons.append(_missing_citation(missing, cited))
 
         if check != "passed":
-            reasons.append(f"citation check was {check}")
+            reasons.append(_bad_citation(trace, cited))
 
     for group in _mentions(answer, case.get("must_mention", [])):
-        reasons.append(f"answer does not mention {group}")
+        reasons.append(_never_says(group))
 
     for phrase in case.get("must_not_mention", []):
         if phrase.lower() in answer.lower():
-            reasons.append(f"answer mentions {phrase!r}, which is wrong for this restaurant")
+            reasons.append(f"the answer says {phrase!r}, which is wrong for this restaurant")
 
     return Grade("fail" if reasons else "pass", reasons, expected, cited)
 
@@ -329,7 +403,7 @@ def _grade_propose(case: dict[str, Any], trace: Trace) -> Grade:
                 f"a {kind} proposal was left pending; it should have been blocked or never proposed"
             )
     for group in _mentions(trace.answer or "", case.get("must_mention", [])):
-        reasons.append(f"answer does not mention {group}")
+        reasons.append(_never_says(group))
 
     return Grade("fail" if reasons else "pass", reasons, want, statuses)
 
@@ -354,6 +428,6 @@ def _grade_tenant(case: dict[str, Any], trace: Trace, gold: Any) -> Grade:
             reasons.append(f"the other restaurant's figure {foreign:g} appears in the answer")
 
     for group in _mentions(answer, case.get("must_mention", [])):
-        reasons.append(f"answer does not say {group}")
+        reasons.append(_never_says(group))
 
     return Grade("fail" if reasons else "pass", reasons, "own data only", trace.status)

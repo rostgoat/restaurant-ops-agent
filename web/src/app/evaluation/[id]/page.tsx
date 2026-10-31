@@ -8,16 +8,8 @@ import { PageOutline } from "@/components/page-outline";
 import { TraceLedger } from "@/components/trace";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { TwoQueries } from "@/components/two-queries";
-import { compare, data, describeExpectation, diagnosis, modelQuery, suiteTitle, type Outcome } from "@/lib/evaluation";
+import { data, describeExpectation, diagnosis, modelQuery, suiteTitle } from "@/lib/evaluation";
 import { pageMetadata } from "@/lib/site";
 import { count } from "@/lib/format";
 
@@ -45,7 +37,6 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
   const prev = data.results[index - 1];
   const next = data.results[index + 1];
   const c = r.case as typeof r.case & { note?: string };
-  const others = compare.cases.find((x) => x.id === id);
   const outcomeTone =
     r.grade.outcome === "pass"
       ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
@@ -60,7 +51,6 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
           { slug: "expectation", title: "What should happen, and what the grader found" },
           ...(c.gold_sql ? [{ slug: "queries", title: "The two queries" }] : []),
           { slug: "answer", title: "What it answered" },
-          { slug: "other-runs", title: "Other models and thresholds" },
           { slug: "trace", title: "The trace" },
         ]}
       />
@@ -121,8 +111,6 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
         </section>
       )}
 
-      {others && <OtherRuns outcomes={others.outcomes} />}
-
       <section id="trace" className="mt-16 scroll-mt-28">
         <h2 className="mb-3 text-2xl">The trace</h2>
         <p className="mb-8 text-lg text-muted-foreground">
@@ -179,99 +167,4 @@ function figure(v: unknown, kind: string | undefined): string {
   if (kind === "pct") return `${v}%`;
 
   return count(v);
-}
-
-function OtherRuns({ outcomes }: { outcomes: Record<string, Outcome> }) {
-  const main = compare.runs[0];
-  const models = compare.runs.filter((r) => r.retrieval_threshold === main.retrieval_threshold);
-  const thresholds = compare.runs
-    .filter((r) => r === main || r.retrieval_threshold !== main.retrieval_threshold)
-    .filter((r) => r.model === main.model && r.effort === main.effort)
-    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
-  const ran = (r: (typeof compare.runs)[number]) => outcomes[r.label] != null;
-
-  if (models.filter(ran).length < 2 && thresholds.filter(ran).length < 2) return null;
-
-  return (
-    <section id="other-runs" className="mt-16 scroll-mt-28">
-      <h2 className="mb-3 text-2xl">Other models and thresholds</h2>
-      <p className="mb-8 text-lg leading-relaxed text-muted-foreground">
-        The result above comes from the main run: {modelName(main.model)} at {main.effort} effort,
-        showing the model only policy sections that score above {main.retrieval_threshold}. The
-        question was also asked once with the model or the effort changed, and once at each other
-        threshold. One run each, so a flip here is one sample, not a rate.
-      </p>
-      <div className="grid gap-10 md:grid-cols-2">
-        {models.filter(ran).length > 1 && (
-          <RunTable
-            title="Model and effort"
-            rows={models.map((r) => ({ key: r.label, label: `${modelName(r.model)}, ${r.effort} effort`, main: r === main, o: outcomes[r.label] }))}
-          />
-        )}
-        {thresholds.filter(ran).length > 1 && (
-          <RunTable
-            title="Retrieval threshold"
-            rows={thresholds.map((r) => ({ key: r.label, label: r.retrieval_threshold.toFixed(2), main: r === main, o: outcomes[r.label] }))}
-          />
-        )}
-      </div>
-    </section>
-  );
-}
-
-function RunTable({
-  title,
-  rows,
-}: {
-  title: string;
-  rows: { key: string; label: string; main: boolean; o: Outcome }[];
-}) {
-  return (
-    <div>
-      <h3 className="mb-2 text-base">{title}</h3>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Run</TableHead>
-            <TableHead>Result</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow key={row.key}>
-              <TableCell className="whitespace-nowrap align-top">
-                {row.label}
-                {row.main && <span className="ml-2 text-xs text-muted-foreground">this page</span>}
-              </TableCell>
-              <TableCell className="whitespace-normal align-top">
-                {row.o ? (
-                  <>
-                    <Badge
-                      variant="outline"
-                      className={`font-heading ${
-                        row.o.outcome === "pass"
-                          ? "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
-                          : "border-rose-500/30 bg-rose-500/15 text-rose-700 dark:text-rose-300"
-                      }`}
-                    >
-                      {row.o.outcome}
-                    </Badge>
-                    {row.o.outcome !== "pass" && row.o.reasons[0] && (
-                      <p className="mt-1 text-sm text-muted-foreground">{row.o.reasons[0]}</p>
-                    )}
-                  </>
-                ) : (
-                  <span className="text-sm text-muted-foreground">not run</span>
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
-function modelName(id: string): string {
-  return id.replace("claude-", "").replace("-5-5", " 5.5").replace(/^\w/, (c) => c.toUpperCase());
 }

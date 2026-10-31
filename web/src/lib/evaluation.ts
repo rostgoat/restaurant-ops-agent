@@ -1,6 +1,6 @@
 import type { Trace } from "@/lib/api";
 import run from "@/content/eval-run.json";
-import compareFile from "@/content/eval-compare.json";
+import changelogFile from "@/content/changelog.json";
 
 export type Result = {
   case: {
@@ -45,15 +45,14 @@ export type Run = {
 
 export const data = run as unknown as Run;
 
-export type Outcome = { outcome: string; reasons: string[]; cost_usd: number; passes?: number; reps?: number } | null;
-export type Compare = {
-  runs: (Omit<Run["summary"], "ran_at" | "commit" | "dataset" | "frozen_now" | "ground_truth"> & {
-    label: string;
-    reps?: number[];
-  })[];
-  cases: { id: string; suite: string; question: string; outcomes: Record<string, Outcome>; differs: boolean }[];
+export type Entry = {
+  run: string;
+  date: string;
+  title: string;
+  changed: string[];
+  conclusion: string;
 };
-export const compare = compareFile as unknown as Compare;
+export const changelog = changelogFile as Entry[];
 
 export const suiteTitle: Record<string, string> = {
   sql: "SQL: the figure, on questions where a word needs a definition",
@@ -92,13 +91,20 @@ export function modelQuery(trace: Trace): string | null {
   return last ? String(last.detail!.sql) : null;
 }
 
-export const failures = data.results.filter((r) => r.grade.outcome === "fail");
 export const errors = data.results.filter((r) => r.grade.outcome === "error");
+
+export function suite(name: string): Result[] {
+  return data.results.filter((r) => r.case.suite === name);
+}
+
+export function failed(results: Result[]): Result[] {
+  return results.filter((r) => r.grade.outcome === "fail");
+}
 
 export function describeExpectation(c: Result["case"] & Record<string, unknown>): string {
   switch (c.suite) {
     case "sql":
-      return "Answered, and the answer contains the figure from the reference query.";
+      return "Answered, and the answer contains the figure from the query I wrote.";
     case "policy":
       return c.retrieval_empty
         ? "Answered without citing anything, because no section of this restaurant's policies applies."

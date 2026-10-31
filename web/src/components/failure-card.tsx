@@ -14,7 +14,6 @@ import { MerchantBadge } from "@/components/merchant-badge";
 
 export function FailureCard({
   id,
-  number,
   headline,
   suite,
   tags,
@@ -28,7 +27,6 @@ export function FailureCard({
   trace,
 }: {
   id: string;
-  number: number;
   headline?: string;
   suite: string;
   tags: string[];
@@ -45,9 +43,7 @@ export function FailureCard({
 
   return (
     <article className="border-t pt-8">
-      <h3 className="text-2xl">
-        Failure {number}. {headline ?? `Case ${id}`}
-      </h3>
+      <h3 className="text-2xl">{headline ?? `Case ${id}`}</h3>
       <p className="mt-2 mb-3 text-sm text-muted-foreground">
         <Link href={`/evaluation/${id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
           {id}

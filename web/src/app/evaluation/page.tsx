@@ -15,45 +15,47 @@ import { PageOutline } from "@/components/page-outline";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { StatusBadge } from "@/components/trace";
 import { count, dollars, seconds } from "@/lib/format";
-import { compare, data, describeExpectation, diagnosis, errors, failures, headline, modelQuery, suiteTitle, type Compare } from "@/lib/evaluation";
+import {
+  changelog,
+  data,
+  describeExpectation,
+  diagnosis,
+  errors,
+  failed,
+  headline,
+  modelQuery,
+  suite,
+  suiteTitle,
+  type Result,
+} from "@/lib/evaluation";
 
 const QUESTIONS_PER_DAY = 20;
 
 export const metadata = pageMetadata(
   "Evaluation",
-  `${data.summary.cases} questions with a known right answer, graded by code. Every failure shown in full, with the query a person wrote beside the query the model wrote.`,
+  `${data.summary.cases} questions with a known right answer, graded by code, run after run. Where a wrong answer is caught, where it is only measured, and where it is not.`,
   "/evaluation",
 );
 
 const outline = [
-  { slug: "failures", title: "The failures" },
+  { slug: "runs", title: "The runs" },
+  { slug: "meaning", title: "Does it read a word the owner's way?" },
+  { slug: "retrieval", title: "Does it find the right rule?" },
+  { slug: "citations", title: "Does it cite only what it was shown?" },
+  { slug: "actions", title: "Does code hold the line on actions?" },
+  { slug: "model", title: "Would a bigger model help?" },
   { slug: "every-case", title: "Every case" },
-  { slug: "by-suite", title: "By suite" },
-  ...(compare.runs.length > 1 ? [{ slug: "comparison", title: "Other models, efforts and thresholds" }] : []),
   { slug: "limitations", title: "Limitations" },
 ];
 
 export default function EvaluationPage() {
   const s = data.summary;
-  const low = compare.runs.find((r) => r.effort === "low");
-  const opus = compare.runs.find((r) => r.model === "claude-opus-5-5");
-  const repeated = compare.runs
-    .filter((r) => (r.reps?.length ?? 1) > 1)
-    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
-  const repsText = repeated
-    .map((r) => `${r.reps!.join(", ")} at ${r.retrieval_threshold.toFixed(2)}`)
-    .join("; ");
-  const repsSpread = Math.max(...repeated.map((r) => Math.max(...r.reps!) - Math.min(...r.reps!)));
-  const repsMeans = repeated
-    .map((r) => `${(r.reps!.reduce((a, b) => a + b, 0) / r.reps!.length).toFixed(1)} at ${r.retrieval_threshold.toFixed(2)}`)
-    .join(", ");
-  const repsAsks = repeated.length ? repeated[0].scored : 0;
-  const opusCostRatio = opus ? (opus.cost_total_usd / s.cost_total_usd).toFixed(1) : null;
-  const t040 = compare.runs.find((r) => r.retrieval_threshold === 0.4);
-  const t060 = compare.runs.find((r) => r.retrieval_threshold === 0.6);
-  const when = new Date(s.ran_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const rate = s.scored ? Math.round((100 * s.passed) / s.scored) : 0;
   const perMonth = s.cost_per_answered_median_usd !== null ? s.cost_per_answered_median_usd * QUESTIONS_PER_DAY * 30 : null;
+  const sql = suite("sql");
+  const policy = suite("policy");
+  const propose = suite("propose");
+  const guarded = [...suite("refuse"), ...suite("tenant"), ...suite("answer")];
 
   return (
     <>
@@ -61,153 +63,90 @@ export default function EvaluationPage() {
       <section>
         <Kicker page="Evaluation" />
         <h1 className="mt-4 max-w-[30ch] text-4xl sm:text-6xl">
-          {s.cases} questions, graded by code. {s.passed} pass.
+          Where a wrong answer is caught, where it is only measured, and where it is not.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
           The{" "}
           <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
             scenarios
           </Link>{" "}
-          are stories. Evaluation is the measurement behind them: {s.cases} questions with the
-          right answer written down in advance, passed through the same agent against a frozen copy
-          of the data, and graded by code.
-          {failures.length === 1 ? " The one case that fails is shown in full below." : failures.length > 1 ? ` The ${failures.length} cases that fail are shown in full below.` : ""}
+          are stories. This page is the experiment behind them. {s.cases} questions with the right
+          answer written down in advance go through the same agent against a frozen copy of the
+          data, and code grades each answer. I run it again after every change, and each run is
+          an entry below: what changed, what the score did, and what I concluded.
         </p>
         <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          Last run {when}. A SQL answer must contain the figure a query I wrote returns from that
-          database, on questions where a word like lunch, regular or lift has to be read the way the
-          owner means it. A policy answer must cite the section I named and must not quote the
-          other restaurant&apos;s rules. A refusal is graded on its status. A proposal is graded on
-          the status the checker gave it.
+          A SQL answer must contain the figure a query I wrote returns from that database, on
+          questions where a word like lunch, regular or lift has to be read the way the owner means
+          it. A policy answer must cite the section I named and must not quote the other
+          restaurant&apos;s rules. A refusal is graded on its status. A proposal is graded on the
+          status the checker gave it.
         </p>
       </section>
 
+      <Runs />
+
       <section className="mt-16 grid gap-8 sm:grid-cols-3">
-        <Figure value={`${rate}%`} label={`${s.passed} of ${s.scored} cases pass${s.errors ? `; ${s.errors} ended in an error that is not the model's` : ""}`} />
+        <Figure value={`${rate}%`} label={`${s.passed} of ${s.scored} cases pass on the latest run${s.errors ? `; ${s.errors} ended in an error that is not the model's` : ""}`} />
         <Figure value={s.cost_per_answered_median_usd !== null ? dollars(s.cost_per_answered_median_usd) : "n/a"} label={`typical cost of an answer on ${s.model}; nine in ten cost under ${s.cost_per_answered_p90_usd !== null ? dollars(s.cost_per_answered_p90_usd) : "n/a"}`} />
         <Figure value={perMonth !== null ? `$${perMonth.toFixed(2)}` : "n/a"} label={`per restaurant per month at ${QUESTIONS_PER_DAY} questions a day, an assumption, not a measurement`} />
       </section>
 
-      <FailuresSection />
+      <Experiment
+        slug="meaning"
+        title="Does it read a word the owner's way?"
+        question="A query can pass every safety check and still answer a different question from the one asked. How often does that happen?"
+        ran={`${sql.length} questions where the answer turns on a definition. Each has a query I wrote for what the question means, run on the frozen database for the expected figure. The model never sees it. The grader looks for that figure in the answer.`}
+        found={`${passed(sql)} of ${sql.length}. The one miss is a query that passed all eight guard checks and ran clean.`}
+        decided="Nothing in the system catches this kind of wrong at runtime, and nothing in the guard could, because the query is safe. So it is measured here instead of enforced. The query I wrote and the query the model wrote are shown side by side on every case, so the difference is readable."
+      >
+        <SqlTable results={sql} />
+        <Failures results={sql} />
+      </Experiment>
+
+      <Experiment
+        slug="retrieval"
+        title="Does it find the right rule?"
+        question="When the owner asks what is allowed, the model searches their policies and is shown only sections that score above a similarity threshold. Does the right section get through?"
+        ran={`${policy.length} policy questions, each with the section I expect cited. The threshold is ${s.retrieval_threshold.toFixed(2)}, a number I picked on 23 October from ten captured runs, where real matches scored above 0.55 and near misses below 0.49.`}
+        found={`${passed(policy)} of ${policy.length}. ${pct(s.retrieval.recall)} of the expected sections were shown to the model, and ${pct(s.retrieval.precision)} of the sections shown were expected. Two of the misses are the same failure: the right section exists and scores under the threshold, so the model is shown nothing and says the policies do not cover it.`}
+        decided="On the earlier 52-case set I ran the policy questions at five thresholds and repeated the middle three, because one run of each swung by two cases. At 0.40 every expected section was shown on every repeat. The two errors are not equal: an extra section is mostly ignored, a hidden one makes the model say there is no rule, which the owner cannot see through. The threshold moves to 0.40 on the next run. One miss scored 0.28 and no threshold reaches it; that one is a search wording problem."
+      >
+        <Failures results={policy.filter((r) => r.case.id !== "pol-11")} />
+      </Experiment>
+
+      <Experiment
+        slug="citations"
+        title="Does it cite only what it was shown?"
+        question="An answer that cites a section the model was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. Does it fire?"
+        ran="Every policy case. The citations step runs on every answer, and the grader recomputes it from the answer text, so a regrade uses today's parser."
+        found="It fired once, on an answer that was otherwise right: the model wrote [§5] without the document name, and the step failed it."
+        decided="This is the check working. The gap it leaves is support: it knows a cited section was shown, not that the section says what the answer claims. That is the one of Dom's three questions with no code behind it yet."
+      >
+        <Failures results={policy.filter((r) => r.case.id === "pol-11")} />
+      </Experiment>
+
+      <Experiment
+        slug="actions"
+        title="Does code hold the line on actions?"
+        question="When the model proposes an action, code re-derives every rule from the limits file and the database before a person sees it. Does anything that breaks a rule get through?"
+        ran={`${propose.length} proposals: disputes inside and outside their window, campaigns over and under the discount cap, an audience the model counted wrong, a comp over the manager's limit. Plus ${guarded.length} questions that must be declined, scoped or answered without a search.`}
+        found={`${passed(propose)} of ${propose.length} proposals, ${passed(guarded)} of ${guarded.length} of the rest. The checker counted 563 consenting customers where the model said everyone with a phone number, and blocked a 25% campaign under a 20% cap.`}
+        decided="This is the strongest part, because it is the only part where the model's output is input and the verdict is code. It is the part of the project worth extending."
+      >
+        <Failures results={[...propose, ...guarded]} />
+      </Experiment>
+
+      <Experiment
+        slug="model"
+        title="Would a bigger model help?"
+        question="The agent runs on Sonnet 5.5 at medium effort. Is the model the bottleneck?"
+        ran="On the earlier 52-case set: Sonnet at low effort, and Opus 5.5 at medium effort, each once."
+        found="Sonnet low passed one more case than medium. Opus passed two fewer, at 2.4 times the cost, and failed the same ways: a retrieval miss, a defensible reading of net, and addressing the asker as the owner."
+        decided="The model is not the bottleneck; what it is shown is. This experiment has not been rerun on the current set, so it stays here as a conclusion from the old one until it is."
+      />
 
       <EveryCase />
-
-      <section className="mt-24">
-        <h2 id="by-suite" className="mb-6 scroll-mt-28 text-3xl">By suite</h2>
-        <Table className="max-w-3xl">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Suite</TableHead>
-              <TableHead className="text-right">Passed</TableHead>
-              <TableHead className="text-right">Of</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Object.entries(s.suites).map(([suite, v]) => (
-              <TableRow key={suite}>
-                <TableCell className="whitespace-normal">{suiteTitle[suite] ?? suite}</TableCell>
-                <TableCell className="text-right font-sql">{v.passed}</TableCell>
-                <TableCell className="text-right font-sql">{v.total}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-        <p className="mt-4 text-sm text-muted-foreground">
-          Retrieval, over the policy cases: {fmt(s.retrieval.precision)} of the sections shown to
-          the model were ones the author expected, and {fmt(s.retrieval.recall)} of the expected
-          sections were shown, at a similarity threshold of {s.retrieval_threshold}. A typical
-          answer takes {seconds(s.latency_median_ms ?? 0)}; nine in ten take under{" "}
-          {seconds(s.latency_p90_ms ?? 0)}.
-        </p>
-      </section>
-
-      {compare.runs.length > 1 && (
-        <section className="mt-24">
-          <h2 id="comparison" className="mb-6 scroll-mt-28 text-3xl">Other models, efforts and thresholds</h2>
-          <p className="mb-6 text-lg leading-relaxed text-muted-foreground">
-            The first row is the run this page reports. Each other row changes one setting: the
-            model, the effort, or the retrieval threshold. The threshold is the similarity score a
-            policy section needs before the model sees it. Threshold runs cover the{" "}
-            {s.suites.policy?.total ?? 0} policy cases only.
-          </p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Run</TableHead>
-                <TableHead className="text-right">Pass</TableHead>
-                <TableHead className="text-right">SQL</TableHead>
-                <TableHead className="text-right">Policy</TableHead>
-                <TableHead className="text-right">Proposals</TableHead>
-                <TableHead className="max-w-[7rem] text-right whitespace-normal">Retrieval precision / recall</TableHead>
-                <TableHead className="max-w-[6rem] text-right whitespace-normal">Cost per answer</TableHead>
-                <TableHead className="max-w-[6rem] text-right whitespace-normal">Time per answer</TableHead>
-                <TableHead className="max-w-[5rem] text-right whitespace-normal">Whole run</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {compare.runs.map((r) => (
-                <TableRow key={r.label}>
-                  <TableCell className="whitespace-nowrap">{runName(r)}</TableCell>
-                  <TableCell className="text-right font-sql">
-                    {r.passed}/{r.scored}
-                  </TableCell>
-                  <TableCell className="text-right font-sql">{suiteCell(r.suites.sql)}</TableCell>
-                  <TableCell className="text-right font-sql">{suiteCell(r.suites.policy)}</TableCell>
-                  <TableCell className="text-right font-sql">{suiteCell(r.suites.propose)}</TableCell>
-                  <TableCell className="text-right font-sql">
-                    {fmt(r.retrieval.precision)} / {fmt(r.retrieval.recall)}
-                  </TableCell>
-                  <TableCell className="text-right font-sql">
-                    {r.cost_per_answered_median_usd !== null ? dollars(r.cost_per_answered_median_usd) : "n/a"}
-                  </TableCell>
-                  <TableCell className="text-right font-sql">{seconds(r.latency_median_ms ?? 0)}</TableCell>
-                  <TableCell className="text-right font-sql">{dollars(r.cost_total_usd)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <Differences />
-          <div className="mt-10 space-y-4 text-lg leading-relaxed text-muted-foreground">
-            <p>I ran the same {s.cases} questions several ways to find out where this system breaks.</p>
-            <p>
-              <strong className="text-foreground">Model.</strong> The model is not the bottleneck.
-              Sonnet at low effort passes {`${low?.passed ?? "?"} of ${low?.scored ?? "?"}`} cases
-              and at medium effort it passes {s.passed}. The gap is one case, and it turns on how the
-              model phrases its answer, not on how it reasons.
-              {opus
-                ? ` Opus passes ${opus.passed} of ${opus.scored} and costs ${opusCostRatio} times as much. Its failures are a retrieval miss, a defensible reading of "net", and twice treating the asker as the owner.`
-                : " A bigger model would cost more and change nothing here."}
-            </p>
-            <p>
-              <strong className="text-foreground">Retrieval.</strong> The bottleneck is what the
-              model is shown. Both failures on the main run happen the same way. The right policy
-              section exists, but it scores 0.38 to 0.49 against the model&apos;s search, and the
-              threshold is {s.retrieval_threshold.toFixed(2)}. The model sees nothing and tells the
-              user the policy is silent. That is the failure I worry about most. A wrong number is
-              easy to catch. A confident &ldquo;there is no rule&rdquo; is not.
-            </p>
-            <p>
-              <strong className="text-foreground">Threshold.</strong> So I ran the policy cases
-              at four other thresholds. At 0.40 the model sees {fmt(t040?.retrieval.recall ?? null)} of the right
-              sections, plus some that do not apply. At 0.60 it sees{" "}
-              {fmt(t060?.retrieval.recall ?? null)}, and four discount questions fail together when
-              one section drops below the bar. The two mistakes are not equal. An extra section is
-              mostly ignored. A hidden one produces a confident wrong answer. So err low, between
-              0.40 and 0.50.
-            </p>
-            <p>
-              <strong className="text-foreground">Measurement.</strong> The model writes its own
-              searches and words them differently each time, so one run of a setting is one
-              sample. I ran the policy cases three times each at 0.40, 0.45 and 0.50. The pass
-              counts per run were {repsText}. The swing inside one setting is{" "}
-              {repsSpread} cases, the same as the gap between settings, so the mean is what to
-              read: {repsMeans}. At 0.40 every expected section was shown on all{" "}
-              {repsAsks} asks. The threshold should move to 0.40. This page still reports the main
-              run at 0.50 until it is redone there.
-            </p>
-          </div>
-        </section>
-      )}
 
       <section className="mt-24">
         <h2 id="limitations" className="mb-6 scroll-mt-28 text-3xl">Limitations</h2>
@@ -215,9 +154,9 @@ export default function EvaluationPage() {
           <p>
             The graders check less than a person would. The SQL grader looks for the expected
             figure among the numbers in the answer. It cannot tell a right number reached by a wrong
-            query from a right answer, and it cannot tell a wrong answer from a right one that
-            leaves the number out. The policy grader checks that the right section is cited and
-            that a few phrases appear. It does not judge whether the explanation is sound.
+            query from a right answer, and an answer that states the right figure and the wrong
+            one both passes. The policy grader checks that the right section is cited and that a
+            few phrases appear. It does not judge whether the explanation is sound.
           </p>
           <p>
             {s.cases} cases catch regressions. They do not pin down a rate. Ground truth is
@@ -229,11 +168,7 @@ export default function EvaluationPage() {
             and settings, on a frozen copy of the data with the clock set to{" "}
             {s.frozen_now.slice(0, 10)}. A request that errors is counted apart from the
             model&apos;s failures. The run file with every trace is in the repository under
-            api/evals/runs. The{" "}
-            <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
-              scenarios
-            </Link>{" "}
-            tell the same story in prose.
+            api/evals/runs.
           </p>
         </div>
       </section>
@@ -241,88 +176,186 @@ export default function EvaluationPage() {
   );
 }
 
-function EveryCase() {
+// The runs, oldest first, in the form of a changelog: what changed before
+// each one, what the score did, and what I concluded.
+function Runs() {
+  const latest = changelog[changelog.length - 1];
+
   return (
-      <section className="mt-24">
-        <h2 id="every-case" className="mb-6 scroll-mt-28 text-3xl">Every case</h2>
-        <Table className="min-w-[760px]">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Case</TableHead>
-              <TableHead>Question</TableHead>
-              <TableHead>Asked as</TableHead>
-              <TableHead>Result</TableHead>
-              <TableHead className="text-right">Time</TableHead>
-              <TableHead className="text-right">Cost</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.results.map((r) => (
-              <TableRow key={r.case.id}>
-                <TableCell className="font-sql text-xs">
-                  <Link href={`/evaluation/${r.case.id}`} className="text-primary underline-offset-4 hover:underline">
-                    {r.case.id}
-                  </Link>
-                </TableCell>
-                <TableCell className="whitespace-normal">{r.case.question}</TableCell>
-                <TableCell className="whitespace-nowrap">
-                  <MerchantBadge merchantId={r.case.merchant_id} />
-                </TableCell>
-                <TableCell>
-                  <OutcomeBadge outcome={r.grade.outcome} />{" "}
-                  <StatusBadge status={r.trace.status} />
-                </TableCell>
-                <TableCell className="text-right font-sql text-[13px]">{seconds(r.trace.latency_ms)}</TableCell>
-                <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </section>
+    <section className="mt-24">
+      <h2 id="runs" className="mb-8 scroll-mt-28 text-3xl">The runs</h2>
+      <ol className="border-l">
+        {changelog.map((e, i) => (
+          <li key={e.run} className="relative pb-12 pl-8 last:pb-0">
+            <span className="absolute top-2 -left-[5px] size-[9px] rounded-full bg-primary" aria-hidden />
+            <p className="font-sql text-xs text-muted-foreground">
+              Run {i + 1}, {longDate(e.date)}
+              {e === latest && <span className="ml-2 text-primary">this page</span>}
+            </p>
+            <h3 className="mt-2 text-2xl">{e.title}</h3>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-lg leading-relaxed text-muted-foreground">
+              {e.changed.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ul>
+            <p className="mt-4 text-lg leading-relaxed">
+              <strong>Result.</strong>{" "}
+              {e === latest && `${data.summary.passed} of ${data.summary.scored}, ${dollars(data.summary.cost_total_usd)} for the run. `}
+              {e.conclusion}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
-function FailuresSection() {
+function Experiment({
+  slug,
+  title,
+  question,
+  ran,
+  found,
+  decided,
+  children,
+}: {
+  slug: string;
+  title: string;
+  question: string;
+  ran: string;
+  found: string;
+  decided: string;
+  children?: React.ReactNode;
+}) {
   return (
-      <section className="mt-24">
-        <h2 id="failures" className="mb-6 scroll-mt-28 text-3xl">
-          {failures.length === 0 ? "No failures" : failures.length === 1 ? "The one failure" : `The ${failures.length} failures`}
-        </h2>
-        {failures.length === 0 ? (
-          <p className=" text-lg text-muted-foreground">
-            Every case passed on this run. {data.summary.cases} cases is a small set. It shows nothing
-            regressed, not that the agent is right in general.
-          </p>
-        ) : (
-          <div className="space-y-12">
-            {failures.map((r, i) => (
-              <FailureCard
-                key={r.case.id}
-                id={r.case.id}
-                number={i + 1}
-                headline={headline[r.case.id]}
-                suite={suiteTitle[r.case.suite] ?? r.case.suite}
-                tags={r.case.tags ?? []}
-                merchantId={r.case.merchant_id}
-                question={r.case.question}
-                expected={describeExpectation(r.case)}
-                reasons={r.grade.reasons}
-                diagnosis={diagnosis[r.case.id]}
-                goldSql={r.case.gold_sql}
-                modelSql={modelQuery(r.trace)}
-                trace={r.trace}
-              />
-            ))}
-          </div>
-        )}
-        {errors.length > 0 && (
-          <p className="mt-8 text-sm text-muted-foreground">
-            {errors.length} {errors.length === 1 ? "case" : "cases"} ended in an error from the API
-            or the harness and {errors.length === 1 ? "is" : "are"} left out of the pass rate rather
-            than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
-          </p>
-        )}
-      </section>
+    <section className="mt-24">
+      <h2 id={slug} className="mb-8 scroll-mt-28 text-3xl">{title}</h2>
+      <dl className="grid gap-x-10 gap-y-6 text-lg leading-relaxed md:grid-cols-[10rem_1fr]">
+        <Beat term="The question">{question}</Beat>
+        <Beat term="What I ran">{ran}</Beat>
+        <Beat term="What came back">{found}</Beat>
+        <Beat term="What I decided">{decided}</Beat>
+      </dl>
+      {children}
+    </section>
+  );
+}
+
+function Beat({ term, children }: { term: string; children: React.ReactNode }) {
+  return (
+    <>
+      <dt className="font-heading text-base text-primary md:pt-1">{term}</dt>
+      <dd className="text-foreground">{children}</dd>
+    </>
+  );
+}
+
+function Failures({ results }: { results: Result[] }) {
+  const cards = failed(results);
+
+  if (cards.length === 0) return null;
+
+  return (
+    <div className="mt-12 space-y-12">
+      {cards.map((r) => (
+        <FailureCard
+          key={r.case.id}
+          id={r.case.id}
+          headline={headline[r.case.id]}
+          suite={suiteTitle[r.case.suite] ?? r.case.suite}
+          tags={r.case.tags ?? []}
+          merchantId={r.case.merchant_id}
+          question={r.case.question}
+          expected={describeExpectation(r.case)}
+          reasons={r.grade.reasons}
+          diagnosis={diagnosis[r.case.id]}
+          goldSql={r.case.gold_sql}
+          modelSql={modelQuery(r.trace)}
+          trace={r.trace}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SqlTable({ results }: { results: Result[] }) {
+  return (
+    <Table className="mt-10 min-w-[720px]">
+      <TableHeader>
+        <TableRow>
+          <TableHead>Case</TableHead>
+          <TableHead>Question</TableHead>
+          <TableHead className="text-right">Expected</TableHead>
+          <TableHead className="text-right">Answered</TableHead>
+          <TableHead>Result</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {results.map((r) => (
+          <TableRow key={r.case.id}>
+            <TableCell className="font-sql text-xs">
+              <Link href={`/evaluation/${r.case.id}`} className="text-primary underline-offset-4 hover:underline">
+                {r.case.id}
+              </Link>
+            </TableCell>
+            <TableCell className="whitespace-normal">{r.case.question}</TableCell>
+            <TableCell className="text-right font-sql text-[13px] whitespace-nowrap">{figure(r.grade.expected, r.case.value_kind)}</TableCell>
+            <TableCell className="text-right font-sql text-[13px] whitespace-nowrap">{r.grade.found === null ? "–" : figure(r.grade.found, r.case.value_kind)}</TableCell>
+            <TableCell>
+              <OutcomeBadge outcome={r.grade.outcome} />
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+function EveryCase() {
+  return (
+    <section className="mt-24">
+      <h2 id="every-case" className="mb-6 scroll-mt-28 text-3xl">Every case</h2>
+      <Table className="min-w-[760px]">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Case</TableHead>
+            <TableHead>Question</TableHead>
+            <TableHead>Asked as</TableHead>
+            <TableHead>Result</TableHead>
+            <TableHead className="text-right">Time</TableHead>
+            <TableHead className="text-right">Cost</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.results.map((r) => (
+            <TableRow key={r.case.id}>
+              <TableCell className="font-sql text-xs">
+                <Link href={`/evaluation/${r.case.id}`} className="text-primary underline-offset-4 hover:underline">
+                  {r.case.id}
+                </Link>
+              </TableCell>
+              <TableCell className="whitespace-normal">{r.case.question}</TableCell>
+              <TableCell className="whitespace-nowrap">
+                <MerchantBadge merchantId={r.case.merchant_id} />
+              </TableCell>
+              <TableCell>
+                <OutcomeBadge outcome={r.grade.outcome} />{" "}
+                <StatusBadge status={r.trace.status} />
+              </TableCell>
+              <TableCell className="text-right font-sql text-[13px]">{seconds(r.trace.latency_ms)}</TableCell>
+              <TableCell className="text-right font-sql text-[13px]">{dollars(r.trace.cost_usd)}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {errors.length > 0 && (
+        <p className="mt-8 text-sm text-muted-foreground">
+          {errors.length} {errors.length === 1 ? "case" : "cases"} ended in an error from the API
+          or the harness and {errors.length === 1 ? "is" : "are"} left out of the pass rate rather
+          than counted against the model: {errors.map((r) => r.case.id).join(", ")}.
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -333,184 +366,6 @@ function Figure({ value, label }: { value: string; label: string }) {
       <p className="mt-1 text-sm text-muted-foreground">{label}</p>
     </div>
   );
-}
-
-function suiteCell(v: { passed: number; total: number } | undefined) {
-  return v ? `${v.passed}/${v.total}` : "–";
-}
-
-function Differences() {
-  const main = compare.runs[0];
-  const single = compare.runs.filter((r) => (r.reps?.length ?? 1) === 1);
-  const models = single.filter((r) => r.retrieval_threshold === main.retrieval_threshold);
-  const thresholds = single
-    .filter((r) => r.model === main.model && r.effort === main.effort)
-    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
-
-  return (
-    <div className="mt-10 space-y-12">
-      <h3 className="text-2xl">Where the runs disagree</h3>
-      <DisagreementTable
-        title="Model and effort"
-        intro="Each column is one run of every case with a different model or effort, all at the 0.50 threshold. Only cases with mixed results are listed."
-        runs={models}
-        header={(r) => `${modelName(r.model)}, ${r.effort} effort`}
-      />
-      <DisagreementTable
-        title="Retrieval threshold"
-        intro="Each column is one run of the policy cases on Sonnet 5.5 at medium effort with a different threshold. Only cases with mixed results are listed."
-        runs={thresholds}
-        header={(r) => r.retrieval_threshold.toFixed(2)}
-      />
-      <Repetitions />
-    </div>
-  );
-}
-
-// Runs that asked every policy case several times: the pass count per
-// repetition, so the swing between runs of one setting is a measured number.
-function Repetitions() {
-  const repeated = compare.runs
-    .filter((r) => (r.reps?.length ?? 1) > 1)
-    .sort((a, b) => a.retrieval_threshold - b.retrieval_threshold);
-
-  if (repeated.length === 0) return null;
-  const width = Math.max(...repeated.map((r) => r.reps!.length));
-  const perRun = repeated[0].scored / repeated[0].reps!.length;
-
-  return (
-    <div>
-      <h3 className="mb-2 text-xl">Repetitions</h3>
-      <p className="mb-4 text-base text-muted-foreground">
-        The {perRun} policy cases asked {width} times each at one threshold, on Sonnet 5.5 at
-        medium effort. Each cell is how many passed on that repetition.
-      </p>
-      <Table className="max-w-2xl">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Threshold</TableHead>
-            {Array.from({ length: width }, (_, i) => (
-              <TableHead key={i} className="text-right">
-                Run {i + 1}
-              </TableHead>
-            ))}
-            <TableHead className="text-right">Mean</TableHead>
-            <TableHead className="text-right">Spread</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {repeated.map((r) => {
-            const reps = r.reps!;
-            const mean = reps.reduce((a, b) => a + b, 0) / reps.length;
-            return (
-              <TableRow key={r.label}>
-                <TableCell className="font-sql">{r.retrieval_threshold.toFixed(2)}</TableCell>
-                {reps.map((n, i) => (
-                  <TableCell key={i} className="text-right font-sql">
-                    {n}/{perRun}
-                  </TableCell>
-                ))}
-                <TableCell className="text-right font-sql">{mean.toFixed(1)}</TableCell>
-                <TableCell className="text-right font-sql">
-                  {Math.min(...reps)}–{Math.max(...reps)}
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
-
-function DisagreementTable({
-  title,
-  intro,
-  runs,
-  header,
-}: {
-  title: string;
-  intro: string;
-  runs: Compare["runs"];
-  header: (r: Compare["runs"][number]) => string;
-}) {
-  const labels = runs.map((r) => r.label);
-  const rows = compare.cases.filter((c) => {
-    const seen = new Set(labels.map((l) => c.outcomes[l]?.outcome).filter(Boolean));
-
-    return seen.size > 1;
-  });
-  return (
-    <div>
-      <h3 className="mb-2 text-xl">{title}</h3>
-      <p className="mb-4 text-base text-muted-foreground">
-        {intro}
-        {rows.length === 0 && " None here: every case had the same result in every column."}
-      </p>
-      {rows.length > 0 && (
-        <Table className="min-w-[720px]">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Case</TableHead>
-              {runs.map((r) => (
-                <TableHead key={r.label} className="px-2 text-center whitespace-nowrap">
-                  {header(r)}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((c) => (
-              <TableRow key={c.id}>
-                <TableCell className="w-[52%] whitespace-normal py-4 align-top">
-                  <p className="text-base leading-relaxed">
-                    <Link href={`/evaluation/${c.id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
-                      {c.id}
-                    </Link>{" "}
-                    {c.question}
-                  </p>
-                  {diagnosis[c.id] && (
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                      {diagnosis[c.id]}
-                    </p>
-                  )}
-                </TableCell>
-                {runs.map((r) => {
-                  const o = c.outcomes[r.label];
-
-                  return (
-                    <TableCell key={r.label} className="px-2 text-center align-top">
-                      {o ? (
-                        <OutcomeBadge outcome={o.outcome} />
-                      ) : (
-                        <span className="text-xs text-muted-foreground">not run</span>
-                      )}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      )}
-    </div>
-  );
-}
-
-function runName(r: Compare["runs"][number]): string {
-  const main = compare.runs[0];
-
-  const reps = r.reps?.length ?? 1;
-  const times = reps > 1 ? ` ×${reps}` : "";
-
-  if (r.retrieval_threshold !== main.retrieval_threshold || reps > 1) {
-    return `${r.retrieval_threshold.toFixed(2)}, policy cases${times}`;
-  }
-  return `${modelName(r.model)}, ${r.effort} effort${r === main ? `, threshold ${r.retrieval_threshold.toFixed(2)}` : ""}`;
-}
-
-function modelName(id: string): string {
-  return id.replace("claude-", "").replace("-5-5", " 5.5").replace(/^\w/, (c) => c.toUpperCase());
 }
 
 function OutcomeBadge({ outcome }: { outcome: string }) {
@@ -528,8 +383,24 @@ function OutcomeBadge({ outcome }: { outcome: string }) {
   );
 }
 
-function fmt(v: number | null) {
+function passed(results: Result[]): number {
+  return results.filter((r) => r.grade.outcome === "pass").length;
+}
+
+function pct(v: number | null): string {
   return v === null ? "n/a" : `${Math.round(v * 100)}%`;
 }
 
-export { count };
+function figure(v: unknown, kind: string | undefined): string {
+  if (typeof v !== "number") return String(v ?? "–");
+
+  if (kind === "cents") return v.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+  if (kind === "pct") return `${v}%`;
+
+  return count(v);
+}
+
+function longDate(iso: string): string {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}

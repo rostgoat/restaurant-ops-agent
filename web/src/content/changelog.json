@@ -1,0 +1,15 @@
+[
+  {
+    "run": "20261030T025434Z",
+    "date": "2026-10-30",
+    "title": "Questions where a word has to be read the owner's way",
+    "changed": [
+      "Nineteen sql cases that were counts and sums a POS already reports are replaced by ten where the answer turns on a definition: lift, new customer, regular, summer, net payout, item margin.",
+      "The vendor's definitions go into the prompt. Each owner's own words go into a Definitions document beside their policies, searched and cited like any other section.",
+      "Every gold query is its own file, headed by the question, so a reader can check it.",
+      "Three policy lookups the owner could read off their own page are dropped; two near misses are added, where the nearest section is the wrong one.",
+      "The dataset is regenerated with 24 months, named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data."
+    ],
+    "conclusion": "One wrong-but-safe query in ten. Two rules hidden by the retrieval threshold. One citation slip caught by code. The threshold moves to 0.40 next."
+  }
+]

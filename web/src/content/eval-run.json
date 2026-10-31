@@ -49,7 +49,7 @@
    "sections_shown": 26,
    "sections_expected": 14
   },
-  "regraded_at": "2026-10-30T02:55:30.839839+00:00"
+  "regraded_at": "2026-10-31T03:32:03.680451+00:00"
  },
  "results": [
   {
@@ -73,7 +73,7 @@
     "outcome": "pass",
     "reasons": [],
     "expected": 5271.69,
-    "found": 5373.0
+    "found": 5272.0
    },
    "trace": {
     "id": "cc60f503-b286-466f-8676-4e516c915f2b",
@@ -1318,7 +1318,7 @@
    "grade": {
     "outcome": "fail",
     "reasons": [
-     "no figure within 3% of 2.64; saw [2026.0, 2.49, 30.06, 27.57, 1.0, 30.0, 2026.0, 2643.0]"
+     "the answer's figures are $2.49, $30.06, $27.57; none is within 3% of $2.64"
     ],
     "expected": 2.64,
     "found": null
@@ -2890,8 +2890,8 @@
    "grade": {
     "outcome": "fail",
     "reasons": [
-     "did not cite ['Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces']; cited []",
-     "answer does not mention not on / no marketplace / don't use / do not use / isn't on / aren't on / not listed / does not list / doesn't list / no delivery marketplace / nothing / don't cover / do not cover"
+     "cited nothing, so did not cite Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+     "the answer never says 'not on' or any of 12 other wordings for it"
     ],
     "expected": [
      "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
@@ -4232,7 +4232,7 @@
    "grade": {
     "outcome": "fail",
     "reasons": [
-     "citation check was failed"
+     "the citations step failed: [\u00a73, Quiet Hours], [\u00a75], [\u00a76, Required Wording] are not labels of sections that were shown"
     ],
     "expected": [
      "Customer Messaging Policy \u00a75, Offers in Messages"
@@ -4644,8 +4644,8 @@
    "grade": {
     "outcome": "fail",
     "reasons": [
-     "did not cite ['House Policy \u00a74, Discounts']; cited ['House Policy \u00a76, Catering']",
-     "answer does not mention 20%"
+     "cited House Policy \u00a76, Catering but did not cite House Policy \u00a74, Discounts",
+     "the answer never says '20%'"
     ],
     "expected": [
      "House Policy \u00a74, Discounts"

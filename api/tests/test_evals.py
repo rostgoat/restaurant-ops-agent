@@ -79,7 +79,7 @@ def test_a_sql_answer_fails_on_the_wrong_figure_and_says_what_it_saw():
     case = {"suite": "sql", "value_kind": "count"}
     g = grade(case, trace(answer="There were 1,520 orders.", steps=ran()), 1486)
     assert g.outcome == "fail"
-    assert "1520.0" in g.reasons[0]
+    assert "1,520" in g.reasons[0] and "1,486" in g.reasons[0]
 
 
 def test_a_sql_answer_fails_without_a_query_even_if_the_number_is_right():
