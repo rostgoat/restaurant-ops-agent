@@ -22,7 +22,7 @@ export default function HomePage() {
           I built an agent that answers a restaurant owner&apos;s questions. Then I tried to find out
           what happens when it is wrong.
         </h1>
-        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">Three kinds of wrong turned up.</p>
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">There are three ways it can be wrong.</p>
         <ol className="mt-4 list-decimal space-y-2 pl-6 text-xl leading-relaxed text-muted-foreground">
           <li>An action that breaks a rule. Caught by code before anyone sees it.</li>
           <li>

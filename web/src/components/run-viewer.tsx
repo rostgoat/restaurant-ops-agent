@@ -25,11 +25,12 @@ export function RunViewer({
   large?: boolean;
   traceOpen?: boolean;
 }) {
-  const [run, setRun] = useState(views[views.length - 1]?.run);
+  const [run, setRun] = useState(views.filter((v) => v.ran).at(-1)?.run);
   const [open, setOpen] = useState(traceOpen);
   const view = views.find((v) => v.run === run);
 
-  if (!view) return null;
+  if (!view || !view.trace) return null;
+  const trace = view.trace;
   const Heading = large ? "h2" : "h4";
   const headingClass = large ? "mb-3 text-xl" : "mb-2 text-base";
 
@@ -42,9 +43,12 @@ export function RunViewer({
             size="lg"
             variant={v.run === run ? "default" : "outline"}
             className="h-11 px-5 font-heading text-base"
+            disabled={!v.ran}
+            title={v.ran ? undefined : "This case was not in this run"}
             onClick={() => setRun(v.run)}
           >
-            {v.label} <OutcomeBadge outcome={v.outcome} />
+            {v.label}{" "}
+            {v.ran ? <OutcomeBadge outcome={v.outcome} /> : <span className="text-xs font-normal">not run</span>}
           </Button>
         ))}
       </div>
@@ -80,11 +84,11 @@ export function RunViewer({
         </div>
       )}
 
-      {view.trace.answer && (
+      {trace.answer && (
         <div className="mt-6">
           <Heading className={headingClass}>What it answered</Heading>
           <Answer
-            text={view.trace.answer}
+            text={trace.answer}
             merchantId={merchantId}
             className={large ? "text-lg leading-relaxed" : "text-muted-foreground"}
           />
@@ -92,7 +96,7 @@ export function RunViewer({
       )}
 
       <div className="mt-6">
-        <TraceMeta trace={view.trace} />
+        <TraceMeta trace={trace} />
       </div>
 
       <Collapsible open={open} onOpenChange={setOpen} className="mt-6">
@@ -103,7 +107,7 @@ export function RunViewer({
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-8">
-          <TraceLedger trace={view.trace} />
+          <TraceLedger trace={trace} />
         </CollapsibleContent>
       </Collapsible>
     </div>

@@ -93,21 +93,37 @@ const traces = tracesFile as Record<string, Record<string, Trace>>;
 export type RunView = {
   run: string;
   label: string;
+  ran: boolean;
   outcome: string;
   reasons: string[];
-  trace: Trace;
+  trace: Trace | null;
   modelSql: string | null;
   diagnosis?: string[];
 };
 
+// Every run, in order, whether or not this case was in it: a case added
+// later still shows the earlier runs, disabled, so the row reads the same
+// on every card.
 export function runViews(id: string): RunView[] {
-  return runs.flatMap((r, i) => {
-    const trace = traces[r.run]?.[id];
+  return runs.map((r, i) => {
+    const trace = traces[r.run]?.[id] ?? null;
     const o = r.outcomes[id];
+    const label = `Run ${i + 1}`;
 
-    if (!trace || !o) return [];
+    if (!trace || !o) {
+      return { run: r.run, label, ran: false, outcome: "not run", reasons: [], trace: null, modelSql: null };
+    }
 
-    return [{ run: r.run, label: `Run ${i + 1}`, outcome: o.outcome, reasons: o.reasons, trace, modelSql: modelQuery(trace), diagnosis: diagnosis[id]?.[r.run] }];
+    return {
+      run: r.run,
+      label,
+      ran: true,
+      outcome: o.outcome,
+      reasons: o.reasons,
+      trace,
+      modelSql: modelQuery(trace),
+      diagnosis: diagnosis[id]?.[r.run],
+    };
   });
 }
 
