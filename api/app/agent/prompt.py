@@ -71,6 +71,11 @@ Tables
 merchants(id, name, cuisine, timezone, opened_at)
   One row: this restaurant. When bucketing by day or hour use its local time:
   created_at AT TIME ZONE (SELECT timezone FROM merchants)
+  To filter a date range in local time, convert a plain timestamp literal for \
+each boundary, which also lets the index on created_at work:
+  created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants)
+  AND created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)
+  Never write timestamptz '...' AT TIME ZONE: that converts in the other direction.
 
 categories(id, merchant_id, name)
 
