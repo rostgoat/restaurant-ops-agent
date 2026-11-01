@@ -16,7 +16,8 @@
       "[pol-02](/evaluation/pol-02) and [pol-12](/evaluation/pol-12) hidden by the threshold, at 0.28 and 0.47.",
       "[pol-11](/evaluation/pol-11) right answer, short citation label, failed by code."
     ],
-    "next": "The retrieval threshold, 0.50 to 0.40."
+    "next": "The retrieval threshold, 0.50 to 0.40.",
+    "passed": 34
   },
   {
     "run": "20261031T035921Z",
@@ -32,7 +33,8 @@
       "[pol-03](/evaluation/pol-03) failed on the same label slip as pol-11.",
       "[sql-05](/evaluation/sql-05), [pol-02](/evaluation/pol-02) and [pol-11](/evaluation/pol-11) unchanged. Recall 86% to 93%, precision 46% to 29%."
     ],
-    "next": "The threshold stays. A prompt line on date boundaries, for sql-05."
+    "next": "The threshold stays. A prompt line on date boundaries, for sql-05.",
+    "passed": 33
   },
   {
     "run": "20261101T024005Z",
@@ -48,7 +50,8 @@
       "[pol-03](/evaluation/pol-03) passed, [pol-11](/evaluation/pol-11) failed again. The label slip is a coin toss.",
       "[pol-02](/evaluation/pol-02) and [pol-05](/evaluation/pol-05) unchanged."
     ],
-    "next": "The citation label."
+    "next": "The citation label.",
+    "passed": 35
   },
   {
     "run": "20261101T025433Z",
@@ -64,7 +67,8 @@
       "[pol-02](/evaluation/pol-02) passed, by luck: a different search wording scored the section 0.51. One pass does not close it.",
       "[pol-05](/evaluation/pol-05) unchanged."
     ],
-    "next": "The grader's rule for a not-covered case."
+    "next": "The grader's rule for a not-covered case.",
+    "passed": 37
   },
   {
     "run": "20261101T031947Z",
@@ -80,6 +84,24 @@
       "[pol-02](/evaluation/pol-02) failed again. Three searches, best score 0.36, nothing cited.",
       "[pol-11](/evaluation/pol-11) failed on wording: the answer said 'you' to the owner, and my phrase list wants 'owner'. The labels were all full."
     ],
-    "next": "The phrase lists, for 'couldn't find' and 'you'."
+    "next": "The phrase lists, for 'couldn't find' and 'you'.",
+    "passed": 36
+  },
+  {
+    "run": null,
+    "date": "2026-11-01",
+    "title": "Regrade: two phrase lists widened, no model run",
+    "changed": [
+      "Two word lists in [the cases](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/evals/cases.json) grew. The health inspections case accepts 'couldn't find' and 'could not find' as ways of saying the policies do not cover it. The campaign case accepts 'you approve', 'you can approve' and 'your approval' as naming the owner, because the owner is the one asking.",
+      "The five runs were graded again with today's grader, which also carries the not-covered rule from run 5. Nothing was asked of the model."
+    ],
+    "passed": null,
+    "result": "By today's grader: run 2 is 34, run 3 is 36, run 4 is 38, run 5 is 37.",
+    "moved": [
+      "[pol-05](/evaluation/pol-05) passes in runs 2, 3 and 4. Each answer said the policies do not cover it, in words my list did not have, or cited the near section to say it does not apply.",
+      "[pol-11](/evaluation/pol-11) passes in run 5. The answer told the owner 'unless you approve more', which names the owner when the owner is asking.",
+      "[pol-02](/evaluation/pol-02) is the one failure left in every run but run 4, and the only one about the agent. A word list checks words and a person checks meaning. Twice in five runs the gap was mine."
+    ],
+    "next": "The hidden section needs a search that matches a word as well as a meaning. Six single-case reps of prompt wording put its score at 0.37 to 0.39 against a 0.40 line. That is code, a different system, and the next experiment."
   }
 ]

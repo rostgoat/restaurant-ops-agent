@@ -1,0 +1,798 @@
+{
+ "summary": {
+  "ran_at": "2026-11-01T03:33:34.977162+00:00",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "retrieval_threshold": 0.4,
+  "commit": "941f528",
+  "dataset": "ops_eval, data/generate.py seed 42",
+  "frozen_now": "2026-10-24T15:00:00Z",
+  "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
+  "cases": 3,
+  "scored": 3,
+  "passed": 0,
+  "errors": 0,
+  "suites": {
+   "policy": {
+    "passed": 0,
+    "total": 3
+   }
+  },
+  "cost_total_usd": 0.0356,
+  "cost_per_answered_median_usd": 0.0094,
+  "cost_per_answered_p90_usd": 0.0174,
+  "latency_median_ms": 6799,
+  "latency_p90_ms": 7153,
+  "retrieval": {
+   "precision": 0.0,
+   "recall": 0.0,
+   "sections_shown": 5,
+   "sections_expected": 3
+  }
+ },
+ "results": [
+  {
+   "case": {
+    "id": "pol-02",
+    "suite": "policy",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "expected_citations": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "must_mention": [
+     [
+      "not on",
+      "no marketplace",
+      "don't use",
+      "do not use",
+      "isn't on",
+      "aren't on",
+      "not listed",
+      "does not list",
+      "doesn't list",
+      "no delivery marketplace",
+      "nothing",
+      "don't cover",
+      "do not cover"
+     ]
+    ],
+    "must_not_mention": [
+     "7 days",
+     "7-day",
+     "packing photo"
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "cited House Policy \u00a73, Refunds, House Policy \u00a75, Online Orders but did not cite Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "expected": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "found": [
+     "House Policy \u00a73, Refunds",
+     "House Policy \u00a75, Online Orders"
+    ]
+   },
+   "trace": {
+    "id": "e286eca1-7a23-4227-b062-386d00775089",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't find a DoorDash dispute deadline in your written policies. A search on \"DoorDash\" returned nothing, and a search on marketplace disputes and chargebacks returned only the refund and online-order rules. Those rules cover refunds and Square Online pickup orders, not DoorDash chargebacks. [House Policy \u00a73, Refunds] [House Policy \u00a75, Online Orders]\n\nWithout a rule in your policies, I won't guess at a number of days. Check DoorDash's merchant terms or your DoorDash portal for the exact window. It's safest to file as soon as you see the chargeback. If you give me the order, I can pull it up and propose a dispute for you to approve.",
+    "usage": {
+     "input_tokens": 1396,
+     "cache_read_tokens": 10200,
+     "cache_write_tokens": 3400,
+     "output_tokens": 406
+    },
+    "cost_usd": 0.017392,
+    "latency_ms": 7153,
+    "model_ms": 5961,
+    "tool_ms": 1189,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "DoorDash",
+       "usage": {
+        "input_tokens": 117,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 3400,
+        "output_tokens": 50
+       }
+      },
+      "latency_ms": 1481
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "DoorDash",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3749,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.2909,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.2582,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.2536,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 518
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "dispute deadline for missing item chargeback on marketplace order",
+       "usage": {
+        "input_tokens": 192,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 65
+       }
+      },
+      "latency_ms": 1032
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "1 section",
+      "detail": {
+       "query": "dispute deadline for missing item chargeback on marketplace order",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.4585,
+         "used": true
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.3751,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a73, Refunds",
+         "score": 0.373,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3485,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 192
+     },
+     {
+      "seq": 5,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "marketplace terms disputes, chargebacks, time limit to file",
+       "usage": {
+        "input_tokens": 368,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 66
+       }
+      },
+      "latency_ms": 1021
+     },
+     {
+      "seq": 6,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "marketplace terms disputes, chargebacks, time limit to file",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a73, Refunds",
+         "score": 0.4253,
+         "used": true
+        },
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.4192,
+         "used": true
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3477,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.3452,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 479
+     },
+     {
+      "seq": 7,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I couldn't find a DoorDash dispute deadline in your written policies. A search on \"DoorDash\" returned nothing, and a search on marketplace disputes and chargebacks returned only the refund and online-order rules. Those rules cover refunds and Square Online pickup orders, not DoorDash chargebacks. [House Policy \u00a73, Refunds] [House Policy \u00a75, Online Orders]\n\nWithout a rule in your policies, I won't guess at a number of days. Check DoorDash's merchant terms or your DoorDash portal for the exact window. It's safest to file as soon as you see the chargeback. If you give me the order, I can pull it up and propose a dispute for you to approve.",
+       "usage": {
+        "input_tokens": 719,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 225
+       }
+      },
+      "latency_ms": 2427
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a73, Refunds",
+        "House Policy \u00a75, Online Orders"
+       ],
+       "retrieved": [
+        "House Policy \u00a73, Refunds",
+        "House Policy \u00a75, Online Orders"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-02",
+    "suite": "policy",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "expected_citations": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "must_mention": [
+     [
+      "not on",
+      "no marketplace",
+      "don't use",
+      "do not use",
+      "isn't on",
+      "aren't on",
+      "not listed",
+      "does not list",
+      "doesn't list",
+      "no delivery marketplace",
+      "nothing",
+      "don't cover",
+      "do not cover"
+     ]
+    ],
+    "must_not_mention": [
+     "7 days",
+     "7-day",
+     "packing photo"
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "cited House Policy \u00a73, Refunds, House Policy \u00a75, Online Orders but did not cite Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "expected": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "found": [
+     "House Policy \u00a73, Refunds",
+     "House Policy \u00a75, Online Orders"
+    ]
+   },
+   "trace": {
+    "id": "58b08ff5-ea1c-4f8e-876a-cda34ee12d51",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't find a DoorDash dispute deadline in your written policies. The searches for DoorDash, marketplace disputes and chargeback time limits returned nothing on it. The only sections that came back were about refunds and Square Online orders. Those are [House Policy \u00a73, Refunds] and [House Policy \u00a75, Online Orders], and neither covers marketplace chargebacks.\n\nI won't guess at a number. The deadline is in DoorDash's own merchant terms, or in your DoorDash merchant portal. If you add those terms to your policy documents, I can answer from them. I can also look at a specific order and propose a dispute for you to approve.",
+    "usage": {
+     "input_tokens": 1396,
+     "cache_read_tokens": 13600,
+     "cache_write_tokens": 0,
+     "output_tokens": 391
+    },
+    "cost_usd": 0.009422,
+    "latency_ms": 6100,
+    "model_ms": 5431,
+    "tool_ms": 665,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "DoorDash",
+       "usage": {
+        "input_tokens": 117,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 50
+       }
+      },
+      "latency_ms": 827
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "DoorDash",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3749,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.2909,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.2582,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.2536,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 206
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "dispute deadline for missing item chargeback on marketplace order",
+       "usage": {
+        "input_tokens": 192,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 65
+       }
+      },
+      "latency_ms": 1114
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "1 section",
+      "detail": {
+       "query": "dispute deadline for missing item chargeback on marketplace order",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.4585,
+         "used": true
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.3751,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a73, Refunds",
+         "score": 0.373,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3485,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 221
+     },
+     {
+      "seq": 5,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "marketplace terms disputes, chargebacks, time limit to file",
+       "usage": {
+        "input_tokens": 368,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 66
+       }
+      },
+      "latency_ms": 943
+     },
+     {
+      "seq": 6,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "marketplace terms disputes, chargebacks, time limit to file",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a73, Refunds",
+         "score": 0.4253,
+         "used": true
+        },
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.4192,
+         "used": true
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3477,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.3452,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 238
+     },
+     {
+      "seq": 7,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I couldn't find a DoorDash dispute deadline in your written policies. The searches for DoorDash, marketplace disputes and chargeback time limits returned nothing on it. The only sections that came back were about refunds and Square Online orders. Those are [House Policy \u00a73, Refunds] and [House Policy \u00a75, Online Orders], and neither covers marketplace chargebacks.\n\nI won't guess at a number. The deadline is in DoorDash's own merchant terms, or in your DoorDash merchant portal. If you add those terms to your policy documents, I can answer from them. I can also look at a specific order and propose a dispute for you to approve.",
+       "usage": {
+        "input_tokens": 719,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 210
+       }
+      },
+      "latency_ms": 2547
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a73, Refunds",
+        "House Policy \u00a75, Online Orders"
+       ],
+       "retrieved": [
+        "House Policy \u00a73, Refunds",
+        "House Policy \u00a75, Online Orders"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 1
+  },
+  {
+   "case": {
+    "id": "pol-02",
+    "suite": "policy",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "expected_citations": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "must_mention": [
+     [
+      "not on",
+      "no marketplace",
+      "don't use",
+      "do not use",
+      "isn't on",
+      "aren't on",
+      "not listed",
+      "does not list",
+      "doesn't list",
+      "no delivery marketplace",
+      "nothing",
+      "don't cover",
+      "do not cover"
+     ]
+    ],
+    "must_not_mention": [
+     "7 days",
+     "7-day",
+     "packing photo"
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "cited House Policy \u00a75, Online Orders but did not cite Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+     "the answer never says 'not on' or any of 12 other wordings for it"
+    ],
+    "expected": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "found": [
+     "House Policy \u00a75, Online Orders"
+    ]
+   },
+   "trace": {
+    "id": "f1e23721-7094-4216-aea0-be7f7eb51df3",
+    "merchant_id": 2,
+    "question": "How long do we have to dispute a missing-item chargeback on a DoorDash order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I couldn't find an answer in your written policies. They have no section on DoorDash, and none on marketplace disputes, chargebacks, or missing items. The only nearby result was [House Policy \u00a75, Online Orders], which covers uncollected Square Online pickup orders and doesn't apply here.\n\nI won't guess at a deadline. You can find the dispute window in your DoorDash merchant agreement or in the DoorDash merchant portal. If you add the marketplace terms to your policy documents, I can look the deadline up and cite it. If you have a specific order in mind, tell me and I can pull its details. Disputing it would still need your approval.",
+    "usage": {
+     "input_tokens": 1128,
+     "cache_read_tokens": 13600,
+     "cache_write_tokens": 0,
+     "output_tokens": 380
+    },
+    "cost_usd": 0.008776,
+    "latency_ms": 6799,
+    "model_ms": 5820,
+    "tool_ms": 975,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "DoorDash",
+       "usage": {
+        "input_tokens": 117,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 50
+       }
+      },
+      "latency_ms": 966
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "DoorDash",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3749,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.2909,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.2582,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.2536,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 206
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "dispute deadline for missing item chargeback on marketplace order",
+       "usage": {
+        "input_tokens": 192,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 65
+       }
+      },
+      "latency_ms": 974
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "1 section",
+      "detail": {
+       "query": "dispute deadline for missing item chargeback on marketplace order",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.4585,
+         "used": true
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a73, Pickup Orders",
+         "score": 0.3751,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a73, Refunds",
+         "score": 0.373,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3485,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 519
+     },
+     {
+      "seq": 5,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "marketplace terms disputes time limit days",
+       "usage": {
+        "input_tokens": 368,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 58
+       }
+      },
+      "latency_ms": 1474
+     },
+     {
+      "seq": 6,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "nothing above threshold",
+      "detail": {
+       "query": "marketplace terms disputes time limit days",
+       "merchant_id": 2,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a75, Online Orders",
+         "score": 0.3807,
+         "used": false
+        },
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.3686,
+         "used": false
+        },
+        {
+         "label": "House Policy \u00a73, Refunds",
+         "score": 0.3682,
+         "used": false
+        },
+        {
+         "label": "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces",
+         "score": 0.3167,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 250
+     },
+     {
+      "seq": 7,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I couldn't find an answer in your written policies. They have no section on DoorDash, and none on marketplace disputes, chargebacks, or missing items. The only nearby result was [House Policy \u00a75, Online Orders], which covers uncollected Square Online pickup orders and doesn't apply here.\n\nI won't guess at a deadline. You can find the dispute window in your DoorDash merchant agreement or in the DoorDash merchant portal. If you add the marketplace terms to your policy documents, I can look the deadline up and cite it. If you have a specific order in mind, tell me and I can pull its details. Disputing it would still need your approval.",
+       "usage": {
+        "input_tokens": 451,
+        "cache_read_tokens": 3400,
+        "cache_write_tokens": 0,
+        "output_tokens": 207
+       }
+      },
+      "latency_ms": 2406
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a75, Online Orders"
+       ],
+       "retrieved": [
+        "House Policy \u00a75, Online Orders"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 2
+  }
+ ]
+}

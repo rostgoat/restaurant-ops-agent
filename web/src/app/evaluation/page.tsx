@@ -11,6 +11,7 @@ import {
   failed,
   runs,
   suite,
+  type Entry,
   type Result,
 } from "@/lib/evaluation";
 
@@ -74,7 +75,7 @@ export default function EvaluationPage() {
         title="Does the agent find the right rule?"
         question="When an owner asks what is allowed, the agent searches their policies and only sees the sections that score above a similarity threshold. If the right section scores under that line, the agent is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
         ran={`${policy.length} policy questions, each with the section I expect it to cite. The first run used a threshold of 0.50, a number I picked from ten captured runs because real matches scored above 0.55 and near misses below 0.49. The second run changed that one number to ${s.retrieval_threshold.toFixed(2)} and nothing else.`}
-        found={`11 of ${policy.length} on both threshold runs, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counted as a fail. Recall went from 86% to 93%. Precision went from 46% to 29%. The third run changed the prompt, not the threshold, and the retrieval picture stayed where it was. In the fourth run the 0.28 section came through at 0.51, because the agent happened to word its search differently. In the fifth it scored 0.36 on a third wording and was hidden again.`}
+        found={`11 of ${policy.length} on both threshold runs as graded that day, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counted as a fail. Recall went from 86% to 93%. Precision went from 46% to 29%. The third run changed the prompt, not the threshold, and the retrieval picture stayed where it was. In the fourth run the 0.28 section came through at 0.51, because the agent happened to word its search differently. In the fifth it scored 0.36 on a third wording and was hidden again.`}
         decided="The two errors are not equal. An extra section shown is mostly ignored, and when the agent did lean on one it said that it did not apply. A hidden section makes the agent say there is no rule, and the owner has no way to see through that. So 0.40 stays. It rescued one rule and cost 17 points of precision. It also cost one grade, until I changed the grader in run 5: a not-covered case now passes when the answer says the policies do not cover it and cites nothing as the rule, whatever retrieval showed. The miss at 0.28 passed once and missed again, on runs that changed nothing about retrieval, because the agent words that search differently every time. No threshold reaches it on most wordings. That case is about the wording of the search, and it is still open."
       >
         <Failures results={policy.filter((r) => !CITATION_CASES.includes(r.case.id))} />
@@ -154,10 +155,10 @@ function Runs() {
       <h2 id="runs" className="mb-8 scroll-mt-28 text-3xl">The runs</h2>
       <ol className="border-l">
         {changelog.map((e, i) => (
-          <li key={e.run} className="relative pb-12 pl-8 last:pb-0">
+          <li key={e.run ?? i} className="relative pb-12 pl-8 last:pb-0">
             <span className="absolute top-2 -left-[5px] size-[9px] rounded-full bg-primary" aria-hidden />
             <p className="font-sql text-xs text-muted-foreground">
-              Run {i + 1}, {longDate(e.date)}
+              {e.run ? `Run ${runs.findIndex((r) => r.run === e.run) + 1}` : "Regrade"}, {longDate(e.date)}
             </p>
             <h3 className="mt-2 text-2xl">{e.title}</h3>
             <ul className="mt-4 list-disc space-y-2 pl-5 text-lg leading-relaxed text-muted-foreground">
@@ -169,6 +170,7 @@ function Runs() {
             </ul>
             <p className="mt-4 text-lg leading-relaxed">
               <strong>Result.</strong> {e.result}
+              {regraded(e) !== null && ` Graded again later: ${regraded(e)} of 38.`}
             </p>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-lg leading-relaxed">
               {e.moved.map((m) => (
@@ -273,6 +275,15 @@ function Inline({ text }: { text: string }) {
       {text}
     </Markdown>
   );
+}
+
+// The score a run has under today's grader, when it differs from the day's.
+function regraded(e: Entry): number | null {
+  const now = runs.find((r) => r.run === e.run)?.passed;
+
+  if (now === undefined || e.passed === null || now === e.passed) return null;
+
+  return now;
 }
 
 function longDate(iso: string): string {

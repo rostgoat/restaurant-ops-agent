@@ -10,7 +10,7 @@
   "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
   "cases": 38,
   "scored": 38,
-  "passed": 37,
+  "passed": 38,
   "errors": 0,
   "suites": {
    "sql": {
@@ -18,7 +18,7 @@
     "total": 10
    },
    "policy": {
-    "passed": 14,
+    "passed": 15,
     "total": 15
    },
    "refuse": {
@@ -48,7 +48,8 @@
    "recall": 1.0,
    "sections_shown": 53,
    "sections_expected": 14
-  }
+  },
+  "regraded_at": "2026-11-01T03:57:10.272060+00:00"
  },
  "results": [
   {
@@ -3446,11 +3447,8 @@
    },
    "gold": null,
    "grade": {
-    "outcome": "fail",
-    "reasons": [
-     "retrieval returned sections above threshold: ['House Policy \u00a77, Allergies']",
-     "cited ['House Policy \u00a77, Allergies'] although nothing should apply"
-    ],
+    "outcome": "pass",
+    "reasons": [],
     "expected": [],
     "found": [
      "House Policy \u00a77, Allergies"

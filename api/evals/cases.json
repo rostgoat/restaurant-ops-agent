@@ -194,7 +194,11 @@
           "no rule",
           "no section",
           "doesn't cover",
-          "no policy"
+          "no policy",
+          "couldn't find",
+          "could not find",
+          "can't find",
+          "cannot find"
         ]
       ]
     },
@@ -321,7 +325,10 @@
         ],
         [
           "owner",
-          "Linh"
+          "Linh",
+          "you approve",
+          "you can approve",
+          "your approval"
         ]
       ]
     },

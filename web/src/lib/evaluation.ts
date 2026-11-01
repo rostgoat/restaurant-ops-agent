@@ -47,10 +47,11 @@ export type Run = {
 export const data = run as unknown as Run;
 
 export type Entry = {
-  run: string;
+  run: string | null;
   date: string;
   title: string;
   changed: string[];
+  passed: number | null;
   result: string;
   moved: string[];
   next: string;
@@ -201,14 +202,17 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "The model still said the policies do not cover health inspections, and it cited the section to say so.",
       "My grader's rule for a not-covered case is that nothing is shown and nothing is cited, so this counts as a fail. The answer is right.",
       "The grade is the price of the lower threshold, and the rule is mine to reconsider.",
+      "Regraded as a pass on 1 November, after the not-covered rule changed.",
     ],
     [RUN3]: [
       "As in run 2: the Allergies section was shown at 0.41, and the model cited it while saying it could not find a rule on health inspections.",
       "The grader also missed the phrase it looks for, because the answer says it could not find a rule rather than that the policies do not cover it. Two grader rules, one honest answer.",
+      "Regraded as a pass on 1 November, after 'couldn't find' joined the phrase list.",
     ],
     [RUN4]: [
       "As in runs 2 and 3. The Allergies section was shown at 0.41, the agent said the policies do not cover health inspections, and cited the section while saying it sets no inspection rule.",
       "Three runs the same way. The answer is right every time, and the grader's rule for a not-covered case is the thing that has to change.",
+      "Regraded as a pass on 1 November, after the not-covered rule changed.",
     ],
     [RUN5]: [
       "Passed. The agent worded the search as \"health inspections\" this time, and the Allergies section scored 0.38 against it, under the 0.40 threshold, so it was not shown and the agent said the policies do not cover it.",
@@ -236,6 +240,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN5]: [
       "Right answer, campaign blocked, every label full. The checker counted 563 customers with verified consent.",
       "Failed on one phrase. The case expects the answer to say the owner can approve a bigger discount, and the answer said 'unless you approve more', speaking to the owner. My phrase list has 'owner' and the owner's name, not 'you'.",
+      "Regraded as a pass on 1 November, after 'you approve' joined the phrase list.",
     ],
   },
   "pol-12": {

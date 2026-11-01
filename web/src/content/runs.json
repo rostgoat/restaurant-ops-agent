@@ -440,7 +440,7 @@
   "date": "2026-10-31",
   "retrieval_threshold": 0.4,
   "model": "claude-sonnet-5-5",
-  "passed": 33,
+  "passed": 34,
   "scored": 38,
   "outcomes": {
    "sql-01": {
@@ -595,12 +595,9 @@
     "latency_ms": 2984
    },
    "pol-05": {
-    "outcome": "fail",
+    "outcome": "pass",
     "status": "answered",
-    "reasons": [
-     "retrieval returned sections above threshold: ['House Policy \u00a77, Allergies']",
-     "cited ['House Policy \u00a77, Allergies'] although nothing should apply"
-    ],
+    "reasons": [],
     "expected": [],
     "found": [
      "House Policy \u00a77, Allergies"
@@ -883,7 +880,7 @@
   "date": "2026-11-01",
   "retrieval_threshold": 0.4,
   "model": "claude-sonnet-5-5",
-  "passed": 35,
+  "passed": 36,
   "scored": 38,
   "outcomes": {
    "sql-01": {
@@ -1033,13 +1030,9 @@
     "latency_ms": 3166
    },
    "pol-05": {
-    "outcome": "fail",
+    "outcome": "pass",
     "status": "answered",
-    "reasons": [
-     "retrieval returned sections above threshold: ['House Policy \u00a77, Allergies']",
-     "cited ['House Policy \u00a77, Allergies'] although nothing should apply",
-     "the answer never says 'not cover' or any of 7 other wordings for it"
-    ],
+    "reasons": [],
     "expected": [],
     "found": [
      "House Policy \u00a77, Allergies"
@@ -1321,7 +1314,7 @@
   "date": "2026-11-01",
   "retrieval_threshold": 0.4,
   "model": "claude-sonnet-5-5",
-  "passed": 37,
+  "passed": 38,
   "scored": 38,
   "outcomes": {
    "sql-01": {
@@ -1469,12 +1462,9 @@
     "latency_ms": 3224
    },
    "pol-05": {
-    "outcome": "fail",
+    "outcome": "pass",
     "status": "answered",
-    "reasons": [
-     "retrieval returned sections above threshold: ['House Policy \u00a77, Allergies']",
-     "cited ['House Policy \u00a77, Allergies'] although nothing should apply"
-    ],
+    "reasons": [],
     "expected": [],
     "found": [
      "House Policy \u00a77, Allergies"
@@ -1754,7 +1744,7 @@
   "date": "2026-11-01",
   "retrieval_threshold": 0.4,
   "model": "claude-sonnet-5-5",
-  "passed": 36,
+  "passed": 37,
   "scored": 38,
   "outcomes": {
    "sql-01": {
@@ -1978,11 +1968,9 @@
     "latency_ms": 3909
    },
    "pol-11": {
-    "outcome": "fail",
+    "outcome": "pass",
     "status": "answered",
-    "reasons": [
-     "the answer never says 'owner' or any of 1 other wordings for it"
-    ],
+    "reasons": [],
     "expected": [
      "Customer Messaging Policy \u00a75, Offers in Messages"
     ],
