@@ -74,8 +74,8 @@ export default function EvaluationPage() {
         title="Does the agent find the right rule?"
         question="When an owner asks what is allowed, the agent searches their policies and only sees the sections that score above a similarity threshold. If the right section scores under that line, the agent is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
         ran={`${policy.length} policy questions, each with the section I expect it to cite. The first run used a threshold of 0.50, a number I picked from ten captured runs because real matches scored above 0.55 and near misses below 0.49. The second run changed that one number to ${s.retrieval_threshold.toFixed(2)} and nothing else.`}
-        found={`11 of ${policy.length} on both threshold runs, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counts as a fail. Recall went from 86% to 93%. Precision went from 46% to 29%. The third run changed the prompt, not the threshold, and the retrieval picture stayed where it was. In the fourth run the 0.28 section came through at 0.51, because the agent happened to word its search differently, and recall reached ${pct(s.retrieval.recall)}.`}
-        decided="The two errors are not equal. An extra section shown is mostly ignored, and when the agent did lean on one it said that it did not apply. A hidden section makes the agent say there is no rule, and the owner has no way to see through that. So 0.40 stays. It rescued one rule, cost 17 points of precision and one grade, and showed that my rule for a not-covered case (nothing shown, nothing cited) is stricter than the behaviour I want. The miss at 0.28 passed once, on a run that changed nothing about retrieval, because the agent worded the search better that time. No threshold reaches it on the other wordings. That case is about the wording of the search, one pass does not close it, and the grader rule is the next change."
+        found={`11 of ${policy.length} on both threshold runs, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counted as a fail. Recall went from 86% to 93%. Precision went from 46% to 29%. The third run changed the prompt, not the threshold, and the retrieval picture stayed where it was. In the fourth run the 0.28 section came through at 0.51, because the agent happened to word its search differently. In the fifth it scored 0.36 on a third wording and was hidden again.`}
+        decided="The two errors are not equal. An extra section shown is mostly ignored, and when the agent did lean on one it said that it did not apply. A hidden section makes the agent say there is no rule, and the owner has no way to see through that. So 0.40 stays. It rescued one rule and cost 17 points of precision. It also cost one grade, until I changed the grader in run 5: a not-covered case now passes when the answer says the policies do not cover it and cites nothing as the rule, whatever retrieval showed. The miss at 0.28 passed once and missed again, on runs that changed nothing about retrieval, because the agent words that search differently every time. No threshold reaches it on most wordings. That case is about the wording of the search, and it is still open."
       >
         <Failures results={policy.filter((r) => !CITATION_CASES.includes(r.case.id))} />
       </Experiment>
@@ -87,7 +87,7 @@ export default function EvaluationPage() {
         question="An answer that cites a section the agent was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
         ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
         found="It fired on four answers across the first three runs, every one of them right. The agent cited the first section with its full label, then shortened a later one: [§5], [§4, Frequency], or the document name without the section title. The step failed each. The campaign case failed all three runs, each time on a different shortening, and the quiet hours case failed only in run 2. For the fourth run I added two sentences to the prompt: write the whole label every time, never shorten it. No short label anywhere in that run, and both cases passed."
-        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and one run says it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
+        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and two runs say it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
       >
         <Failures results={policy.filter((r) => CITATION_CASES.includes(r.case.id))} />
       </Experiment>
@@ -149,8 +149,6 @@ export default function EvaluationPage() {
 // The runs, oldest first, in the form of a changelog: what changed before
 // each one, what the score did, and what I concluded.
 function Runs() {
-  const latest = changelog[changelog.length - 1];
-
   return (
     <section className="mt-24">
       <h2 id="runs" className="mb-8 scroll-mt-28 text-3xl">The runs</h2>
@@ -160,7 +158,6 @@ function Runs() {
             <span className="absolute top-2 -left-[5px] size-[9px] rounded-full bg-primary" aria-hidden />
             <p className="font-sql text-xs text-muted-foreground">
               Run {i + 1}, {longDate(e.date)}
-              {e === latest && <span className="ml-2 text-primary">this page</span>}
             </p>
             <h3 className="mt-2 text-2xl">{e.title}</h3>
             <ul className="mt-4 list-disc space-y-2 pl-5 text-lg leading-relaxed text-muted-foreground">

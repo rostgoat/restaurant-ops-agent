@@ -81,6 +81,7 @@ const RUN1 = "20261030T025434Z";
 const RUN2 = "20261031T035921Z";
 const RUN3 = "20261101T024005Z";
 const RUN4 = "20261101T025433Z";
+const RUN5 = "20261101T031947Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -138,6 +139,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. The first query timed out on a per-order fee subquery, as in the first two runs, and the retry kept the window at September 1 to October 1 in local time. $30.11 against $27.47, $2.64.",
       "The retry is where the slip used to happen. Two runs now with the line in the prompt, and it has held both times.",
     ],
+    [RUN5]: [
+      "Passed. Timeout on the first query, retry with the right window, $2.64. Three runs with the date line, three passes.",
+    ],
   },
   "pol-02": {
     [RUN1]: [
@@ -160,6 +164,11 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "The answer says the policies give no deadline because Ridgeline is not on DoorDash, and cites the section. That is the answer the owner needed, three runs late.",
       "One pass on a search the agent words differently each time is not a fix. It is the evidence that this case turns on the wording of the search.",
     ],
+    [RUN5]: [
+      "Hidden again. Three searches this time, and the right section scored 0.36 on the third, under the 0.40 line. The sections shown were about refunds and Square Online pickup.",
+      "The agent said the policies do not cover it and cited nothing. The citations step failed that, because sections were shown and none was cited, and the grader failed it for not citing the section it never saw.",
+      "Run 4's pass was the search wording. This run's miss is the search wording. The case turns on words the agent picks fresh each time.",
+    ],
   },
   "pol-03": {
     [RUN1]: [
@@ -177,6 +186,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     ],
     [RUN4]: [
       "Passed. Three citations, all with the full label, after the prompt said to write the whole label every time.",
+    ],
+    [RUN5]: [
+      "Passed. Three citations, full labels.",
     ],
   },
   "pol-05": {
@@ -198,6 +210,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "As in runs 2 and 3. The Allergies section was shown at 0.41, the agent said the policies do not cover health inspections, and cited the section while saying it sets no inspection rule.",
       "Three runs the same way. The answer is right every time, and the grader's rule for a not-covered case is the thing that has to change.",
     ],
+    [RUN5]: [
+      "Passed. The Allergies section scored 0.38 this time, under the line, so nothing was shown and the agent said the policies do not cover it.",
+      "This is the run where the grader's rule changed, and the run did not exercise it. The change is checked against the run 2 and run 4 traces, which both pass under it.",
+    ],
   },
   "pol-11": {
     [RUN1]: [
@@ -217,6 +233,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed for the first time. Right answer, campaign blocked, four citations, every one with the full label.",
       "Where the agent referred back to a section in prose it wrote the name without brackets, and the check only reads brackets, so that is fine.",
     ],
+    [RUN5]: [
+      "Right answer, campaign blocked, every label full. The checker counted 563 customers with verified consent.",
+      "Failed on one phrase. The case expects the answer to say the owner can approve a bigger discount, and the answer said 'unless you approve more', speaking to the owner. My phrase list has 'owner' and the owner's name, not 'you'.",
+    ],
   },
   "pol-12": {
     [RUN1]: [
@@ -233,6 +253,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     ],
     [RUN4]: [
       "Passed. Discounts scored 0.53 on the first search this time, and the owner's definition of a regular 0.62 on the second.",
+    ],
+    [RUN5]: [
+      "Passed. Discounts and Catering shown on one search, both cited in full.",
     ],
   },
 };
