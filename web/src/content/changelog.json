@@ -10,8 +10,13 @@
       "Twenty-four months of data with named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data.",
       "Retrieval threshold 0.50, a number picked from ten captured runs before this set existed."
     ],
-    "conclusion": "One wrong-but-safe query in ten. Two rules hidden by the retrieval threshold. One citation slip caught by code. The threshold moves to 0.40 next.",
-    "result": "34 of 38, $0.44 for the run."
+    "result": "34 of 38, $0.44.",
+    "moved": [
+      "[sql-05](/evaluation/sql-05) wrong by 6%: a safe query with a time zone slip.",
+      "[pol-02](/evaluation/pol-02) and [pol-12](/evaluation/pol-12) hidden by the threshold, at 0.28 and 0.47.",
+      "[pol-11](/evaluation/pol-11) right answer, short citation label, failed by code."
+    ],
+    "next": "The retrieval threshold, 0.50 to 0.40."
   },
   {
     "run": "20261031T035921Z",
@@ -20,8 +25,14 @@
     "changed": [
       "One number changed, the similarity score a policy section needs before the model sees it, from 0.50 to 0.40. Nothing else: same questions, same gold, same model, same prompt."
     ],
-    "result": "33 of 38, $0.46 for the run.",
-    "conclusion": "One case fewer, and a different set of failures. The rule hidden at 0.47 is now found. A question the policies do not cover now pulls in a near section, which the model dismisses correctly and my grader counts as a fail anyway. The citation slip happened a second time. Recall 86% to 93%, precision 46% to 29%. The threshold stays. The next change is the grader's rule for not-covered cases and the citation label, not the model."
+    "result": "33 of 38, $0.46.",
+    "moved": [
+      "[pol-12](/evaluation/pol-12) fixed.",
+      "[pol-05](/evaluation/pol-05) new failure: a near section shown and dismissed, which my grader counts as a fail.",
+      "[pol-03](/evaluation/pol-03) failed on the same label slip as pol-11.",
+      "[sql-05](/evaluation/sql-05), [pol-02](/evaluation/pol-02) and [pol-11](/evaluation/pol-11) unchanged. Recall 86% to 93%, precision 46% to 29%."
+    ],
+    "next": "The threshold stays. A prompt line on date boundaries, for sql-05."
   },
   {
     "run": "20261101T024005Z",
@@ -31,8 +42,13 @@
       "Five lines added to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under the table that holds the restaurant's time zone: filter a date range by converting a plain timestamp literal for each boundary, and never a timestamptz literal, because that converts in the other direction. Nothing else: same questions, same gold, same model, same threshold.",
       "Before the full run, the one failing case was run three times on its own and passed all three."
     ],
-    "result": "35 of 38, $0.46 for the run.",
-    "conclusion": "The time zone slip is gone: ten of ten sql. Two policy cases flipped the other way for reasons that have nothing to do with the prompt line. The citation slip, which had passed the earlier case in run 1 and failed it in run 2, passed it again and failed the campaign case a third time, so that one is a coin toss until the label rule changes. The not-covered case failed as in run 2. The hidden section at 0.30 is still hidden. Next is the citation label."
+    "result": "35 of 38, $0.46.",
+    "moved": [
+      "[sql-05](/evaluation/sql-05) fixed.",
+      "[pol-03](/evaluation/pol-03) passed, [pol-11](/evaluation/pol-11) failed again. The label slip is a coin toss.",
+      "[pol-02](/evaluation/pol-02) and [pol-05](/evaluation/pol-05) unchanged."
+    ],
+    "next": "The citation label."
   },
   {
     "run": "20261101T025433Z",
@@ -42,7 +58,12 @@
       "Two sentences added after the citing rule in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py): write the whole label every time, including when citing the same section again, and never shorten it to [§2] or [House Policy §2]. Nothing else changed.",
       "Before the full run, the two cases that had slipped were run three times each on their own. All six passed the citations step."
     ],
-    "result": "37 of 38, $0.47 for the run.",
-    "conclusion": "No short label anywhere in the run. The campaign case passed for the first time. The hidden section also came through, and not because of this change: the agent worded its second search differently and the section scored 0.51 against it, after 0.28 and 0.30 against the earlier wordings. That is the search wording deciding the answer, and one pass does not settle it. The one failure left is the not-covered case, where the answer is right and my grader's rule is wrong. Next is the grader."
+    "result": "37 of 38, $0.47.",
+    "moved": [
+      "[pol-11](/evaluation/pol-11) fixed, and no short label anywhere in the run.",
+      "[pol-02](/evaluation/pol-02) passed, by luck: a different search wording scored the section 0.51. One pass does not close it.",
+      "[pol-05](/evaluation/pol-05) unchanged."
+    ],
+    "next": "The grader's rule for a not-covered case."
   }
 ]

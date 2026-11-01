@@ -171,7 +171,17 @@ function Runs() {
               ))}
             </ul>
             <p className="mt-4 text-lg leading-relaxed">
-              <strong>Result.</strong> {e.result} {e.conclusion}
+              <strong>Result.</strong> {e.result}
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-lg leading-relaxed">
+              {e.moved.map((m) => (
+                <li key={m}>
+                  <Inline text={m} />
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 text-lg leading-relaxed">
+              <strong>Next.</strong> {e.next}
             </p>
           </li>
         ))}
@@ -251,11 +261,20 @@ function Inline({ text }: { text: string }) {
     <Markdown
       components={{
         p: ({ children }) => <>{children}</>,
-        a: ({ href, children }) => (
-          <a href={href} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">
-            {children}
-          </a>
-        ),
+        a: ({ href, children }) => {
+          const external = href?.startsWith("http");
+
+          return (
+            <a
+              href={href}
+              target={external ? "_blank" : undefined}
+              rel={external ? "noreferrer" : undefined}
+              className={external ? "text-primary underline-offset-4 hover:underline" : "font-sql text-base text-primary underline-offset-4 hover:underline"}
+            >
+              {children}
+            </a>
+          );
+        },
       }}
     >
       {text}

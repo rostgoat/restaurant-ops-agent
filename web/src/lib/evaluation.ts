@@ -52,7 +52,8 @@ export type Entry = {
   title: string;
   changed: string[];
   result: string;
-  conclusion: string;
+  moved: string[];
+  next: string;
 };
 export const changelog = changelogFile as Entry[];
 
