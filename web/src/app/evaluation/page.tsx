@@ -248,10 +248,6 @@ function passed(results: Result[]): number {
   return results.filter((r) => r.grade.outcome === "pass").length;
 }
 
-function pct(v: number | null): string {
-  return v === null ? "n/a" : `${Math.round(v * 100)}%`;
-}
-
 // One changelog line, with a markdown link allowed and no paragraph wrapper.
 function Inline({ text }: { text: string }) {
   return (
