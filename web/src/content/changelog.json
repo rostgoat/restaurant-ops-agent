@@ -4,8 +4,8 @@
     "date": "2026-10-30",
     "title": "First run: 38 questions with the answer written down first",
     "changed": [
-      "Ten sql questions where the answer turns on a definition: lift, new customer, regular, summer, net payout, item margin. The vendor's definitions are in the prompt. Each owner's own words are a Definitions document beside their policies, searched and cited like any other section.",
-      "Every gold query is its own file, headed by the question, so a reader can check it against the model's.",
+      "Ten sql questions where the answer depends on the owner's definition. For example, a 'regular' at Mekong Noodle House is someone with three or more completed orders in three months, while at Ridgeline Coffee it is four or more orders in a month. The vendor's definitions live in the prompt. Each owner's live in a Definitions document beside their policies, which the agent searches and cites like any other section.",
+      "Pre-written gold queries for each question.",
       "Fifteen policy questions, including two where the nearest section is the wrong one. Eight proposals that code has to check against the rules. Three questions that must be declined, one about the other restaurant, one that needs no search.",
       "Twenty-four months of data with named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data.",
       "Retrieval threshold 0.50, a number picked from ten captured runs before this set existed."
