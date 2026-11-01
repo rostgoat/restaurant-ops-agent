@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const pages = [
-  { href: "/scenarios", label: "Scenarios" },
   { href: "/evaluation", label: "Evaluation" },
   { href: "/architecture", label: "Architecture" },
 ];

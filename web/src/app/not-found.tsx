@@ -5,9 +5,9 @@ export default function NotFound() {
   return (
     <div className="">
       <h1 className="mb-3 text-3xl">There is nothing at this address</h1>
-      <p className="mb-4">The trace may belong to another restaurant, or the link is wrong.</p>
+      <p className="mb-4">The case may not exist, or the link is wrong.</p>
       <Button asChild>
-        <Link href="/scenarios">See the scenarios</Link>
+        <Link href="/evaluation">See the evaluation</Link>
       </Button>
     </div>
   );

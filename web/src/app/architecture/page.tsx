@@ -5,7 +5,6 @@ import { PageOutline } from "@/components/page-outline";
 import { Separator } from "@/components/ui/separator";
 import { data } from "@/lib/evaluation";
 import { count } from "@/lib/format";
-import { scenarios } from "@/lib/scenarios";
 
 export const metadata = pageMetadata(
   "Architecture",
@@ -41,9 +40,9 @@ function File({ path }: { path: string }) {
   );
 }
 
-// The caching figure, read from the first scenario's answering turn.
+// The caching figure, read from the first evaluation case's answering turn.
 const cached = (() => {
-  const step = scenarios[0].trace.steps.find((st) => st.name === "answer");
+  const step = data.results[0].trace.steps.find((st) => st.name === "answer");
   const u = (step?.detail as { usage?: Record<string, number> } | undefined)?.usage ?? {};
   const read = u.cache_read_tokens ?? 0;
   const input = (u.input_tokens ?? 0) + read + (u.cache_write_tokens ?? 0);
@@ -76,8 +75,8 @@ export default function ArchitecturePage() {
           </li>
           <li>Code takes every query apart before it runs: no writes, one restaurant&apos;s rows only, read-only.</li>
           <li>
-            Policy search is limited to one restaurant and to sections above a score threshold.
-            Citations are checked.
+            Policy search is limited to one restaurant, to sections close enough in meaning and
+            to the one whose words match best. Citations are checked.
           </li>
           <li>An action waits for a person. Approval produces a simulated record, not a real send.</li>
           <li>Every step is recorded with who did it, what it cost and how long it took.</li>
@@ -103,7 +102,7 @@ export default function ArchitecturePage() {
           turns the question down and says why. The model can call up
           to six tools in one request, in any order, or answer in plain text with none. None of the
           four can write, send or file anything. A question that tells the model to delete or
-          change something, like the injection scenario, has no tool to do it with.{" "}
+          change something, like the injection case in the evaluation, has no tool to do it with.{" "}
           <File path="api/app/agent/tools.py" />
         </p>
 
@@ -143,16 +142,22 @@ export default function ArchitecturePage() {
         </h2>
         <p>
           Each restaurant has three policy documents written as a manual, with numbered sections.
-          Each section is stored with an embedding in Postgres, using <Code>pgvector</Code>. A search is
-          limited to the asking restaurant before any score is computed, the same way the guard
-          limits a query. Up to four sections come back, and only those scoring above{" "}
-          {s.retrieval_threshold.toFixed(2)}. Sections under the bar are written to the trace but
-          not shown to the model. When nothing clears the bar, the model is told so. I chose a
-          threshold over a fixed top four because a question the policies do not cover should
-
-          return nothing, not the nearest miss. The two restaurants&apos; rules differ on purpose,
-          so a section from the wrong restaurant would be a wrong decision, not just a wrong
-          answer. <File path="api/app/policies/search.py" />
+          Each section is stored in Postgres with an embedding, using <Code>pgvector</Code>, and
+          with the search form of its words. A search is limited to the asking restaurant before
+          any score is computed, the same way the guard limits a query. Every section is then
+          scored two ways: how close its meaning is to the search, and how many of the
+          search&apos;s words it contains, each word weighted by how rare it is in that
+          restaurant&apos;s policies. The two rankings are merged by rank. Up to four sections
+          come back. The model sees those with a meaning score above{" "}
+          {s.retrieval_threshold.toFixed(2)}, and the one section whose words match best even
+          when its meaning score is under the bar. The rest are written to the trace but not
+          shown, and the trace records which score showed each section. When nothing qualifies,
+          the model is told so. I chose a threshold over a fixed top four because a question the
+          policies do not cover should return nothing, not the nearest miss, and added the word
+          match because an embedding does not see a name like DoorDash that a section is about.
+          The two restaurants&apos; rules differ on purpose, so a section from the wrong
+          restaurant would be a wrong decision, not just a wrong answer.{" "}
+          <File path="api/app/policies/search.py" />
         </p>
 
         <Separator className="my-14" />
@@ -203,8 +208,8 @@ export default function ArchitecturePage() {
           Every step is a row: who did it, the model, code or a person, what it decided, how long
           it took. Each model turn records its tokens, including how many came from the prompt
           cache, and the trace prices the request from the published rates. The cost per question
-          on the Evaluation page is the sum of those rows. The Scenarios and Evaluation pages are
-          rendered from these rows. <File path="api/app/agent/trace.py" />
+          on the Evaluation page is the sum of those rows, and every trace on that page is
+          rendered from them. <File path="api/app/agent/trace.py" />
         </p>
 
         <Separator className="my-14" />
@@ -230,19 +235,22 @@ export default function ArchitecturePage() {
           </li>
           <li>
             <strong className="font-semibold">A threshold, not a top four.</strong> A question the
-            policies do not cover should return nothing. The threshold is {s.retrieval_threshold.toFixed(2)},
-            and the Evaluation page says why that is still an open question.
+            policies do not cover should return nothing. The threshold is{" "}
+            {s.retrieval_threshold.toFixed(2)} on the meaning score, with one exception: the
+            section whose words match the search best is shown regardless. The Evaluation page
+            has the runs that set the number and added the exception, and what each cost.
           </li>
           <li>
-            <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> On the evaluation
-            cases Opus passed fewer and cost two and a half times as much. Low effort did as well
-            as medium. The evaluation chose the model.
+            <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> Chosen on a
+            side-by-side with Opus 5.5 on ten captured questions, before the evaluation set
+            existed: the same outcomes at half the cost. No other model has run on the evaluation
+            set yet. That is the next experiment.
           </li>
           <li>
             <strong className="font-semibold">Prompt caching.</strong> The system prompt, the
             tool definitions and the table descriptions are the same for every question, about{" "}
             {count(cached.prompt)} tokens. They are cached, so every turn after the first reads
-            them at a tenth of the price. On the first scenario&apos;s answering turn,{" "}
+            them at a tenth of the price. On the first evaluation case&apos;s answering turn,{" "}
             {count(cached.read)} of {count(cached.input)} input tokens came from the cache. The
             trace records this on every turn and the cost per question includes it. Answers are
             not cached. Every question is a live run.
@@ -253,7 +261,7 @@ export default function ArchitecturePage() {
           </li>
           <li>
             <strong className="font-semibold">Two databases from one schema.</strong> The demo
-            database serves the site and the reruns. The generator can append one day of orders
+            database serves the API. The generator can append one day of orders
             to it at a time, and the job that would do that nightly is not built. The evaluation
             database is frozen so a score today compares with one next month.
           </li>
@@ -285,8 +293,8 @@ export default function ArchitecturePage() {
             <Code>psycopg</Code> for the database and <Code>sqlglot</Code> for the guard.
           </li>
           <li>
-            <strong className="font-semibold">Database.</strong> Postgres with <Code>pgvector</Code>{" "}
-            for the policy embeddings.
+            <strong className="font-semibold">Database.</strong> Postgres, with <Code>pgvector</Code>{" "}
+            for the policy embeddings and its own full-text search for their words.
           </li>
           <li>
             <strong className="font-semibold">Embeddings.</strong> OpenAI{" "}

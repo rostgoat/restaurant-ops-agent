@@ -12,12 +12,9 @@ person.
 Two fictional restaurants, generated orders, no real sales data. Built as an
 applied AI case study. The site walks through it:
 
-- **Scenarios.** Five questions, simplest first, each with what should happen
-  written down before it was asked, the captured answer, and the full trace.
-  Each can be rerun live.
-- **Evaluation.** 52 questions with a known right answer, graded by code,
-  every failure shown in full, and the same cases on other models, efforts
-  and retrieval thresholds.
+- **Evaluation.** 38 questions with the right answer written down first,
+  graded by code, run again after every change. Six runs so far, each
+  changing one thing, with every failure named and every trace shown.
 - **Architecture.** The request path as a diagram, one section per step with
   a link to the file, the decisions, and what it does not do.
 

@@ -7,11 +7,6 @@ import { usePathname } from "next/navigation";
 const order = [
   { href: "/", label: "Home", blurb: "The case study in one page." },
   {
-    href: "/scenarios",
-    label: "Scenarios",
-    blurb: "Five questions, simplest first, with the expected behaviour written down before each.",
-  },
-  {
     href: "/evaluation",
     label: "Evaluation",
     blurb: "Every question with a written right answer, and every failure named.",

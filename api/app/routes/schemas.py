@@ -62,11 +62,3 @@ class TraceOut(BaseModel):
     @classmethod
     def from_trace(cls, trace: Trace) -> TraceOut:
         return cls.model_validate(asdict(trace))
-
-
-class QuestionStatsOut(BaseModel):
-    asked: int
-    answered: int
-    cost_avg_usd: float | None
-    latency_avg_ms: int | None
-    first_asked_at: datetime | None

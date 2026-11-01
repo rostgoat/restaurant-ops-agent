@@ -29,24 +29,6 @@ class FakeStore:
     def save_trace(self, trace):
         self.traces[trace.id] = trace
 
-    def question_stats(self, merchant_id, question):
-        from app.store import QuestionStats
-
-        mine = [
-            t
-            for t in self.traces.values()
-            if t.merchant_id == merchant_id and t.question == question
-        ]
-        costs = [t.cost_usd for t in mine]
-
-        return QuestionStats(
-            asked=len(mine),
-            answered=sum(t.status == "answered" for t in mine),
-            cost_avg_usd=sum(costs) / len(costs) if costs else None,
-            latency_avg_ms=None,
-            first_asked_at=min((t.created_at for t in mine), default=None),
-        )
-
     def get_trace(self, trace_id, merchant_id):
         trace = self.traces.get(trace_id)
 
@@ -161,31 +143,19 @@ def test_a_trace_is_only_readable_by_the_restaurant_that_asked():
     assert api.get(f"/traces/{trace_id}", headers=as_merchant(2)).status_code == 404
 
 
-def test_question_stats_count_every_time_this_restaurant_asked_it():
-    api, _ = make(FakeClient(reply(text("hi")), reply(text("hi")), reply(text("hi"))))
-    api.post("/ask", json={"question": "a"}, headers=as_merchant(1))
-    api.post("/ask", json={"question": "a"}, headers=as_merchant(1))
-    api.post("/ask", json={"question": "a"}, headers=as_merchant(2))
-    stats = api.get("/questions/stats", params={"question": "a"}, headers=as_merchant(1)).json()
-    assert (stats["asked"], stats["answered"]) == (2, 2)
-    assert (
-        api.get("/questions/stats", params={"question": "zzz"}, headers=as_merchant(1)).json()[
-            "asked"
-        ]
-        == 0
-    )
-
-
 def test_a_configured_token_is_required_on_everything_but_health():
-    api, _ = make()
+    api, _ = make(FakeClient(reply(text("hi"))))
     api.app.state.api_token = "s3cret"
     assert api.get("/health").status_code == 200
-    probe = "/questions/stats?question=x"
-    assert api.get(probe, headers=as_merchant(1)).status_code == 401
-    assert api.get(probe, headers=as_merchant(1) | {"X-API-Token": "wrong"}).status_code == 401
-    assert api.get(probe, headers=as_merchant(1) | {"X-API-Token": "s3cret"}).status_code == 200
+    assert ask(api, as_merchant(1)).status_code == 401
+    assert ask(api, as_merchant(1) | {"X-API-Token": "wrong"}).status_code == 401
+    assert ask(api, as_merchant(1) | {"X-API-Token": "s3cret"}).status_code == 200
 
 
 def test_without_a_token_the_api_is_open_for_local_work():
-    api, _ = make()
-    assert api.get("/questions/stats?question=x", headers=as_merchant(1)).status_code == 200
+    api, _ = make(FakeClient(reply(text("hi"))))
+    assert ask(api, as_merchant(1)).status_code == 200
+
+
+def ask(api, headers):
+    return api.post("/ask", json={"question": "x"}, headers=headers)

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -30,16 +28,6 @@ _TRACE_COLUMNS = """
 
 _SELECT_TRACE = f"SELECT {_TRACE_COLUMNS} FROM request_traces WHERE id = %s AND merchant_id = %s"
 
-_QUESTION_STATS = """
-SELECT count(*),
-       count(*) FILTER (WHERE status = 'answered'),
-       avg(cost_usd),
-       avg(latency_ms),
-       min(created_at)
-FROM request_traces
-WHERE merchant_id = %s AND question = %s
-"""
-
 _SELECT_STEPS = """
 SELECT trace_id, seq, actor, name, outcome, detail, latency_ms
 FROM trace_steps WHERE trace_id = ANY(%s) ORDER BY trace_id, seq
@@ -62,15 +50,6 @@ SELECT {_PROPOSAL_COLUMNS} FROM proposals WHERE trace_id = ANY(%s) ORDER BY crea
 """
 
 _SELECT_PROPOSAL = f"SELECT {_PROPOSAL_COLUMNS} FROM proposals WHERE id = %s AND merchant_id = %s"
-
-
-@dataclass
-class QuestionStats:
-    asked: int
-    answered: int
-    cost_avg_usd: float | None
-    latency_avg_ms: int | None
-    first_asked_at: datetime | None
 
 
 class Store:
@@ -157,21 +136,6 @@ class Store:
                 "UPDATE proposals SET status = %s, decided_at = %s, payload = %s WHERE id = %s",
                 (proposal.status, proposal.decided_at, Jsonb(proposal.payload), proposal.id),
             )
-
-    def question_stats(self, merchant_id: int, question: str) -> QuestionStats:
-        """How one question has fared every time this restaurant asked it."""
-
-        with self._pool.connection() as conn:
-            row = conn.execute(_QUESTION_STATS, (merchant_id, question)).fetchone()
-        asked, answered, cost, latency, first = row if row else (0, 0, None, None, None)
-
-        return QuestionStats(
-            asked=int(asked),
-            answered=int(answered),
-            cost_avg_usd=float(cost) if cost is not None else None,
-            latency_avg_ms=int(latency) if latency is not None else None,
-            first_asked_at=first,
-        )
 
     def get_trace(self, trace_id: UUID, merchant_id: int) -> Trace | None:
         with self._pool.connection() as conn:
