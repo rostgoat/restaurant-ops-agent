@@ -44,7 +44,7 @@ export default function HomePage() {
             size="lg"
             className="h-11 px-5 font-heading text-base"
           >
-            <Link href="/evaluation">See the runs</Link>
+            <Link href="/evaluation">See the experiments</Link>
           </Button>
           <Button
             asChild
