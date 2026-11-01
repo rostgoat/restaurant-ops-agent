@@ -1,0 +1,889 @@
+{
+ "summary": {
+  "ran_at": "2026-11-01T23:19:51.937166+00:00",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "retrieval_threshold": 0.4,
+  "commit": "6f3f6ee",
+  "dataset": "ops_eval, data/generate.py seed 42",
+  "frozen_now": "2026-10-24T15:00:00Z",
+  "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
+  "cases": 3,
+  "scored": 3,
+  "passed": 2,
+  "errors": 0,
+  "suites": {
+   "sql": {
+    "passed": 2,
+    "total": 3
+   }
+  },
+  "cost_total_usd": 0.0476,
+  "cost_per_answered_median_usd": 0.0149,
+  "cost_per_answered_p90_usd": 0.0224,
+  "latency_median_ms": 8197,
+  "latency_p90_ms": 8279,
+  "retrieval": {
+   "precision": null,
+   "recall": null,
+   "sections_shown": 0,
+   "sections_expected": 0
+  }
+ },
+ "results": [
+  {
+   "case": {
+    "id": "sql-11",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in September?",
+    "gold_file": "gold/sql-11.sql",
+    "value_kind": "count",
+    "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November, about October, all searched the order's labels, found nothing, and said the data cannot identify catering orders. The first version asked about October, the month in progress on the frozen clock, and the agent rightly stopped at the 24th while the gold did not.",
+    "gold_sql": "-- sql-11: How many catering orders did we do in September?\n\nSELECT count(DISTINCT o.id)\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN items i ON i.id = oi.item_id\nJOIN categories c ON c.id = i.category_id\nWHERE o.state = 'completed'\n  AND c.name = 'Catering'\n  AND o.created_at >= timestamp '2026-09-01' AT TIME ZONE 'America/Chicago'\n  AND o.created_at <  timestamp '2026-10-01' AT TIME ZONE 'America/Chicago'\n"
+   },
+   "gold": 22,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": 22.0,
+    "found": 22.0
+   },
+   "trace": {
+    "id": "53f15c62-172f-48b7-8423-9de1393918c1",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in September?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "We did 22 catering orders in September 2026 (Sept 1\u201330, restaurant local time). I counted completed orders that include at least one item from the \"Catering\" menu category.\n\nYour policies don't define what counts as a catering order. [House Policy \u00a76, Catering] only sets the notice, deposit and cancellation rules. Nothing in the data tags an order as catering by its source or discount name. The category is my best proxy, so the count would miss any catering order rung up without a Catering item. Canceled and draft orders are excluded.",
+    "usage": {
+     "input_tokens": 2369,
+     "cache_read_tokens": 9963,
+     "cache_write_tokens": 3321,
+     "output_tokens": 735
+    },
+    "cost_usd": 0.022383,
+    "latency_ms": 8197,
+    "model_ms": 7528,
+    "tool_ms": 647,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering order definition",
+       "usage": {
+        "input_tokens": 102,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 3321,
+        "output_tokens": 69
+       }
+      },
+      "latency_ms": 1124
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering order definition",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a76, Catering",
+         "score": 0.5631,
+         "word_rank": 2,
+         "used": true,
+         "shown_by": "meaning"
+        },
+        {
+         "label": "House Policy \u00a74, Discounts",
+         "score": 0.3128,
+         "word_rank": 1,
+         "used": true,
+         "shown_by": "words"
+        },
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.3381,
+         "word_rank": 4,
+         "used": false,
+         "shown_by": null
+        },
+        {
+         "label": "Definitions \u00a73, The Lunch 20 Promotion",
+         "score": 0.3133,
+         "word_rank": 6,
+         "used": false,
+         "shown_by": null
+        }
+       ]
+      },
+      "latency_ms": 541
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Look for catering markers in orders and categories",
+       "sql": "select 'src' k, source_raw v, count(*) from orders where source_raw ilike '%cater%' group by 2 union all select 'disc', discount_name, count(*) from orders where discount_name ilike '%cater%' group by 2 union all select 'cat', name, 0 from categories where name ilike '%cater%' union all select 'item', name, 0 from items where name ilike '%cater%'",
+       "usage": {
+        "input_tokens": 455,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 252
+       }
+      },
+      "latency_ms": 2217
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT 'src' AS k, source_raw AS v, COUNT(*) FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE source_raw ILIKE '%cater%' GROUP BY 2 UNION ALL SELECT 'disc', discount_name, COUNT(*) FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE discount_name ILIKE '%cater%' GROUP BY 2 UNION ALL SELECT 'cat', name, 0 FROM (SELECT * FROM categories WHERE merchant_id = 1) AS categories WHERE name ILIKE '%cater%' UNION ALL SELECT 'item', name, 0 FROM (SELECT * FROM items WHERE merchant_id = 1) AS items WHERE name ILIKE '%cater%' LIMIT 500"
+      },
+      "latency_ms": 7
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "k",
+        "v",
+        "count"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         "cat",
+         "Catering",
+         0
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 93
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count September completed orders containing Catering category items",
+       "sql": "select count(distinct o.id) from orders o join order_items oi on oi.order_id=o.id join items i on i.id=oi.item_id join categories c on c.id=i.category_id where c.name='Catering' and o.state='completed' and o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants) and o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)",
+       "usage": {
+        "input_tokens": 763,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 245
+       }
+      },
+      "latency_ms": 1970
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items, merchants, order_items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id, merchants.id, order_items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(DISTINCT o.id) FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o JOIN (SELECT * FROM order_items WHERE merchant_id = 1) AS oi ON oi.order_id = o.id JOIN (SELECT * FROM items WHERE merchant_id = 1) AS i ON i.id = oi.item_id JOIN (SELECT * FROM categories WHERE merchant_id = 1) AS c ON c.id = i.category_id WHERE c.name = 'Catering' AND o.state = 'completed' AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) LIMIT 500"
+      },
+      "latency_ms": 9
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "count"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         22
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 13
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "We did 22 catering orders in September 2026 (Sept 1\u201330, restaurant local time). I counted completed orders that include at least one item from the \"Catering\" menu category.\n\nYour policies don't define what counts as a catering order. [House Policy \u00a76, Catering] only sets the notice, deposit and cancellation rules. Nothing in the data tags an order as catering by its source or discount name. The category is my best proxy, so the count would miss any catering order rung up without a Catering item. Canceled and draft orders are excluded.",
+       "usage": {
+        "input_tokens": 1049,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 169
+       }
+      },
+      "latency_ms": 2217
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a76, Catering"
+       ],
+       "retrieved": [
+        "House Policy \u00a74, Discounts",
+        "House Policy \u00a76, Catering"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "sql-11",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in September?",
+    "gold_file": "gold/sql-11.sql",
+    "value_kind": "count",
+    "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November, about October, all searched the order's labels, found nothing, and said the data cannot identify catering orders. The first version asked about October, the month in progress on the frozen clock, and the agent rightly stopped at the 24th while the gold did not.",
+    "gold_sql": "-- sql-11: How many catering orders did we do in September?\n\nSELECT count(DISTINCT o.id)\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN items i ON i.id = oi.item_id\nJOIN categories c ON c.id = i.category_id\nWHERE o.state = 'completed'\n  AND c.name = 'Catering'\n  AND o.created_at >= timestamp '2026-09-01' AT TIME ZONE 'America/Chicago'\n  AND o.created_at <  timestamp '2026-10-01' AT TIME ZONE 'America/Chicago'\n"
+   },
+   "gold": 22,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "the answer's figures are 2,026, 500, 6; none is within 1% of 22"
+    ],
+    "expected": 22.0,
+    "found": null
+   },
+   "trace": {
+    "id": "82439b0c-64d4-4d3d-b44f-ed25618d86fb",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in September?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "I can't give you a number for September catering orders. The data has no way to identify them.\n\nI searched September 2026 orders for \"catering\" in the source label and the discount name and found no matches. Orders also have no catering channel or fulfillment type. The house policy covers catering rules such as notice, deposits and the over-$500 owner confirmation [House Policy \u00a76, Catering]. It doesn't say how to recognize a catering order in the sales data.\n\nIf you give me a rule, I can count on that basis. For example, I could count pickup orders over a certain dollar size, or orders with a certain item count.",
+    "usage": {
+     "input_tokens": 1381,
+     "cache_read_tokens": 9963,
+     "cache_write_tokens": 0,
+     "output_tokens": 554
+    },
+    "cost_usd": 0.010295,
+    "latency_ms": 6016,
+    "model_ms": 5744,
+    "tool_ms": 264,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering order definition",
+       "usage": {
+        "input_tokens": 102,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 75
+       }
+      },
+      "latency_ms": 1128
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering order definition",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a76, Catering",
+         "score": 0.5631,
+         "word_rank": 2,
+         "used": true,
+         "shown_by": "meaning"
+        },
+        {
+         "label": "House Policy \u00a74, Discounts",
+         "score": 0.3128,
+         "word_rank": 1,
+         "used": true,
+         "shown_by": "words"
+        },
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.3381,
+         "word_rank": 4,
+         "used": false,
+         "shown_by": null
+        },
+        {
+         "label": "Definitions \u00a73, The Lunch 20 Promotion",
+         "score": 0.3133,
+         "word_rank": 6,
+         "used": false,
+         "shown_by": null
+        }
+       ]
+      },
+      "latency_ms": 249
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Look for catering markers in orders",
+       "sql": "select channel, source_raw, discount_name, state, count(*) n, min(gross_sales_cents) mn, max(gross_sales_cents) mx from orders where (source_raw ilike '%cater%' or discount_name ilike '%cater%') and created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants) and created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants) group by 1,2,3,4",
+       "usage": {
+        "input_tokens": 461,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 292
+       }
+      },
+      "latency_ms": 2188
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT channel, source_raw, discount_name, state, COUNT(*) AS n, MIN(gross_sales_cents) AS mn, MAX(gross_sales_cents) AS mx FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE (source_raw ILIKE '%cater%' OR discount_name ILIKE '%cater%') AND created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY 1, 2, 3, 4 LIMIT 500"
+      },
+      "latency_ms": 5
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "channel",
+        "source_raw",
+        "discount_name",
+        "state",
+        "n",
+        "mn",
+        "mx"
+       ],
+       "row_count": 0,
+       "rows": [],
+       "truncated": false
+      },
+      "latency_ms": 15
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "I can't give you a number for September catering orders. The data has no way to identify them.\n\nI searched September 2026 orders for \"catering\" in the source label and the discount name and found no matches. Orders also have no catering channel or fulfillment type. The house policy covers catering rules such as notice, deposits and the over-$500 owner confirmation [House Policy \u00a76, Catering]. It doesn't say how to recognize a catering order in the sales data.\n\nIf you give me a rule, I can count on that basis. For example, I could count pickup orders over a certain dollar size, or orders with a certain item count.",
+       "usage": {
+        "input_tokens": 818,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 187
+       }
+      },
+      "latency_ms": 2428
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a76, Catering"
+       ],
+       "retrieved": [
+        "House Policy \u00a74, Discounts",
+        "House Policy \u00a76, Catering"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 1
+  },
+  {
+   "case": {
+    "id": "sql-11",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in September?",
+    "gold_file": "gold/sql-11.sql",
+    "value_kind": "count",
+    "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November, about October, all searched the order's labels, found nothing, and said the data cannot identify catering orders. The first version asked about October, the month in progress on the frozen clock, and the agent rightly stopped at the 24th while the gold did not.",
+    "gold_sql": "-- sql-11: How many catering orders did we do in September?\n\nSELECT count(DISTINCT o.id)\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN items i ON i.id = oi.item_id\nJOIN categories c ON c.id = i.category_id\nWHERE o.state = 'completed'\n  AND c.name = 'Catering'\n  AND o.created_at >= timestamp '2026-09-01' AT TIME ZONE 'America/Chicago'\n  AND o.created_at <  timestamp '2026-10-01' AT TIME ZONE 'America/Chicago'\n"
+   },
+   "gold": 22,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": 22.0,
+    "found": 22.0
+   },
+   "trace": {
+    "id": "ac1e273d-9ec9-4add-8607-fac84f1c022f",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in September?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "We had 22 completed orders in September 2026 (Sept 1\u201330, local time) that included at least one item from the Catering menu category.\n\nOrders have no catering flag, and the policies don't define one. The only House Policy section on catering, [House Policy \u00a76, Catering], covers notice and deposits. So I used the Catering category as the definition. Any catering order that was canceled or still a draft isn't in this count. A catering order rung up without Catering-category items would also be missed.",
+    "usage": {
+     "input_tokens": 2408,
+     "cache_read_tokens": 13284,
+     "cache_write_tokens": 0,
+     "output_tokens": 744
+    },
+    "cost_usd": 0.014913,
+    "latency_ms": 8279,
+    "model_ms": 7887,
+    "tool_ms": 379,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering order definition",
+       "usage": {
+        "input_tokens": 102,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 75
+       }
+      },
+      "latency_ms": 1132
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering order definition",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a76, Catering",
+         "score": 0.5631,
+         "word_rank": 2,
+         "used": true,
+         "shown_by": "meaning"
+        },
+        {
+         "label": "House Policy \u00a74, Discounts",
+         "score": 0.3128,
+         "word_rank": 1,
+         "used": true,
+         "shown_by": "words"
+        },
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.3381,
+         "word_rank": 4,
+         "used": false,
+         "shown_by": null
+        },
+        {
+         "label": "Definitions \u00a73, The Lunch 20 Promotion",
+         "score": 0.3133,
+         "word_rank": 6,
+         "used": false,
+         "shown_by": null
+        }
+       ]
+      },
+      "latency_ms": 304
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Look for catering markers in orders and categories",
+       "sql": "select 'src' k, source_raw v, count(*) from orders where source_raw ilike '%cater%' group by 2 union all select 'disc', discount_name, count(*) from orders where discount_name ilike '%cater%' group by 2 union all select 'cat', name, 0 from categories where name ilike '%cater%' union all select 'item', name, 0 from items where name ilike '%cater%'",
+       "usage": {
+        "input_tokens": 461,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 252
+       }
+      },
+      "latency_ms": 2166
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT 'src' AS k, source_raw AS v, COUNT(*) FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE source_raw ILIKE '%cater%' GROUP BY 2 UNION ALL SELECT 'disc', discount_name, COUNT(*) FROM (SELECT * FROM orders WHERE merchant_id = 1) AS orders WHERE discount_name ILIKE '%cater%' GROUP BY 2 UNION ALL SELECT 'cat', name, 0 FROM (SELECT * FROM categories WHERE merchant_id = 1) AS categories WHERE name ILIKE '%cater%' UNION ALL SELECT 'item', name, 0 FROM (SELECT * FROM items WHERE merchant_id = 1) AS items WHERE name ILIKE '%cater%' LIMIT 500"
+      },
+      "latency_ms": 3
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "k",
+        "v",
+        "count"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         "cat",
+         "Catering",
+         0
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 66
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count completed September orders with catering-category items",
+       "sql": "select count(distinct o.id) from orders o join order_items oi on oi.order_id=o.id join items i on i.id=oi.item_id join categories c on c.id=i.category_id where c.name='Catering' and o.state='completed' and o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants) and o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)",
+       "usage": {
+        "input_tokens": 769,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 266
+       }
+      },
+      "latency_ms": 2142
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items, merchants, order_items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id, merchants.id, order_items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(DISTINCT o.id) FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o JOIN (SELECT * FROM order_items WHERE merchant_id = 1) AS oi ON oi.order_id = o.id JOIN (SELECT * FROM items WHERE merchant_id = 1) AS i ON i.id = oi.item_id JOIN (SELECT * FROM categories WHERE merchant_id = 1) AS c ON c.id = i.category_id WHERE c.name = 'Catering' AND o.state = 'completed' AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) LIMIT 500"
+      },
+      "latency_ms": 5
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "count"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         22
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 9
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "We had 22 completed orders in September 2026 (Sept 1\u201330, local time) that included at least one item from the Catering menu category.\n\nOrders have no catering flag, and the policies don't define one. The only House Policy section on catering, [House Policy \u00a76, Catering], covers notice and deposits. So I used the Catering category as the definition. Any catering order that was canceled or still a draft isn't in this count. A catering order rung up without Catering-category items would also be missed.",
+       "usage": {
+        "input_tokens": 1076,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 151
+       }
+      },
+      "latency_ms": 2447
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a76, Catering"
+       ],
+       "retrieved": [
+        "House Policy \u00a74, Discounts",
+        "House Policy \u00a76, Catering"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 2
+  }
+ ]
+}

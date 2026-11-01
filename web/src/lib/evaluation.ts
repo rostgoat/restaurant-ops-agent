@@ -85,6 +85,7 @@ const RUN4 = "20261101T025433Z";
 const RUN5 = "20261101T031947Z";
 const RUN6 = "20261101T043023Z";
 const RUN7 = "20261101T230259Z";
+const RUN8 = "20261101T232428Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -128,6 +129,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "The Catering category is on the menu, in the categories table the prompt lists, and 18 completed October orders have an item from it. The agent never looked there.",
       "A safe query, an empty result, and the empty result read as a fact about the restaurant. The owner hears that their catering business cannot be counted.",
     ],
+    [RUN8]: [
+      "Passed. The first query listed the Catering category and its six items. The second counted completed September orders with one of them: 22.",
+      "Four lines in the prompt. Without them, the September wording found the menu two times in three and the October wording never. With them, three of three and this run.",
+    ],
   },
   "sql-05": {
     [RUN1]: [
@@ -155,6 +160,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN6]: [
       "Passed, $2.64. Four runs with the date line, four passes.",
     ],
+    [RUN8]: ["Passed, $2.64."],
   },
   "pol-02": {
     [RUN1]: [
@@ -187,6 +193,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "The agent cited it and said the policies give no deadline because Ridgeline is not on DoorDash. The answer the owner needed, found by the word the owner used.",
       "Six runs, five misses on wording, and the fix was not wording. The embedding search could not see the word, and now something does.",
     ],
+    [RUN8]: ["Passed. Shown for the word DoorDash again, and cited."],
   },
   "pol-03": {
     [RUN1]: [
@@ -211,6 +218,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN6]: [
       "Passed. Full labels, three citations.",
     ],
+    [RUN8]: ["Passed."],
   },
   "pol-05": {
     [RUN1]: [
@@ -242,6 +250,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. Two sections shown: Allergies at 0.41 by meaning, and the house policy's scope preamble for its words, since it shares 'rule' and other common words with the search. The agent called both unrelated and said the policies do not cover health inspections.",
       "This is the precision cost of the word search in one trace: one extra section, read and set aside.",
     ],
+    [RUN8]: ["Passed."],
   },
   "pol-11": {
     [RUN1]: [
@@ -269,6 +278,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN6]: [
       "Passed. Four citations in full, the campaign blocked, 563 customers counted.",
     ],
+    [RUN8]: ["Passed."],
   },
   "pol-12": {
     [RUN1]: [
@@ -292,6 +302,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN6]: [
       "Passed. The scope preamble was shown for its words on both searches and ignored. Discounts, Catering and the owner's definition of a regular were cited.",
     ],
+    [RUN8]: ["Passed."],
   },
 };
 

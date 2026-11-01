@@ -137,5 +137,22 @@
       "Nothing else moved."
     ],
     "next": "A fix for the empty result read as a fact. The two misses of this shape so far, this one and a question about a day with no data, both turned zero rows into a claim about the restaurant."
+  },
+  {
+    "run": "20261101T232428Z",
+    "date": "2026-11-01",
+    "title": "Eighth run: the prompt says a word may be a menu category, and the catering question moves to a finished month",
+    "changed": [
+      "Four lines in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under Queries: a word in the question may be the name of a menu category or item, check the categories and items tables for it before saying the data cannot identify something, and an empty search proves only that the word is not where you looked.",
+      "The case itself was wrong. It asked about October, and the eval's clock is frozen at 24 October, so the agent rightly counted to the 24th while my gold counted to the end of the data. It now asks about September, a finished month, with the gold at 22.",
+      "Before the full run, three single-case reps each way on the September wording. Without the line, two of three found the menu. With the line, three of three. On the October wording the day before, none of three had."
+    ],
+    "passed": 39,
+    "result": "39 of 39, $0.49.",
+    "moved": [
+      "[sql-11](/evaluation/sql-11) passed. The agent listed the Catering category's six items first, then counted completed September orders that include one.",
+      "Nothing else moved. Precision 28% to 30%."
+    ],
+    "next": "Two changes in one run, and the second was a correction to the test, so the single-case reps are the evidence that the line did the work. The third kind of wrong, a cited section that does not support the answer, still has no case."
   }
 ]

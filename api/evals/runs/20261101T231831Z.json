@@ -1,0 +1,1062 @@
+{
+ "summary": {
+  "ran_at": "2026-11-01T23:18:31.037129+00:00",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "retrieval_threshold": 0.4,
+  "commit": "6f3f6ee",
+  "dataset": "ops_eval, data/generate.py seed 42",
+  "frozen_now": "2026-10-24T15:00:00Z",
+  "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
+  "cases": 3,
+  "scored": 3,
+  "passed": 0,
+  "errors": 0,
+  "suites": {
+   "sql": {
+    "passed": 0,
+    "total": 3
+   }
+  },
+  "cost_total_usd": 0.0474,
+  "cost_per_answered_median_usd": 0.0134,
+  "cost_per_answered_p90_usd": 0.0211,
+  "latency_median_ms": 8983,
+  "latency_p90_ms": 9485,
+  "retrieval": {
+   "precision": null,
+   "recall": null,
+   "sections_shown": 0,
+   "sections_expected": 0
+  }
+ },
+ "results": [
+  {
+   "case": {
+    "id": "sql-11",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in October?",
+    "gold_file": "gold/sql-11.sql",
+    "value_kind": "count",
+    "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November all searched the order's labels, found nothing, and said the data cannot identify catering orders. 18.",
+    "gold_sql": "-- sql-11: How many catering orders did we do in October?\n\nSELECT count(DISTINCT o.id)\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN items i ON i.id = oi.item_id\nJOIN categories c ON c.id = i.category_id\nWHERE o.state = 'completed'\n  AND c.name = 'Catering'\n  AND o.created_at >= timestamp '2026-10-01' AT TIME ZONE 'America/Chicago'\n  AND o.created_at <  timestamp '2026-11-01' AT TIME ZONE 'America/Chicago'\n"
+   },
+   "gold": 18,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "the answer's figures are 1, 6, 17, 2,026, 24, 10, 12; none is within 1% of 18"
+    ],
+    "expected": 18.0,
+    "found": null
+   },
+   "trace": {
+    "id": "d4e55b5c-cbad-4342-96ea-4ecef8c19de6",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in October?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "We did 17 catering orders in October 2026, covering October 1 through today, October 24. I counted completed orders that include at least one item from the Catering menu category. That category has six items, such as Pho Bar for 10 and Sandwich Platter for 12. The gross sales on those 17 orders total $2,880.80. That figure is the full value of each order, so it includes any non-catering items on the same order.\n\nThe house policies don't define \"catering.\" They only set rules for it [House Policy \u00a76, Catering], so I used the menu category.",
+    "usage": {
+     "input_tokens": 2220,
+     "cache_read_tokens": 10179,
+     "cache_write_tokens": 3393,
+     "output_tokens": 612
+    },
+    "cost_usd": 0.021078,
+    "latency_ms": 9485,
+    "model_ms": 8523,
+    "tool_ms": 950,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering definition",
+       "usage": {
+        "input_tokens": 102,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 3393,
+        "output_tokens": 49
+       }
+      },
+      "latency_ms": 2446
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering definition",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.2776,
+         "word_rank": 1,
+         "used": true,
+         "shown_by": "words"
+        },
+        {
+         "label": "House Policy \u00a76, Catering",
+         "score": 0.4779,
+         "word_rank": 4,
+         "used": true,
+         "shown_by": "meaning"
+        },
+        {
+         "label": "House Policy \u00a75, Staff Meals",
+         "score": 0.2479,
+         "word_rank": 3,
+         "used": false,
+         "shown_by": null
+        },
+        {
+         "label": "House Policy \u00a74, Discounts",
+         "score": 0.1988,
+         "word_rank": 2,
+         "used": false,
+         "shown_by": null
+        }
+       ]
+      },
+      "latency_ms": 926
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Find catering category/items",
+       "sql": "select c.name cat, i.name item, i.id from items i join categories c on c.id=i.category_id where c.name ilike '%cater%' or i.name ilike '%cater%'",
+       "usage": {
+        "input_tokens": 390,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 150
+       }
+      },
+      "latency_ms": 1805
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT c.name AS cat, i.name AS item, i.id FROM (SELECT * FROM items WHERE merchant_id = 1) AS i JOIN (SELECT * FROM categories WHERE merchant_id = 1) AS c ON c.id = i.category_id WHERE c.name ILIKE '%cater%' OR i.name ILIKE '%cater%' LIMIT 500"
+      },
+      "latency_ms": 4
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "cat",
+        "item",
+        "id"
+       ],
+       "row_count": 6,
+       "rows": [
+        [
+         "Catering",
+         "Pho Bar for 10",
+         59
+        ],
+        [
+         "Catering",
+         "Sandwich Platter for 12",
+         60
+        ],
+        [
+         "Catering",
+         "Spring Roll Tray of 24",
+         61
+        ],
+        [
+         "Catering",
+         "Rice Plate Buffet for 10",
+         62
+        ],
+        [
+         "Catering",
+         "Appetizer Sampler for 10",
+         63
+        ],
+        [
+         "Catering",
+         "Drink Bundle of 12",
+         64
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 12
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count completed October orders with catering items",
+       "sql": "select count(distinct o.id) n, coalesce(sum(o.gross_sales_cents),0) gross from orders o join order_items oi on oi.order_id=o.id where oi.item_id between 59 and 64 and o.state='completed' and o.created_at >= timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants) and o.created_at < timestamp '2026-10-25' AT TIME ZONE (SELECT timezone FROM merchants)",
+       "usage": {
+        "input_tokens": 717,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 245
+       }
+      },
+      "latency_ms": 2311
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, order_items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, order_items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(DISTINCT o.id) AS n, COALESCE(SUM(o.gross_sales_cents), 0) AS gross FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o JOIN (SELECT * FROM order_items WHERE merchant_id = 1) AS oi ON oi.order_id = o.id WHERE oi.item_id BETWEEN 59 AND 64 AND o.state = 'completed' AND o.created_at >= CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-25' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) LIMIT 500"
+      },
+      "latency_ms": 5
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "n",
+        "gross"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         17,
+         288080
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 12
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "We did 17 catering orders in October 2026, covering October 1 through today, October 24. I counted completed orders that include at least one item from the Catering menu category. That category has six items, such as Pho Bar for 10 and Sandwich Platter for 12. The gross sales on those 17 orders total $2,880.80. That figure is the full value of each order, so it includes any non-catering items on the same order.\n\nThe house policies don't define \"catering.\" They only set rules for it [House Policy \u00a76, Catering], so I used the menu category.",
+       "usage": {
+        "input_tokens": 1011,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 168
+       }
+      },
+      "latency_ms": 1961
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "House Policy \u00a76, Catering"
+       ],
+       "retrieved": [
+        "House Policy \u00a71, Scope and Authority",
+        "House Policy \u00a76, Catering"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "sql-11",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in October?",
+    "gold_file": "gold/sql-11.sql",
+    "value_kind": "count",
+    "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November all searched the order's labels, found nothing, and said the data cannot identify catering orders. 18.",
+    "gold_sql": "-- sql-11: How many catering orders did we do in October?\n\nSELECT count(DISTINCT o.id)\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN items i ON i.id = oi.item_id\nJOIN categories c ON c.id = i.category_id\nWHERE o.state = 'completed'\n  AND c.name = 'Catering'\n  AND o.created_at >= timestamp '2026-10-01' AT TIME ZONE 'America/Chicago'\n  AND o.created_at <  timestamp '2026-11-01' AT TIME ZONE 'America/Chicago'\n"
+   },
+   "gold": 18,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "the answer's figures are 6, 17, 1, 24, 2,026, 10, 12, 2,880.8; none is within 1% of 18"
+    ],
+    "expected": 18.0,
+    "found": null
+   },
+   "trace": {
+    "id": "b86a2300-c594-42f9-be0c-37b0e37c8469",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in October?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "We did 17 completed catering orders from October 1 to October 24, 2026. I counted any completed order that included an item from the Catering category. That category has six items, such as Pho Bar for 10 and Sandwich Platter for 12. The gross sales on those orders are the full order totals before discounts, tax and tips. Those orders may also include non-catering items, so the $2,880.80 figure can run a little high as catering revenue.\n\nYour policies don't define \"catering orders\", so I used the menu category. Canceled and draft orders are not counted.",
+    "usage": {
+     "input_tokens": 2226,
+     "cache_read_tokens": 13572,
+     "cache_write_tokens": 0,
+     "output_tokens": 624
+    },
+    "cost_usd": 0.013406,
+    "latency_ms": 8983,
+    "model_ms": 7955,
+    "tool_ms": 1017,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering definition",
+       "usage": {
+        "input_tokens": 102,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 49
+       }
+      },
+      "latency_ms": 1833
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering definition",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.2776,
+         "word_rank": 1,
+         "used": true,
+         "shown_by": "words"
+        },
+        {
+         "label": "House Policy \u00a76, Catering",
+         "score": 0.4779,
+         "word_rank": 4,
+         "used": true,
+         "shown_by": "meaning"
+        },
+        {
+         "label": "House Policy \u00a75, Staff Meals",
+         "score": 0.2478,
+         "word_rank": 3,
+         "used": false,
+         "shown_by": null
+        },
+        {
+         "label": "House Policy \u00a74, Discounts",
+         "score": 0.1988,
+         "word_rank": 2,
+         "used": false,
+         "shown_by": null
+        }
+       ]
+      },
+      "latency_ms": 996
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Find catering category/items",
+       "sql": "select c.name cat, i.name item, i.id from items i join categories c on c.id=i.category_id where c.name ilike '%cater%' or i.name ilike '%cater%'",
+       "usage": {
+        "input_tokens": 390,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 150
+       }
+      },
+      "latency_ms": 1692
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT c.name AS cat, i.name AS item, i.id FROM (SELECT * FROM items WHERE merchant_id = 1) AS i JOIN (SELECT * FROM categories WHERE merchant_id = 1) AS c ON c.id = i.category_id WHERE c.name ILIKE '%cater%' OR i.name ILIKE '%cater%' LIMIT 500"
+      },
+      "latency_ms": 2
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "cat",
+        "item",
+        "id"
+       ],
+       "row_count": 6,
+       "rows": [
+        [
+         "Catering",
+         "Pho Bar for 10",
+         59
+        ],
+        [
+         "Catering",
+         "Sandwich Platter for 12",
+         60
+        ],
+        [
+         "Catering",
+         "Spring Roll Tray of 24",
+         61
+        ],
+        [
+         "Catering",
+         "Rice Plate Buffet for 10",
+         62
+        ],
+        [
+         "Catering",
+         "Appetizer Sampler for 10",
+         63
+        ],
+        [
+         "Catering",
+         "Drink Bundle of 12",
+         64
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 4
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count completed October orders with catering items",
+       "sql": "select count(distinct o.id) n, coalesce(sum(o.gross_sales_cents),0) gross from orders o join order_items oi on oi.order_id=o.id where oi.item_id in (59,60,61,62,63,64) and o.state='completed' and o.created_at >= timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants) and o.created_at < timestamp '2026-10-25' AT TIME ZONE (SELECT timezone FROM merchants)",
+       "usage": {
+        "input_tokens": 717,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 251
+       }
+      },
+      "latency_ms": 2097
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, order_items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, order_items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(DISTINCT o.id) AS n, COALESCE(SUM(o.gross_sales_cents), 0) AS gross FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o JOIN (SELECT * FROM order_items WHERE merchant_id = 1) AS oi ON oi.order_id = o.id WHERE oi.item_id IN (59, 60, 61, 62, 63, 64) AND o.state = 'completed' AND o.created_at >= CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-25' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) LIMIT 500"
+      },
+      "latency_ms": 6
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "n",
+        "gross"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         17,
+         288080
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 17
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "We did 17 completed catering orders from October 1 to October 24, 2026. I counted any completed order that included an item from the Catering category. That category has six items, such as Pho Bar for 10 and Sandwich Platter for 12. The gross sales on those orders are the full order totals before discounts, tax and tips. Those orders may also include non-catering items, so the $2,880.80 figure can run a little high as catering revenue.\n\nYour policies don't define \"catering orders\", so I used the menu category. Canceled and draft orders are not counted.",
+       "usage": {
+        "input_tokens": 1017,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 174
+       }
+      },
+      "latency_ms": 2333
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "failed",
+      "detail": {
+       "cited": [],
+       "retrieved": [
+        "House Policy \u00a71, Scope and Authority",
+        "House Policy \u00a76, Catering"
+       ],
+       "not_retrieved": [],
+       "reason": "policy was used but nothing was cited"
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 1
+  },
+  {
+   "case": {
+    "id": "sql-11",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in October?",
+    "gold_file": "gold/sql-11.sql",
+    "value_kind": "count",
+    "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November all searched the order's labels, found nothing, and said the data cannot identify catering orders. 18.",
+    "gold_sql": "-- sql-11: How many catering orders did we do in October?\n\nSELECT count(DISTINCT o.id)\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id\nJOIN items i ON i.id = oi.item_id\nJOIN categories c ON c.id = i.category_id\nWHERE o.state = 'completed'\n  AND c.name = 'Catering'\n  AND o.created_at >= timestamp '2026-10-01' AT TIME ZONE 'America/Chicago'\n  AND o.created_at <  timestamp '2026-11-01' AT TIME ZONE 'America/Chicago'\n"
+   },
+   "gold": 18,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "the answer's figures are 1, 17, 2,026, 24, 2,880.8; none is within 1% of 18"
+    ],
+    "expected": 18.0,
+    "found": null
+   },
+   "trace": {
+    "id": "94fbeec0-b3bb-4c46-adbf-c243885f4b7e",
+    "merchant_id": 1,
+    "question": "How many catering orders did we do in October?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "We did 17 catering orders in October 2026, covering Oct 1 through today, Oct 24. I counted completed orders that include at least one item from the Catering category. Those orders have combined gross sales of $2,880.80, before discounts, tax and tips. Canceled and draft orders are left out.",
+    "usage": {
+     "input_tokens": 2251,
+     "cache_read_tokens": 13572,
+     "cache_write_tokens": 0,
+     "output_tokens": 570
+    },
+    "cost_usd": 0.012916,
+    "latency_ms": 7861,
+    "model_ms": 7213,
+    "tool_ms": 630,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "catering definition",
+       "usage": {
+        "input_tokens": 102,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 49
+       }
+      },
+      "latency_ms": 1628
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "catering definition",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "House Policy \u00a71, Scope and Authority",
+         "score": 0.2776,
+         "word_rank": 1,
+         "used": true,
+         "shown_by": "words"
+        },
+        {
+         "label": "House Policy \u00a76, Catering",
+         "score": 0.4779,
+         "word_rank": 4,
+         "used": true,
+         "shown_by": "meaning"
+        },
+        {
+         "label": "House Policy \u00a75, Staff Meals",
+         "score": 0.2478,
+         "word_rank": 3,
+         "used": false,
+         "shown_by": null
+        },
+        {
+         "label": "House Policy \u00a74, Discounts",
+         "score": 0.1988,
+         "word_rank": 2,
+         "used": false,
+         "shown_by": null
+        }
+       ]
+      },
+      "latency_ms": 611
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Find catering category/items",
+       "sql": "select c.name cat, i.name, i.id from items i join categories c on c.id=i.category_id where c.name ilike '%cater%' or i.name ilike '%cater%'",
+       "usage": {
+        "input_tokens": 390,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 152
+       }
+      },
+      "latency_ms": 1837
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT c.name AS cat, i.name, i.id FROM (SELECT * FROM items WHERE merchant_id = 1) AS i JOIN (SELECT * FROM categories WHERE merchant_id = 1) AS c ON c.id = i.category_id WHERE c.name ILIKE '%cater%' OR i.name ILIKE '%cater%' LIMIT 500"
+      },
+      "latency_ms": 4
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "cat",
+        "name",
+        "id"
+       ],
+       "row_count": 6,
+       "rows": [
+        [
+         "Catering",
+         "Pho Bar for 10",
+         59
+        ],
+        [
+         "Catering",
+         "Sandwich Platter for 12",
+         60
+        ],
+        [
+         "Catering",
+         "Spring Roll Tray of 24",
+         61
+        ],
+        [
+         "Catering",
+         "Rice Plate Buffet for 10",
+         62
+        ],
+        [
+         "Catering",
+         "Appetizer Sampler for 10",
+         63
+        ],
+        [
+         "Catering",
+         "Drink Bundle of 12",
+         64
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 6
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count completed orders with catering items in October 2026",
+       "sql": "select count(distinct o.id) n, sum(o.gross_sales_cents) gross from orders o join order_items oi on oi.order_id=o.id join items i on i.id=oi.item_id join categories c on c.id=i.category_id where c.name='Catering' and o.state='completed' and o.created_at >= timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants) and o.created_at < timestamp '2026-10-24' AT TIME ZONE (SELECT timezone FROM merchants) + interval '1 day'",
+       "usage": {
+        "input_tokens": 719,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 272
+       }
+      },
+      "latency_ms": 2135
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "categories, items, merchants, order_items, orders"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on categories.merchant_id, items.merchant_id, merchants.id, order_items.merchant_id, orders.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(DISTINCT o.id) AS n, SUM(o.gross_sales_cents) AS gross FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o JOIN (SELECT * FROM order_items WHERE merchant_id = 1) AS oi ON oi.order_id = o.id JOIN (SELECT * FROM items WHERE merchant_id = 1) AS i ON i.id = oi.item_id JOIN (SELECT * FROM categories WHERE merchant_id = 1) AS c ON c.id = i.category_id WHERE c.name = 'Catering' AND o.state = 'completed' AND o.created_at >= CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-24' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) + INTERVAL '1 DAY' LIMIT 500"
+      },
+      "latency_ms": 8
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "n",
+        "gross"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         17,
+         288080
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 13
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "We did 17 catering orders in October 2026, covering Oct 1 through today, Oct 24. I counted completed orders that include at least one item from the Catering category. Those orders have combined gross sales of $2,880.80, before discounts, tax and tips. Canceled and draft orders are left out.",
+       "usage": {
+        "input_tokens": 1040,
+        "cache_read_tokens": 3393,
+        "cache_write_tokens": 0,
+        "output_tokens": 97
+       }
+      },
+      "latency_ms": 1613
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "failed",
+      "detail": {
+       "cited": [],
+       "retrieved": [
+        "House Policy \u00a71, Scope and Authority",
+        "House Policy \u00a76, Catering"
+       ],
+       "not_retrieved": [],
+       "reason": "policy was used but nothing was cited"
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 2
+  }
+ ]
+}

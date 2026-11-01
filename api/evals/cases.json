@@ -100,10 +100,10 @@
       "id": "sql-11",
       "suite": "sql",
       "merchant_id": 1,
-      "question": "How many catering orders did we do in October?",
+      "question": "How many catering orders did we do in September?",
       "gold_file": "gold/sql-11.sql",
       "value_kind": "count",
-      "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November all searched the order's labels, found nothing, and said the data cannot identify catering orders. 18."
+      "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November, about October, all searched the order's labels, found nothing, and said the data cannot identify catering orders. The first version asked about October, the month in progress on the frozen clock, and the agent rightly stopped at the 24th while the gold did not."
     },
     {
       "id": "pol-01",

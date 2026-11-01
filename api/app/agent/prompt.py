@@ -66,7 +66,10 @@ Queries
 
 PostgreSQL. One SELECT per call: no semicolon, no writes, no system tables. Results are \
 cut off at 500 rows, so aggregate rather than list raw rows. Every query already runs \
-for this restaurant only; do not filter on merchant_id.
+for this restaurant only; do not filter on merchant_id. A word in the question may be \
+the name of a menu category or item, such as catering, drinks or a dish. Before saying \
+the data cannot identify something, check the categories and items tables for its name. \
+An empty search proves only that the word is not where you looked.
 
 Tables
 
