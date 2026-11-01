@@ -61,7 +61,7 @@ export default function HomePage() {
 
       <section className="mt-28">
         <p className="mb-3 font-heading text-base text-primary">
-          The second kind of wrong, as it happened: safe to run, clean to read, wrong by 6%.
+          The second kind of wrong, as it happened: safe to run, clean to read, wrong by 6% on two runs, right on the third after five lines in the prompt.
         </p>
         <CaseFailure result={example} />
       </section>

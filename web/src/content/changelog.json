@@ -22,5 +22,16 @@
     ],
     "result": "33 of 38, $0.46 for the run.",
     "conclusion": "One case fewer, and a different set of failures. The rule hidden at 0.47 is now found. A question the policies do not cover now pulls in a near section, which the model dismisses correctly and my grader counts as a fail anyway. The citation slip happened a second time. Recall 86% to 93%, precision 46% to 29%. The threshold stays. The next change is the grader's rule for not-covered cases and the citation label, not the model."
+  },
+  {
+    "run": "20261101T024005Z",
+    "date": "2026-11-01",
+    "title": "Third run: the prompt says how to write a local-time date boundary",
+    "changed": [
+      "Five lines added to the prompt, under the table that holds the restaurant's time zone: filter a date range by converting a plain timestamp literal for each boundary, and never a timestamptz literal, because that converts in the other direction. Nothing else: same questions, same gold, same model, same threshold.",
+      "Before the full run, the one failing case was run three times on its own and passed all three."
+    ],
+    "result": "35 of 38, $0.46 for the run.",
+    "conclusion": "The time zone slip is gone: ten of ten sql. Two policy cases flipped the other way for reasons that have nothing to do with the prompt line. The citation slip, which had passed the earlier case in run 1 and failed it in run 2, passed it again and failed the campaign case a third time, so that one is a coin toss until the label rule changes. The not-covered case failed as in run 2. The hidden section at 0.30 is still hidden. Next is the citation label."
   }
 ]

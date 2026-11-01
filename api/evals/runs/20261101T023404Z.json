@@ -1,0 +1,879 @@
+{
+ "summary": {
+  "ran_at": "2026-11-01T02:34:04.003973+00:00",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "retrieval_threshold": 0.4,
+  "commit": "82d0c63",
+  "dataset": "ops_eval, data/generate.py seed 42",
+  "frozen_now": "2026-10-24T15:00:00Z",
+  "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
+  "cases": 3,
+  "scored": 3,
+  "passed": 3,
+  "errors": 0,
+  "suites": {
+   "sql": {
+    "passed": 3,
+    "total": 3
+   }
+  },
+  "cost_total_usd": 0.0697,
+  "cost_per_answered_median_usd": 0.0237,
+  "cost_per_answered_p90_usd": 0.0238,
+  "latency_median_ms": 15597,
+  "latency_p90_ms": 17241,
+  "retrieval": {
+   "precision": null,
+   "recall": null,
+   "sections_shown": 0,
+   "sections_expected": 0
+  }
+ },
+ "results": [
+  {
+   "case": {
+    "id": "sql-05",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?",
+    "gold_file": "gold/sql-05.sql",
+    "value_kind": "cents",
+    "tolerance": 0.03,
+    "note": "Net payout, the vendor's definition: card fees off in-store orders, 25% commission off DoorDash delivery. $30.11 against $27.47 an order, so $2.64 more in store despite the 25% marketplace markup.",
+    "gold_sql": "-- sql-05: In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?\n\nWITH september AS (\n  SELECT o.channel, o.fulfillment_type, o.gross_sales_cents,\n         o.gross_sales_cents - o.discount_cents AS after_discount,\n         coalesce(p.processing_fee_cents, 0) AS fee\n  FROM orders o\n  LEFT JOIN payments p ON p.order_id = o.id AND p.status = 'completed'\n  WHERE o.state = 'completed'\n    AND date_trunc('month', o.created_at AT TIME ZONE 'America/Chicago') = '2026-09-01'\n)\nSELECT round(\n    avg(after_discount - fee) FILTER (WHERE channel = 'in_store')\n  - avg(after_discount - gross_sales_cents * 0.25) FILTER (WHERE channel = 'doordash' AND fulfillment_type = 'delivery')\n)\nFROM september\n"
+   },
+   "gold": "264",
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": 2.64,
+    "found": 2.64
+   },
+   "trace": {
+    "id": "59d33726-63f1-4bf5-91e7-e2ef9022c716",
+    "merchant_id": 1,
+    "question": "In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "In September 2026, we kept about $2.64 more per order in store than on a DoorDash delivery order. The figures cover completed orders only.\n\n- **In store:** 2,633 orders averaged $30.11 kept per order. That is gross sales minus discounts minus the card processing fee.\n- **DoorDash delivery:** 1,269 orders averaged $27.47 kept per order. That is gross sales minus discounts minus DoorDash's 25% commission on the menu subtotal, per [Marketplace Terms \u00a72, Commission and Pricing].\n\nDoorDash menu prices already run 25% above in-store prices, per [Definitions \u00a75, Marketplaces]. That markup is why DoorDash orders still come close to in-store despite the commission.",
+    "usage": {
+     "input_tokens": 2617,
+     "cache_read_tokens": 6562,
+     "cache_write_tokens": 3281,
+     "output_tokens": 891
+    },
+    "cost_usd": 0.023659,
+    "latency_ms": 9939,
+    "model_ms": 8513,
+    "tool_ms": 1410,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "DoorDash commission rate marketplace terms",
+       "usage": {
+        "input_tokens": 120,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 3281,
+        "output_tokens": 266
+       }
+      },
+      "latency_ms": 3645
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "DoorDash commission rate marketplace terms",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Marketplace Terms \u00a72, Commission and Pricing",
+         "score": 0.7117,
+         "used": true
+        },
+        {
+         "label": "Definitions \u00a75, Marketplaces",
+         "score": 0.6805,
+         "used": true
+        },
+        {
+         "label": "Marketplace Terms \u00a71, Scope and Authority",
+         "score": 0.5084,
+         "used": true
+        },
+        {
+         "label": "Marketplace Terms \u00a76, Promotions",
+         "score": 0.4929,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 1284
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Avg net payout per order in store vs DoorDash delivery, Sept 2026",
+       "sql": "select o.channel, count(*) n, avg(o.gross_sales_cents - o.discount_cents - case when o.channel='in_store' then coalesce(p.fee,0) else round(0.25*o.gross_sales_cents) end) as avg_payout_cents\nfrom orders o left join (select order_id, sum(processing_fee_cents) fee from payments where status='completed' group by order_id) p on p.order_id=o.id\nwhere o.state='completed'\nand o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants)\nand o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)\nand ((o.channel='in_store') or (o.channel='doordash' and o.fulfillment_type='delivery'))\ngroup by o.channel",
+       "usage": {
+        "input_tokens": 1014,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 380
+       }
+      },
+      "latency_ms": 2556
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, orders, payments"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, orders.merchant_id, payments.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT o.channel, COUNT(*) AS n, AVG(o.gross_sales_cents - o.discount_cents - CASE WHEN o.channel = 'in_store' THEN COALESCE(p.fee, 0) ELSE ROUND(0.25 * o.gross_sales_cents) END) AS avg_payout_cents FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o LEFT JOIN (SELECT order_id, SUM(processing_fee_cents) AS fee FROM (SELECT * FROM payments WHERE merchant_id = 1) AS payments WHERE status = 'completed' GROUP BY order_id) AS p ON p.order_id = o.id WHERE o.state = 'completed' AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND ((o.channel = 'in_store') OR (o.channel = 'doordash' AND o.fulfillment_type = 'delivery')) GROUP BY o.channel LIMIT 500"
+      },
+      "latency_ms": 12
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "channel",
+        "n",
+        "avg_payout_cents"
+       ],
+       "row_count": 2,
+       "rows": [
+        [
+         "in_store",
+         2633,
+         3011.306114698063
+        ],
+        [
+         "doordash",
+         1269,
+         2747.123719464145
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 126
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "In September 2026, we kept about $2.64 more per order in store than on a DoorDash delivery order. The figures cover completed orders only.\n\n- **In store:** 2,633 orders averaged $30.11 kept per order. That is gross sales minus discounts minus the card processing fee.\n- **DoorDash delivery:** 1,269 orders averaged $27.47 kept per order. That is gross sales minus discounts minus DoorDash's 25% commission on the menu subtotal, per [Marketplace Terms \u00a72, Commission and Pricing].\n\nDoorDash menu prices already run 25% above in-store prices, per [Definitions \u00a75, Marketplaces]. That markup is why DoorDash orders still come close to in-store despite the commission.",
+       "usage": {
+        "input_tokens": 1483,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 245
+       }
+      },
+      "latency_ms": 2312
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Definitions \u00a75, Marketplaces",
+        "Marketplace Terms \u00a72, Commission and Pricing"
+       ],
+       "retrieved": [
+        "Definitions \u00a75, Marketplaces",
+        "Marketplace Terms \u00a71, Scope and Authority",
+        "Marketplace Terms \u00a72, Commission and Pricing",
+        "Marketplace Terms \u00a76, Promotions"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "sql-05",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?",
+    "gold_file": "gold/sql-05.sql",
+    "value_kind": "cents",
+    "tolerance": 0.03,
+    "note": "Net payout, the vendor's definition: card fees off in-store orders, 25% commission off DoorDash delivery. $30.11 against $27.47 an order, so $2.64 more in store despite the 25% marketplace markup.",
+    "gold_sql": "-- sql-05: In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?\n\nWITH september AS (\n  SELECT o.channel, o.fulfillment_type, o.gross_sales_cents,\n         o.gross_sales_cents - o.discount_cents AS after_discount,\n         coalesce(p.processing_fee_cents, 0) AS fee\n  FROM orders o\n  LEFT JOIN payments p ON p.order_id = o.id AND p.status = 'completed'\n  WHERE o.state = 'completed'\n    AND date_trunc('month', o.created_at AT TIME ZONE 'America/Chicago') = '2026-09-01'\n)\nSELECT round(\n    avg(after_discount - fee) FILTER (WHERE channel = 'in_store')\n  - avg(after_discount - gross_sales_cents * 0.25) FILTER (WHERE channel = 'doordash' AND fulfillment_type = 'delivery')\n)\nFROM september\n"
+   },
+   "gold": "264",
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": 2.64,
+    "found": 2.64
+   },
+   "trace": {
+    "id": "4935c7b2-d744-45fa-b871-8e563e657c3b",
+    "merchant_id": 1,
+    "question": "In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "In September 2026, we kept about $2.64 more per order in store than on a DoorDash delivery order. The average net payout was $30.11 per in-store order, across 2,633 completed orders. It was $27.47 per DoorDash delivery order, across 1,269 completed orders.\n\nNet payout here means gross sales minus discounts, then minus the card processing fee for in-store orders. For DoorDash delivery orders it means minus the 25% commission on the menu subtotal [Marketplace Terms \u00a72, Commission and Pricing]. DoorDash prices already include the markup over in-store prices [Definitions \u00a75, Marketplaces]. Tax and tips are excluded. The figures cover completed orders only, and DoorDash pickup orders are left out.",
+    "usage": {
+     "input_tokens": 3454,
+     "cache_read_tokens": 13124,
+     "cache_write_tokens": 0,
+     "output_tokens": 1274
+    },
+    "cost_usd": 0.022273,
+    "latency_ms": 15597,
+    "model_ms": 9963,
+    "tool_ms": 5610,
+    "retries": 1,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "DoorDash commission rate",
+       "usage": {
+        "input_tokens": 120,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 118
+       }
+      },
+      "latency_ms": 1647
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "DoorDash commission rate",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Marketplace Terms \u00a72, Commission and Pricing",
+         "score": 0.6223,
+         "used": true
+        },
+        {
+         "label": "Definitions \u00a75, Marketplaces",
+         "score": 0.556,
+         "used": true
+        },
+        {
+         "label": "Marketplace Terms \u00a76, Promotions",
+         "score": 0.387,
+         "used": false
+        },
+        {
+         "label": "Marketplace Terms \u00a73, Missing or Incorrect Items",
+         "score": 0.3741,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 577
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Average net payout per order, in store vs DoorDash delivery, Sept 2026",
+       "sql": "select o.channel, count(*) n, avg(o.gross_sales_cents - o.discount_cents - case when o.channel='in_store' then coalesce((select sum(p.processing_fee_cents) from payments p where p.order_id=o.id and p.status='completed'),0) when o.channel='doordash' then 0.25*o.gross_sales_cents else 0 end) avg_net\nfrom orders o\nwhere o.state='completed' and ((o.channel='in_store') or (o.channel='doordash' and o.fulfillment_type='delivery'))\nand o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants)\nand o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)\ngroup by o.channel",
+       "usage": {
+        "input_tokens": 603,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 437
+       }
+      },
+      "latency_ms": 3107
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, orders, payments"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, orders.merchant_id, payments.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT o.channel, COUNT(*) AS n, AVG(o.gross_sales_cents - o.discount_cents - CASE WHEN o.channel = 'in_store' THEN COALESCE((SELECT SUM(p.processing_fee_cents) FROM (SELECT * FROM payments WHERE merchant_id = 1) AS p WHERE p.order_id = o.id AND p.status = 'completed'), 0) WHEN o.channel = 'doordash' THEN 0.25 * o.gross_sales_cents ELSE 0 END) AS avg_net FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o WHERE o.state = 'completed' AND ((o.channel = 'in_store') OR (o.channel = 'doordash' AND o.fulfillment_type = 'delivery')) AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY o.channel LIMIT 500"
+      },
+      "latency_ms": 8
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "error",
+      "detail": {
+       "error": "canceling statement due to statement timeout"
+      },
+      "latency_ms": 5008
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Average net payout per order, in store vs DoorDash delivery, Sept 2026",
+       "sql": "select o.channel, count(*) n, avg(o.gross_sales_cents - o.discount_cents - case when o.channel='in_store' then coalesce(f.fee,0) else 0.25*o.gross_sales_cents end) avg_net\nfrom orders o\nleft join (select order_id, sum(processing_fee_cents) fee from payments where status='completed' and created_at >= timestamp '2026-08-31' AT TIME ZONE (SELECT timezone FROM merchants) and created_at < timestamp '2026-10-02' AT TIME ZONE (SELECT timezone FROM merchants) group by order_id) f on f.order_id=o.id\nwhere o.state='completed' and (o.channel='in_store' or (o.channel='doordash' and o.fulfillment_type='delivery'))\nand o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants)\nand o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)\ngroup by o.channel",
+       "usage": {
+        "input_tokens": 1087,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 472
+       }
+      },
+      "latency_ms": 2846
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, orders, payments"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, orders.merchant_id, payments.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT o.channel, COUNT(*) AS n, AVG(o.gross_sales_cents - o.discount_cents - CASE WHEN o.channel = 'in_store' THEN COALESCE(f.fee, 0) ELSE 0.25 * o.gross_sales_cents END) AS avg_net FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o LEFT JOIN (SELECT order_id, SUM(processing_fee_cents) AS fee FROM (SELECT * FROM payments WHERE merchant_id = 1) AS payments WHERE status = 'completed' AND created_at >= CAST('2026-08-31' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND created_at < CAST('2026-10-02' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY order_id) AS f ON f.order_id = o.id WHERE o.state = 'completed' AND (o.channel = 'in_store' OR (o.channel = 'doordash' AND o.fulfillment_type = 'delivery')) AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY o.channel LIMIT 500"
+      },
+      "latency_ms": 11
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "channel",
+        "n",
+        "avg_net"
+       ],
+       "row_count": 2,
+       "rows": [
+        [
+         "in_store",
+         2633,
+         3011.306114698063
+        ],
+        [
+         "doordash",
+         1269,
+         2747.253940110323
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 25
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "In September 2026, we kept about $2.64 more per order in store than on a DoorDash delivery order. The average net payout was $30.11 per in-store order, across 2,633 completed orders. It was $27.47 per DoorDash delivery order, across 1,269 completed orders.\n\nNet payout here means gross sales minus discounts, then minus the card processing fee for in-store orders. For DoorDash delivery orders it means minus the 25% commission on the menu subtotal [Marketplace Terms \u00a72, Commission and Pricing]. DoorDash prices already include the markup over in-store prices [Definitions \u00a75, Marketplaces]. Tax and tips are excluded. The figures cover completed orders only, and DoorDash pickup orders are left out.",
+       "usage": {
+        "input_tokens": 1644,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 247
+       }
+      },
+      "latency_ms": 2363
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Definitions \u00a75, Marketplaces",
+        "Marketplace Terms \u00a72, Commission and Pricing"
+       ],
+       "retrieved": [
+        "Definitions \u00a75, Marketplaces",
+        "Marketplace Terms \u00a72, Commission and Pricing"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 1
+  },
+  {
+   "case": {
+    "id": "sql-05",
+    "suite": "sql",
+    "merchant_id": 1,
+    "question": "In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?",
+    "gold_file": "gold/sql-05.sql",
+    "value_kind": "cents",
+    "tolerance": 0.03,
+    "note": "Net payout, the vendor's definition: card fees off in-store orders, 25% commission off DoorDash delivery. $30.11 against $27.47 an order, so $2.64 more in store despite the 25% marketplace markup.",
+    "gold_sql": "-- sql-05: In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?\n\nWITH september AS (\n  SELECT o.channel, o.fulfillment_type, o.gross_sales_cents,\n         o.gross_sales_cents - o.discount_cents AS after_discount,\n         coalesce(p.processing_fee_cents, 0) AS fee\n  FROM orders o\n  LEFT JOIN payments p ON p.order_id = o.id AND p.status = 'completed'\n  WHERE o.state = 'completed'\n    AND date_trunc('month', o.created_at AT TIME ZONE 'America/Chicago') = '2026-09-01'\n)\nSELECT round(\n    avg(after_discount - fee) FILTER (WHERE channel = 'in_store')\n  - avg(after_discount - gross_sales_cents * 0.25) FILTER (WHERE channel = 'doordash' AND fulfillment_type = 'delivery')\n)\nFROM september\n"
+   },
+   "gold": "264",
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": 2.64,
+    "found": 2.64
+   },
+   "trace": {
+    "id": "aad76b9d-8635-451b-9a0c-47a807033e23",
+    "merchant_id": 1,
+    "question": "In September 2026, how much more did we keep per order in store than on a DoorDash delivery order?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "In September 2026 we kept about $2.64 more per order in store than on a DoorDash delivery order.\n\n- **In store:** we kept about $30.11 per order across 2,633 completed orders. That is gross sales minus discounts minus the card processing fee. Both in-store pickup and dine-in orders are included.\n- **DoorDash delivery:** we kept about $27.47 per order across 1,269 completed orders. That is gross sales minus discounts minus the 25% delivery commission [Marketplace Terms \u00a72, Commission and Pricing].\n\nThe difference is small even though the commission is 25%. DoorDash prices already include the markup, so gross sales per order are higher there [Definitions \u00a75, Marketplaces]. The in-store figure is a weighted average, so the dollar amounts are rounded to the cent.",
+    "usage": {
+     "input_tokens": 3342,
+     "cache_read_tokens": 13124,
+     "cache_write_tokens": 0,
+     "output_tokens": 1446
+    },
+    "cost_usd": 0.023769,
+    "latency_ms": 17241,
+    "model_ms": 11388,
+    "tool_ms": 5840,
+    "retries": 1,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "DoorDash commission rate",
+       "usage": {
+        "input_tokens": 120,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 107
+       }
+      },
+      "latency_ms": 1521
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "2 sections",
+      "detail": {
+       "query": "DoorDash commission rate",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Marketplace Terms \u00a72, Commission and Pricing",
+         "score": 0.6223,
+         "used": true
+        },
+        {
+         "label": "Definitions \u00a75, Marketplaces",
+         "score": 0.556,
+         "used": true
+        },
+        {
+         "label": "Marketplace Terms \u00a76, Promotions",
+         "score": 0.387,
+         "used": false
+        },
+        {
+         "label": "Marketplace Terms \u00a73, Missing or Incorrect Items",
+         "score": 0.374,
+         "used": false
+        }
+       ]
+      },
+      "latency_ms": 821
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Avg net payout per order Sept 2026, in store vs DoorDash delivery",
+       "sql": "select o.channel, o.fulfillment_type, count(*) n,\navg(o.gross_sales_cents - o.discount_cents - case when o.channel='in_store' then coalesce((select sum(p.processing_fee_cents) from payments p where p.order_id=o.id and p.status='completed'),0) else round(o.gross_sales_cents*0.25) end) avg_net\nfrom orders o\nwhere o.state='completed' and (o.channel='in_store' or (o.channel='doordash' and o.fulfillment_type='delivery'))\nand o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants)\nand o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)\ngroup by 1,2",
+       "usage": {
+        "input_tokens": 592,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 369
+       }
+      },
+      "latency_ms": 2917
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, orders, payments"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, orders.merchant_id, payments.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT o.channel, o.fulfillment_type, COUNT(*) AS n, AVG(o.gross_sales_cents - o.discount_cents - CASE WHEN o.channel = 'in_store' THEN COALESCE((SELECT SUM(p.processing_fee_cents) FROM (SELECT * FROM payments WHERE merchant_id = 1) AS p WHERE p.order_id = o.id AND p.status = 'completed'), 0) ELSE ROUND(o.gross_sales_cents * 0.25) END) AS avg_net FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o WHERE o.state = 'completed' AND (o.channel = 'in_store' OR (o.channel = 'doordash' AND o.fulfillment_type = 'delivery')) AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY 1, 2 LIMIT 500"
+      },
+      "latency_ms": 4
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "error",
+      "detail": {
+       "error": "canceling statement due to statement timeout"
+      },
+      "latency_ms": 5002
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Avg net payout per order Sept 2026, in store vs DoorDash delivery",
+       "sql": "select o.channel, o.fulfillment_type, count(*) n,\navg(o.gross_sales_cents - o.discount_cents - case when o.channel='in_store' then coalesce(p.fee,0) else o.gross_sales_cents*0.25 end) avg_net\nfrom orders o\nleft join (select order_id, sum(processing_fee_cents) fee from payments where status='completed' and created_at >= timestamp '2026-08-30' AT TIME ZONE (SELECT timezone FROM merchants) and created_at < timestamp '2026-10-03' AT TIME ZONE (SELECT timezone FROM merchants) group by order_id) p on p.order_id=o.id\nwhere o.state='completed' and (o.channel='in_store' or (o.channel='doordash' and o.fulfillment_type='delivery'))\nand o.created_at >= timestamp '2026-09-01' AT TIME ZONE (SELECT timezone FROM merchants)\nand o.created_at < timestamp '2026-10-01' AT TIME ZONE (SELECT timezone FROM merchants)\ngroup by 1,2",
+       "usage": {
+        "input_tokens": 1008,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 486
+       }
+      },
+      "latency_ms": 2897
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants, orders, payments"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id, orders.merchant_id, payments.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT o.channel, o.fulfillment_type, COUNT(*) AS n, AVG(o.gross_sales_cents - o.discount_cents - CASE WHEN o.channel = 'in_store' THEN COALESCE(p.fee, 0) ELSE o.gross_sales_cents * 0.25 END) AS avg_net FROM (SELECT * FROM orders WHERE merchant_id = 1) AS o LEFT JOIN (SELECT order_id, SUM(processing_fee_cents) AS fee FROM (SELECT * FROM payments WHERE merchant_id = 1) AS payments WHERE status = 'completed' AND created_at >= CAST('2026-08-30' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND created_at < CAST('2026-10-03' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY order_id) AS p ON p.order_id = o.id WHERE o.state = 'completed' AND (o.channel = 'in_store' OR (o.channel = 'doordash' AND o.fulfillment_type = 'delivery')) AND o.created_at >= CAST('2026-09-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AND o.created_at < CAST('2026-10-01' AS TIMESTAMP) AT TIME ZONE (SELECT timezone FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) GROUP BY 1, 2 LIMIT 500"
+      },
+      "latency_ms": 5
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "channel",
+        "fulfillment_type",
+        "n",
+        "avg_net"
+       ],
+       "row_count": 3,
+       "rows": [
+        [
+         "in_store",
+         "pickup",
+         2154,
+         3043.1843082636956
+        ],
+        [
+         "in_store",
+         "in_store",
+         479,
+         2867.954070981211
+        ],
+        [
+         "doordash",
+         "delivery",
+         1269,
+         2747.253940110323
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 17
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "In September 2026 we kept about $2.64 more per order in store than on a DoorDash delivery order.\n\n- **In store:** we kept about $30.11 per order across 2,633 completed orders. That is gross sales minus discounts minus the card processing fee. Both in-store pickup and dine-in orders are included.\n- **DoorDash delivery:** we kept about $27.47 per order across 1,269 completed orders. That is gross sales minus discounts minus the 25% delivery commission [Marketplace Terms \u00a72, Commission and Pricing].\n\nThe difference is small even though the commission is 25%. DoorDash prices already include the markup, so gross sales per order are higher there [Definitions \u00a75, Marketplaces]. The in-store figure is a weighted average, so the dollar amounts are rounded to the cent.",
+       "usage": {
+        "input_tokens": 1622,
+        "cache_read_tokens": 3281,
+        "cache_write_tokens": 0,
+        "output_tokens": 484
+       }
+      },
+      "latency_ms": 4053
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Definitions \u00a75, Marketplaces",
+        "Marketplace Terms \u00a72, Commission and Pricing"
+       ],
+       "retrieved": [
+        "Definitions \u00a75, Marketplaces",
+        "Marketplace Terms \u00a72, Commission and Pricing"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 2
+  }
+ ]
+}
