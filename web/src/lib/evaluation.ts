@@ -211,7 +211,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Three runs the same way. The answer is right every time, and the grader's rule for a not-covered case is the thing that has to change.",
     ],
     [RUN5]: [
-      "Passed. The Allergies section scored 0.38 this time, under the line, so nothing was shown and the agent said the policies do not cover it.",
+      "Passed. The agent worded the search as \"health inspections\" this time, and the Allergies section scored 0.38 against it, under the 0.40 threshold, so it was not shown and the agent said the policies do not cover it.",
       "This is the run where the grader's rule changed, and the run did not exercise it. The change is checked against the run 2 and run 4 traces, which both pass under it.",
     ],
   },

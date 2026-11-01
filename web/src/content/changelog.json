@@ -76,7 +76,7 @@
     ],
     "result": "36 of 38, $0.49.",
     "moved": [
-      "[pol-05](/evaluation/pol-05) passed, and this run did not test the new rule: the near section scored 0.38 and was not shown. The rule is checked against the run 2 and run 4 traces instead.",
+      "[pol-05](/evaluation/pol-05) passed, but not because of the rule: the near section scored 0.38, under the 0.40 threshold, so it was not shown and nothing was cited.",
       "[pol-02](/evaluation/pol-02) failed again. Three searches, best score 0.36, nothing cited.",
       "[pol-11](/evaluation/pol-11) failed on wording: the answer said 'you' to the owner, and my phrase list wants 'owner'. The labels were all full."
     ],
