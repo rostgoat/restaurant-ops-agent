@@ -84,6 +84,7 @@ const RUN3 = "20261101T024005Z";
 const RUN4 = "20261101T025433Z";
 const RUN5 = "20261101T031947Z";
 const RUN6 = "20261101T043023Z";
+const RUN7 = "20261101T230259Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -121,6 +122,13 @@ export const suiteTitle: Record<string, string> = {
 // What the author found when reading each run's trace, keyed by case and run,
 // so the text changes with the run a reader has picked. One point per line.
 export const diagnosis: Record<string, Record<string, string[]>> = {
+  "sql-11": {
+    [RUN7]: [
+      "The agent searched October's orders for the word catering in the source label and the discount name, found none, and answered that the data has no way to identify a catering order.",
+      "The Catering category is on the menu, in the categories table the prompt lists, and 18 completed October orders have an item from it. The agent never looked there.",
+      "A safe query, an empty result, and the empty result read as a fact about the restaurant. The owner hears that their catering business cannot be counted.",
+    ],
+  },
   "sql-05": {
     [RUN1]: [
       "The first query converted every order's timestamp to the restaurant's time zone and looked up the card fee with a subquery per order. It timed out.",
@@ -289,6 +297,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
 
 // One line naming the failure in plain words, shown as the card's heading.
 export const headline: Record<string, string> = {
+  "sql-11": "A question the data can answer, and the agent says it cannot",
   "sql-05": "A query that runs clean, looks right, and returns the wrong number",
   "pol-02": "The rule exists, the search never shows it, and the agent says there is no rule",
   "pol-11": "A right answer with a sloppy citation, caught by code",

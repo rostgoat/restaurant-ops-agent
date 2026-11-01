@@ -97,6 +97,15 @@
       "note": "The same question as sql-03 under the other owner's definition: four or more orders in May, Definitions §2. 18 of 59. Mekong's three-in-three-months rule gives a different count here."
     },
     {
+      "id": "sql-11",
+      "suite": "sql",
+      "merchant_id": 1,
+      "question": "How many catering orders did we do in October?",
+      "gold_file": "gold/sql-11.sql",
+      "value_kind": "count",
+      "note": "A catering order is one with an item from the Catering category on the menu. Nothing on the order itself says catering: no channel, no label, no discount. Three ad hoc asks on 1 November all searched the order's labels, found nothing, and said the data cannot identify catering orders. 18."
+    },
+    {
       "id": "pol-01",
       "suite": "policy",
       "merchant_id": 1,

@@ -121,5 +121,21 @@
       "Nothing else moved."
     ],
     "next": "Nothing is failing. The next run is a different model, or a different set of questions, and either one is a new experiment."
+  },
+  {
+    "run": "20261101T230259Z",
+    "date": "2026-11-01",
+    "title": "Seventh run: one question added, and nothing else",
+    "changed": [
+      "A new sql case, sql-11: how many catering orders in October. The owner's reading is an order with an item from the Catering category on the menu. Nothing on the order itself says catering, no channel, no label, no discount. The question came from asking the live agent questions with a second plausible reading, after the set had gone to 38 of 38.",
+      "No change to the prompt, the search, the threshold or the grader. The run shows the set with the new case before anything is done about it."
+    ],
+    "passed": 38,
+    "result": "38 of 39, $0.49.",
+    "moved": [
+      "[sql-11](/evaluation/sql-11) failed, as it had three times in ad hoc asks. The agent searched the order's source label and discount name for the word catering, found nothing, and said the data has no way to identify a catering order. It never looked at the menu categories, which are in its prompt.",
+      "Nothing else moved."
+    ],
+    "next": "A fix for the empty result read as a fact. The two misses of this shape so far, this one and a question about a day with no data, both turned zero rows into a claim about the restaurant."
   }
 ]
