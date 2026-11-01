@@ -100,7 +100,7 @@
     "moved": [
       "[pol-05](/evaluation/pol-05) passes in runs 2, 3 and 4. Each answer said the policies do not cover it, in words my list did not have, or cited the near section to say it does not apply.",
       "[pol-11](/evaluation/pol-11) passes in run 5. The answer told the owner 'unless you approve more', which names the owner when the owner is asking.",
-      "[pol-02](/evaluation/pol-02) is the one failure left in every run but run 4, and the only one about the agent. A word list checks words and a person checks meaning. Twice in five runs the gap was mine."
+      "[pol-02](/evaluation/pol-02) is the one failure left in every run but run 4, and the only one about the agent. A word list checks words and a person checks meaning. Twice in five runs the list was missing a wording I should have put in."
     ],
     "next": "The hidden section needs a search that matches a word as well as a meaning. Six single-case reps of prompt wording put its score at 0.37 to 0.39 against a 0.40 line. That is code, a different system, and the next experiment."
   }
