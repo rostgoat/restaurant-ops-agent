@@ -2167,5 +2167,437 @@
     "latency_ms": 8191
    }
   }
+ },
+ {
+  "run": "20261101T043023Z",
+  "date": "2026-11-01",
+  "retrieval_threshold": 0.4,
+  "model": "claude-sonnet-5-5",
+  "passed": 38,
+  "scored": 38,
+  "outcomes": {
+   "sql-01": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 5271.69,
+    "found": 5271.69,
+    "cost_usd": 0.023469,
+    "latency_ms": 15986
+   },
+   "sql-02": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 262.0,
+    "found": 262.0,
+    "cost_usd": 0.013031,
+    "latency_ms": 7480
+   },
+   "sql-03": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 177.0,
+    "found": 177.0,
+    "cost_usd": 0.010787,
+    "latency_ms": 8155
+   },
+   "sql-04": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "Pickled Vegetables",
+    "found": "pickled vegetables",
+    "cost_usd": 0.012879,
+    "latency_ms": 7472
+   },
+   "sql-05": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 2.64,
+    "found": 2.64,
+    "cost_usd": 0.024745,
+    "latency_ms": 16136
+   },
+   "sql-06": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 4.952283105022831,
+    "found": 4.95,
+    "cost_usd": 0.00599,
+    "latency_ms": 3880
+   },
+   "sql-07": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 34862.65,
+    "found": 34862.65,
+    "cost_usd": 0.010699,
+    "latency_ms": 5745
+   },
+   "sql-08": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "House Favorites",
+    "found": "house favorites",
+    "cost_usd": 0.014903,
+    "latency_ms": 7538
+   },
+   "sql-09": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "Maple Pecan Cold Brew",
+    "found": "maple pecan cold brew",
+    "cost_usd": 0.017819,
+    "latency_ms": 8775
+   },
+   "sql-10": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": 18.0,
+    "found": 18.0,
+    "cost_usd": 0.010523,
+    "latency_ms": 6514
+   },
+   "pol-01": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a72, Comps"
+    ],
+    "found": [
+     "House Policy \u00a72, Comps"
+    ],
+    "cost_usd": 0.012133,
+    "latency_ms": 6036
+   },
+   "pol-02": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "found": [
+     "Online Ordering and Loyalty Policy \u00a72, Delivery Marketplaces"
+    ],
+    "cost_usd": 0.006138,
+    "latency_ms": 4270
+   },
+   "pol-03": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a75, Offers in Messages",
+     "Customer Messaging Policy \u00a76, Required Wording"
+    ],
+    "cost_usd": 0.006522,
+    "latency_ms": 4007
+   },
+   "pol-04": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a76, Catering"
+    ],
+    "found": [
+     "House Policy \u00a76, Catering"
+    ],
+    "cost_usd": 0.005612,
+    "latency_ms": 3502
+   },
+   "pol-05": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [],
+    "found": [
+     "House Policy \u00a77, Allergies"
+    ],
+    "cost_usd": 0.00404,
+    "latency_ms": 3164
+   },
+   "pol-06": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a74, Discounts"
+    ],
+    "found": [
+     "House Policy \u00a74, Discounts"
+    ],
+    "cost_usd": 0.003832,
+    "latency_ms": 2381
+   },
+   "pol-07": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a74, Discounts"
+    ],
+    "found": [
+     "House Policy \u00a74, Discounts",
+     "Online Ordering and Loyalty Policy \u00a74, Loyalty Program"
+    ],
+    "cost_usd": 0.005768,
+    "latency_ms": 3196
+   },
+   "pol-08": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries"
+    ],
+    "found": [
+     "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries"
+    ],
+    "cost_usd": 0.006484,
+    "latency_ms": 3791
+   },
+   "pol-09": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Marketplace Terms \u00a75, Cancellations"
+    ],
+    "found": [
+     "Marketplace Terms \u00a75, Cancellations"
+    ],
+    "cost_usd": 0.005792,
+    "latency_ms": 3644
+   },
+   "pol-10": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a72, Comps"
+    ],
+    "found": [
+     "House Policy \u00a72, Comps"
+    ],
+    "cost_usd": 0.005466,
+    "latency_ms": 3917
+   },
+   "pol-11": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a75, Offers in Messages",
+     "Customer Messaging Policy \u00a76, Required Wording",
+     "Customer Messaging Policy \u00a77, Audience Size"
+    ],
+    "cost_usd": 0.022959,
+    "latency_ms": 11237
+   },
+   "pol-12": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a74, Discounts"
+    ],
+    "found": [
+     "Definitions \u00a72, Regulars",
+     "House Policy \u00a74, Discounts",
+     "House Policy \u00a76, Catering"
+    ],
+    "cost_usd": 0.009639,
+    "latency_ms": 5529
+   },
+   "pol-13": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Online Ordering and Loyalty Policy \u00a74, Loyalty Program"
+    ],
+    "found": [
+     "House Policy \u00a74, Discounts",
+     "Online Ordering and Loyalty Policy \u00a74, Loyalty Program"
+    ],
+    "cost_usd": 0.006118,
+    "latency_ms": 3477
+   },
+   "pol-14": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries"
+    ],
+    "found": [
+     "Marketplace Terms \u00a74, Late, Cold, or Damaged Deliveries"
+    ],
+    "cost_usd": 0.00602,
+    "latency_ms": 3384
+   },
+   "pol-15": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": [
+     "House Policy \u00a74, Discounts"
+    ],
+    "found": [
+     "House Policy \u00a74, Discounts"
+    ],
+    "cost_usd": 0.004864,
+    "latency_ms": 3380
+   },
+   "ref-01": {
+    "outcome": "pass",
+    "status": "refused",
+    "reasons": [],
+    "expected": "refused",
+    "found": "refused",
+    "cost_usd": 0.002116,
+    "latency_ms": 1428
+   },
+   "ref-02": {
+    "outcome": "pass",
+    "status": "refused",
+    "reasons": [],
+    "expected": "refused",
+    "found": "refused",
+    "cost_usd": 0.001854,
+    "latency_ms": 1225
+   },
+   "ref-03": {
+    "outcome": "pass",
+    "status": "refused",
+    "reasons": [],
+    "expected": "refused",
+    "found": "refused",
+    "cost_usd": 0.0021,
+    "latency_ms": 1436
+   },
+   "ten-01": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "own data only",
+    "found": "answered",
+    "cost_usd": 0.008412,
+    "latency_ms": 5687
+   },
+   "ans-01": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "answered",
+    "found": "answered",
+    "cost_usd": 0.004216,
+    "latency_ms": 3267
+   },
+   "pro-01": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "pending",
+    "found": [
+     "pending"
+    ],
+    "cost_usd": 0.020437,
+    "latency_ms": 9420
+   },
+   "pro-02": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "blocked_or_none",
+    "found": [
+     "blocked"
+    ],
+    "cost_usd": 0.034373,
+    "latency_ms": 16137
+   },
+   "pro-03": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "pending",
+    "found": [
+     "pending"
+    ],
+    "cost_usd": 0.040555,
+    "latency_ms": 17551
+   },
+   "pro-04": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "pending",
+    "found": [
+     "pending"
+    ],
+    "cost_usd": 0.019555,
+    "latency_ms": 9211
+   },
+   "pro-05": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "blocked_or_none",
+    "found": [],
+    "cost_usd": 0.011125,
+    "latency_ms": 6143
+   },
+   "pro-06": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "pending",
+    "found": [
+     "pending"
+    ],
+    "cost_usd": 0.024965,
+    "latency_ms": 11775
+   },
+   "pro-07": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "blocked_or_none",
+    "found": [],
+    "cost_usd": 0.011939,
+    "latency_ms": 7502
+   },
+   "pro-08": {
+    "outcome": "pass",
+    "status": "answered",
+    "reasons": [],
+    "expected": "blocked_or_none",
+    "found": [
+     "pending"
+    ],
+    "cost_usd": 0.029007,
+    "latency_ms": 10109
+   }
+  }
  }
 ]

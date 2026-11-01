@@ -83,6 +83,7 @@ const RUN2 = "20261031T035921Z";
 const RUN3 = "20261101T024005Z";
 const RUN4 = "20261101T025433Z";
 const RUN5 = "20261101T031947Z";
+const RUN6 = "20261101T043023Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -143,6 +144,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN5]: [
       "Passed. Timeout on the first query, retry with the right window, $2.64. Three runs with the date line, three passes.",
     ],
+    [RUN6]: [
+      "Passed, $2.64. Four runs with the date line, four passes.",
+    ],
   },
   "pol-02": {
     [RUN1]: [
@@ -170,6 +174,11 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "The agent said the policies do not cover it and cited nothing. The citations step failed that, because sections were shown and none was cited, and the grader failed it for not citing the section it never saw.",
       "Run 4's pass was the search wording. This run's miss is the search wording. The case turns on words the agent picks fresh each time.",
     ],
+    [RUN6]: [
+      "Passed. The first search, 'deadline to dispute a missing-item chargeback on DoorDash order', scored the Delivery Marketplaces section at 0.34 by meaning, under the line, and first by words, because 'DoorDash' is in that section and almost nowhere else in Ridgeline's policies. The search showed it for its words.",
+      "The agent cited it and said the policies give no deadline because Ridgeline is not on DoorDash. The answer the owner needed, found by the word the owner used.",
+      "Six runs, five misses on wording, and the fix was not wording. The embedding search could not see the word, and now something does.",
+    ],
   },
   "pol-03": {
     [RUN1]: [
@@ -190,6 +199,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     ],
     [RUN5]: [
       "Passed. Three citations, full labels.",
+    ],
+    [RUN6]: [
+      "Passed. Full labels, three citations.",
     ],
   },
   "pol-05": {
@@ -218,6 +230,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. The agent worded the search as \"health inspections\" this time, and the Allergies section scored 0.38 against it, under the 0.40 threshold, so it was not shown and the agent said the policies do not cover it.",
       "This is the run where the grader's rule changed, and the run did not exercise it. The change is checked against the run 2 and run 4 traces, which both pass under it.",
     ],
+    [RUN6]: [
+      "Passed. Two sections shown: Allergies at 0.41 by meaning, and the house policy's scope preamble for its words, since it shares 'rule' and other common words with the search. The agent called both unrelated and said the policies do not cover health inspections.",
+      "This is the precision cost of the word search in one trace: one extra section, read and set aside.",
+    ],
   },
   "pol-11": {
     [RUN1]: [
@@ -242,6 +258,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Failed on one phrase. The case expects the answer to say the owner can approve a bigger discount, and the answer said 'unless you approve more', speaking to the owner. My phrase list has 'owner' and the owner's name, not 'you'.",
       "Regraded as a pass on 1 November, after 'you approve' joined the phrase list.",
     ],
+    [RUN6]: [
+      "Passed. Four citations in full, the campaign blocked, 563 customers counted.",
+    ],
   },
   "pol-12": {
     [RUN1]: [
@@ -261,6 +280,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     ],
     [RUN5]: [
       "Passed. Discounts and Catering shown on one search, both cited in full.",
+    ],
+    [RUN6]: [
+      "Passed. The scope preamble was shown for its words on both searches and ignored. Discounts, Catering and the owner's definition of a regular were cited.",
     ],
   },
 };
