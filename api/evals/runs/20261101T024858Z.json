@@ -1,0 +1,1504 @@
+{
+ "summary": {
+  "ran_at": "2026-11-01T02:48:58.280268+00:00",
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "retrieval_threshold": 0.4,
+  "commit": "dc0c11e",
+  "dataset": "ops_eval, data/generate.py seed 42",
+  "frozen_now": "2026-10-24T15:00:00Z",
+  "ground_truth": "Hand-written by the author. SQL cases are graded against a gold query run on the frozen ops_eval database at eval time; policy cases against the sections the author identified in data/policies; refusals and proposals against the status the loop records; the tenant case against the other restaurant's figure, which must not appear. Every case also checks that each query the guard let through was pinned to the asking restaurant.",
+  "cases": 6,
+  "scored": 6,
+  "passed": 5,
+  "errors": 0,
+  "suites": {
+   "policy": {
+    "passed": 5,
+    "total": 6
+   }
+  },
+  "cost_total_usd": 0.0983,
+  "cost_per_answered_median_usd": 0.0183,
+  "cost_per_answered_p90_usd": 0.0225,
+  "latency_median_ms": 8357,
+  "latency_p90_ms": 11879,
+  "retrieval": {
+   "precision": 0.25,
+   "recall": 1.0,
+   "sections_shown": 24,
+   "sections_expected": 6
+  }
+ },
+ "results": [
+  {
+   "case": {
+    "id": "pol-03",
+    "suite": "policy",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "expected_citations": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "must_mention": [
+     [
+      "8pm",
+      "8 pm",
+      "8:00",
+      "9am",
+      "9 am"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a74, Frequency",
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ]
+   },
+   "trace": {
+    "id": "183a714e-f6a6-4a42-900f-a34cfae16a1c",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No. [Customer Messaging Policy \u00a73, Quiet Hours] bars any text between 8pm and 9am in the customer's local time. That covers promotional texts, and 10pm falls inside the window. If a customer's local time isn't known, the policy says to use Central time.\n\nYou can schedule the text for between 9am and 8pm in the customer's local time. Promotional texts must also meet the other messaging rules:\n- **Consent:** The customer needs verified SMS consent. Implied consent isn't enough. [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]\n- **Frequency:** No customer can get more than four marketing texts in a calendar month. [Customer Messaging Policy \u00a74, Frequency]\n- **Offers:** A discount can't exceed 15% or $10, whichever is lower, unless the owner approves it. The offer must state an expiry date no more than 14 days out. It must also say \"one per customer\". [Customer Messaging Policy \u00a75, Offers in Messages]",
+    "usage": {
+     "input_tokens": 796,
+     "cache_read_tokens": 3321,
+     "cache_write_tokens": 3321,
+     "output_tokens": 395
+    },
+    "cost_usd": 0.014509,
+    "latency_ms": 5149,
+    "model_ms": 4531,
+    "tool_ms": 617,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "quiet hours for promotional text messages, time of day sending",
+       "usage": {
+        "input_tokens": 105,
+        "cache_read_tokens": 0,
+        "cache_write_tokens": 3321,
+        "output_tokens": 63
+       }
+      },
+      "latency_ms": 1377
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "quiet hours for promotional text messages, time of day sending",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+         "score": 0.6829,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.5438,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a74, Frequency",
+         "score": 0.5307,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+         "score": 0.5155,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 617
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No. [Customer Messaging Policy \u00a73, Quiet Hours] bars any text between 8pm and 9am in the customer's local time. That covers promotional texts, and 10pm falls inside the window. If a customer's local time isn't known, the policy says to use Central time.\n\nYou can schedule the text for between 9am and 8pm in the customer's local time. Promotional texts must also meet the other messaging rules:\n- **Consent:** The customer needs verified SMS consent. Implied consent isn't enough. [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]\n- **Frequency:** No customer can get more than four marketing texts in a calendar month. [Customer Messaging Policy \u00a74, Frequency]\n- **Offers:** A discount can't exceed 15% or $10, whichever is lower, unless the owner approves it. The offer must state an expiry date no more than 14 days out. It must also say \"one per customer\". [Customer Messaging Policy \u00a75, Offers in Messages]",
+       "usage": {
+        "input_tokens": 691,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 332
+       }
+      },
+      "latency_ms": 3154
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a74, Frequency",
+        "Customer Messaging Policy \u00a75, Offers in Messages"
+       ],
+       "retrieved": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a74, Frequency",
+        "Customer Messaging Policy \u00a75, Offers in Messages"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-11",
+    "suite": "policy",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "expected_citations": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "must_mention": [
+     [
+      "15%"
+     ],
+     [
+      "owner",
+      "Linh"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a75, Offers in Messages",
+     "Customer Messaging Policy \u00a76, Required Wording"
+    ]
+   },
+   "trace": {
+    "id": "ec9bc8cb-8376-4b5f-8029-4e490d408102",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Not as written. I proposed the 20% text, and the policy check blocked it because 20% is over the 15% cap. Nothing has been sent.\n\nA text discount can't be more than 15% or $10, whichever is lower, unless you approve it as owner [Customer Messaging Policy \u00a75, Offers in Messages]. The same section requires an expiry date within 14 days and the words \"one per customer\".\n\nOnly customers with verified SMS consent who haven't unsubscribed can get marketing texts [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. That is 943 of your 48,179 customers. Customers who only gave a phone number when ordering don't count.\n\nTexts can't go out between 8pm and 9am in the customer's local time [Customer Messaging Policy \u00a73, Quiet Hours]. Each message must name the restaurant and end with \"Reply STOP to opt out\" [Customer Messaging Policy \u00a76, Required Wording].\n\nMy draft reads: \"Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out\"\n\nIf you want to run it, there are two ways. You can approve the 20% offer yourself as owner. Or I can re-propose it at 15% or $10 off, whichever is lower, which fits the policy as it stands.",
+    "usage": {
+     "input_tokens": 3344,
+     "cache_read_tokens": 13284,
+     "cache_write_tokens": 0,
+     "output_tokens": 1273
+    },
+    "cost_usd": 0.022075,
+    "latency_ms": 11566,
+    "model_ms": 11003,
+    "tool_ms": 546,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "text message campaign consent, quiet hours, discount offers",
+       "usage": {
+        "input_tokens": 104,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 63
+       }
+      },
+      "latency_ms": 1221
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "text message campaign consent, quiet hours, discount offers",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.6426,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+         "score": 0.6369,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+         "score": 0.5759,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a76, Required Wording",
+         "score": 0.5669,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 513
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count customers eligible for marketing texts",
+       "sql": "select (select name from merchants) n, count(*) filter (where sms_opt_in and unsubscribed_at is null) eligible, count(*) total from customers",
+       "usage": {
+        "input_tokens": 681,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 143
+       }
+      },
+      "latency_ms": 1641
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "customers, merchants"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on customers.merchant_id, merchants.id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT (SELECT name FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AS n, COUNT(*) FILTER(WHERE sms_opt_in AND unsubscribed_at IS NULL) AS eligible, COUNT(*) AS total FROM (SELECT * FROM customers WHERE merchant_id = 1) AS customers LIMIT 500"
+      },
+      "latency_ms": 14
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "n",
+        "eligible",
+        "total"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         "Mekong Noodle House",
+         943,
+         48179
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 33
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "propose",
+      "outcome": "proposed",
+      "detail": {
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 943 customers with verified SMS consent; 20% is above the 15% cap so it needs your approval.",
+       "reason": "Only verified-consent, non-unsubscribed customers [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]; 20% exceeds the 15% or $10 limit so owner approval is needed, expiry within 14 days and \"one per customer\" [Customer Messaging Policy \u00a75, Offers in Messages]; send only between 9am and 8pm [Customer Messaging Policy \u00a73, Quiet Hours]; restaurant name and opt-out wording [Customer Messaging Policy \u00a76, Required Wording].",
+       "order_id": null,
+       "customer_id": null,
+       "amount_cents": null,
+       "discount_pct": 20,
+       "audience_size": 943,
+       "draft_message": "Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+       "usage": {
+        "input_tokens": 888,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 627
+       }
+      },
+      "latency_ms": 4230
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "check_proposal",
+      "outcome": "blocked",
+      "detail": {
+       "proposal_id": "93cc3091-8ded-48c9-872b-6a47f80adef9",
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 943 customers with verified SMS consent; 20% is above the 15% cap so it needs your approval.",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ],
+       "blocked_reason": "20% is over the 15% cap",
+       "audience_size": null,
+       "due_by": null,
+       "needs_owner": false
+      },
+      "latency_ms": 0
+     },
+     {
+      "seq": 8,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Not as written. I proposed the 20% text, and the policy check blocked it because 20% is over the 15% cap. Nothing has been sent.\n\nA text discount can't be more than 15% or $10, whichever is lower, unless you approve it as owner [Customer Messaging Policy \u00a75, Offers in Messages]. The same section requires an expiry date within 14 days and the words \"one per customer\".\n\nOnly customers with verified SMS consent who haven't unsubscribed can get marketing texts [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. That is 943 of your 48,179 customers. Customers who only gave a phone number when ordering don't count.\n\nTexts can't go out between 8pm and 9am in the customer's local time [Customer Messaging Policy \u00a73, Quiet Hours]. Each message must name the restaurant and end with \"Reply STOP to opt out\" [Customer Messaging Policy \u00a76, Required Wording].\n\nMy draft reads: \"Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out\"\n\nIf you want to run it, there are two ways. You can approve the 20% offer yourself as owner. Or I can re-propose it at 15% or $10 off, whichever is lower, which fits the policy as it stands.",
+       "usage": {
+        "input_tokens": 1671,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 440
+       }
+      },
+      "latency_ms": 3911
+     },
+     {
+      "seq": 9,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a75, Offers in Messages",
+        "Customer Messaging Policy \u00a76, Required Wording"
+       ],
+       "retrieved": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a75, Offers in Messages",
+        "Customer Messaging Policy \u00a76, Required Wording"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": [
+     {
+      "id": "93cc3091-8ded-48c9-872b-6a47f80adef9",
+      "merchant_id": 1,
+      "trace_id": "ec9bc8cb-8376-4b5f-8029-4e490d408102",
+      "created_at": "2026-10-24T15:00:00+00:00",
+      "kind": "sms_campaign",
+      "summary": "Text 20% off to the 943 customers with verified SMS consent; 20% is above the 15% cap so it needs your approval.",
+      "status": "blocked",
+      "payload": {
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 943 customers with verified SMS consent; 20% is above the 15% cap so it needs your approval.",
+       "reason": "Only verified-consent, non-unsubscribed customers [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]; 20% exceeds the 15% or $10 limit so owner approval is needed, expiry within 14 days and \"one per customer\" [Customer Messaging Policy \u00a75, Offers in Messages]; send only between 9am and 8pm [Customer Messaging Policy \u00a73, Quiet Hours]; restaurant name and opt-out wording [Customer Messaging Policy \u00a76, Required Wording].",
+       "discount_pct": 20,
+       "audience_size": 943,
+       "draft_message": "Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ]
+      },
+      "blocked_reason": "20% is over the 15% cap",
+      "audience_size": null,
+      "discount_pct": 20,
+      "draft_message": "Mekong Noodle House: enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+      "decided_at": null
+     }
+    ]
+   },
+   "rep": 0
+  },
+  {
+   "case": {
+    "id": "pol-03",
+    "suite": "policy",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "expected_citations": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "must_mention": [
+     [
+      "8pm",
+      "8 pm",
+      "8:00",
+      "9am",
+      "9 am"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a74, Frequency"
+    ]
+   },
+   "trace": {
+    "id": "be55dc55-9655-4a7f-9d4c-5cdbed1b70c2",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No. Our policy bars any text between 8pm and 9am in the customer's local time. If we don't know a customer's local time, we use Central time. A promotional text at 10pm would fall inside that window, so it should wait until after 9am. [Customer Messaging Policy \u00a73, Quiet Hours]\n\nOther rules apply once you do send. Only customers with verified SMS consent can get marketing texts, and anyone who has unsubscribed gets none. [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts] Each customer can get at most four marketing texts a month. [Customer Messaging Policy \u00a74, Frequency]\n\nI can't send or schedule texts. I can propose a campaign for you to approve, timed inside the allowed hours.",
+    "usage": {
+     "input_tokens": 796,
+     "cache_read_tokens": 6642,
+     "cache_write_tokens": 0,
+     "output_tokens": 310
+    },
+    "cost_usd": 0.00602,
+    "latency_ms": 3903,
+    "model_ms": 3433,
+    "tool_ms": 469,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "quiet hours for promotional text messages, time of day sending",
+       "usage": {
+        "input_tokens": 105,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 63
+       }
+      },
+      "latency_ms": 1074
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "quiet hours for promotional text messages, time of day sending",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+         "score": 0.683,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.5439,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a74, Frequency",
+         "score": 0.5307,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+         "score": 0.5155,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 469
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No. Our policy bars any text between 8pm and 9am in the customer's local time. If we don't know a customer's local time, we use Central time. A promotional text at 10pm would fall inside that window, so it should wait until after 9am. [Customer Messaging Policy \u00a73, Quiet Hours]\n\nOther rules apply once you do send. Only customers with verified SMS consent can get marketing texts, and anyone who has unsubscribed gets none. [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts] Each customer can get at most four marketing texts a month. [Customer Messaging Policy \u00a74, Frequency]\n\nI can't send or schedule texts. I can propose a campaign for you to approve, timed inside the allowed hours.",
+       "usage": {
+        "input_tokens": 691,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 247
+       }
+      },
+      "latency_ms": 2359
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a74, Frequency"
+       ],
+       "retrieved": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a74, Frequency",
+        "Customer Messaging Policy \u00a75, Offers in Messages"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 1
+  },
+  {
+   "case": {
+    "id": "pol-11",
+    "suite": "policy",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "expected_citations": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "must_mention": [
+     [
+      "15%"
+     ],
+     [
+      "owner",
+      "Linh"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a75, Offers in Messages",
+     "Customer Messaging Policy \u00a76, Required Wording"
+    ]
+   },
+   "trace": {
+    "id": "044eae16-6833-4b17-8c5d-b55aaf0061fc",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Not as written. I drafted the campaign, but the check blocked it because 20% is over the 15% cap. Nothing has been sent or scheduled.\n\n- **Discount cap:** A text offer can't exceed 15% or $10, whichever is lower, unless the owner approves it [Customer Messaging Policy \u00a75, Offers in Messages]. The $10 limit may bind even at 15%, depending on order size.\n- **Who can get it:** Only customers with verified SMS consent who haven't unsubscribed [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. That is 943 of your 48,179 customers. People who only gave a phone number when ordering don't count.\n- **Required wording:** The text must name the restaurant, say \"one per customer,\" and give an expiry no more than 14 days out. It must end with \"Reply STOP to opt out\" [Customer Messaging Policy \u00a75, Offers in Messages; Customer Messaging Policy \u00a76, Required Wording]. My draft expires 2026-11-05.\n- **Send time:** Texts can't go out between 8pm and 9am in the customer's local time [Customer Messaging Policy \u00a73, Quiet Hours].\n\nThe check showed `needs_owner: false`, so I can't tell whether your sign-off would clear the 20% block. I can resubmit at 15% (or a lower dollar cap) instead, or you can approve the 20% yourself.",
+    "usage": {
+     "input_tokens": 3351,
+     "cache_read_tokens": 13284,
+     "cache_write_tokens": 0,
+     "output_tokens": 1318
+    },
+    "cost_usd": 0.022539,
+    "latency_ms": 11879,
+    "model_ms": 11509,
+    "tool_ms": 362,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "text message campaign consent, quiet hours, offers and discount limits",
+       "usage": {
+        "input_tokens": 104,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 66
+       }
+      },
+      "latency_ms": 1213
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "text message campaign consent, quiet hours, offers and discount limits",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.6672,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+         "score": 0.6557,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+         "score": 0.598,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a76, Required Wording",
+         "score": 0.5706,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 344
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count eligible audience",
+       "sql": "select count(*) filter (where sms_opt_in and unsubscribed_at is null) eligible, count(*) total, (select name from merchants) name from customers",
+       "usage": {
+        "input_tokens": 684,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 125
+       }
+      },
+      "latency_ms": 1706
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "customers, merchants"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on customers.merchant_id, merchants.id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(*) FILTER(WHERE sms_opt_in AND unsubscribed_at IS NULL) AS eligible, COUNT(*) AS total, (SELECT name FROM (SELECT * FROM merchants WHERE id = 1) AS merchants) AS name FROM (SELECT * FROM customers WHERE merchant_id = 1) AS customers LIMIT 500"
+      },
+      "latency_ms": 4
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "eligible",
+        "total",
+        "name"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         943,
+         48179,
+         "Mekong Noodle House"
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 18
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "propose",
+      "outcome": "proposed",
+      "detail": {
+       "kind": "sms_campaign",
+       "summary": "Text 943 verified-consent customers a 20% off offer; 20% is above the 15% cap, so it needs your explicit approval.",
+       "reason": "Only verified SMS opt-ins who haven't unsubscribed may get marketing [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. Discounts over 15% or $10 need owner approval [Customer Messaging Policy \u00a75, Offers in Messages]. Send only 9am-8pm [Customer Messaging Policy \u00a73, Quiet Hours]. Wording per [Customer Messaging Policy \u00a76, Required Wording].",
+       "order_id": null,
+       "customer_id": null,
+       "amount_cents": null,
+       "discount_pct": 20,
+       "audience_size": 943,
+       "draft_message": "Mekong Noodle House: Enjoy 20% off your next order! One per customer. Expires 2026-11-05. Reply STOP to opt out",
+       "usage": {
+        "input_tokens": 874,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 660
+       }
+      },
+      "latency_ms": 5094
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "check_proposal",
+      "outcome": "blocked",
+      "detail": {
+       "proposal_id": "79260c77-907c-4741-933a-4f0e806f6bc7",
+       "kind": "sms_campaign",
+       "summary": "Text 943 verified-consent customers a 20% off offer; 20% is above the 15% cap, so it needs your explicit approval.",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ],
+       "blocked_reason": "20% is over the 15% cap",
+       "audience_size": null,
+       "due_by": null,
+       "needs_owner": false
+      },
+      "latency_ms": 0
+     },
+     {
+      "seq": 8,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Not as written. I drafted the campaign, but the check blocked it because 20% is over the 15% cap. Nothing has been sent or scheduled.\n\n- **Discount cap:** A text offer can't exceed 15% or $10, whichever is lower, unless the owner approves it [Customer Messaging Policy \u00a75, Offers in Messages]. The $10 limit may bind even at 15%, depending on order size.\n- **Who can get it:** Only customers with verified SMS consent who haven't unsubscribed [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. That is 943 of your 48,179 customers. People who only gave a phone number when ordering don't count.\n- **Required wording:** The text must name the restaurant, say \"one per customer,\" and give an expiry no more than 14 days out. It must end with \"Reply STOP to opt out\" [Customer Messaging Policy \u00a75, Offers in Messages; Customer Messaging Policy \u00a76, Required Wording]. My draft expires 2026-11-05.\n- **Send time:** Texts can't go out between 8pm and 9am in the customer's local time [Customer Messaging Policy \u00a73, Quiet Hours].\n\nThe check showed `needs_owner: false`, so I can't tell whether your sign-off would clear the 20% block. I can resubmit at 15% (or a lower dollar cap) instead, or you can approve the 20% yourself.",
+       "usage": {
+        "input_tokens": 1689,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 467
+       }
+      },
+      "latency_ms": 3496
+     },
+     {
+      "seq": 9,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a75, Offers in Messages",
+        "Customer Messaging Policy \u00a76, Required Wording"
+       ],
+       "retrieved": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a75, Offers in Messages",
+        "Customer Messaging Policy \u00a76, Required Wording"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": [
+     {
+      "id": "79260c77-907c-4741-933a-4f0e806f6bc7",
+      "merchant_id": 1,
+      "trace_id": "044eae16-6833-4b17-8c5d-b55aaf0061fc",
+      "created_at": "2026-10-24T15:00:00+00:00",
+      "kind": "sms_campaign",
+      "summary": "Text 943 verified-consent customers a 20% off offer; 20% is above the 15% cap, so it needs your explicit approval.",
+      "status": "blocked",
+      "payload": {
+       "kind": "sms_campaign",
+       "summary": "Text 943 verified-consent customers a 20% off offer; 20% is above the 15% cap, so it needs your explicit approval.",
+       "reason": "Only verified SMS opt-ins who haven't unsubscribed may get marketing [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. Discounts over 15% or $10 need owner approval [Customer Messaging Policy \u00a75, Offers in Messages]. Send only 9am-8pm [Customer Messaging Policy \u00a73, Quiet Hours]. Wording per [Customer Messaging Policy \u00a76, Required Wording].",
+       "discount_pct": 20,
+       "audience_size": 943,
+       "draft_message": "Mekong Noodle House: Enjoy 20% off your next order! One per customer. Expires 2026-11-05. Reply STOP to opt out",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ]
+      },
+      "blocked_reason": "20% is over the 15% cap",
+      "audience_size": null,
+      "discount_pct": 20,
+      "draft_message": "Mekong Noodle House: Enjoy 20% off your next order! One per customer. Expires 2026-11-05. Reply STOP to opt out",
+      "decided_at": null
+     }
+    ]
+   },
+   "rep": 1
+  },
+  {
+   "case": {
+    "id": "pol-03",
+    "suite": "policy",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "expected_citations": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "must_mention": [
+     [
+      "8pm",
+      "8 pm",
+      "8:00",
+      "9am",
+      "9 am"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "pass",
+    "reasons": [],
+    "expected": [
+     "Customer Messaging Policy \u00a73, Quiet Hours"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a74, Frequency",
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ]
+   },
+   "trace": {
+    "id": "d7829462-6acb-4805-b514-951c33d4b51d",
+    "merchant_id": 1,
+    "question": "Can we send a promotional text at 10pm?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "No. A promotional text can't go out at 10pm. [Customer Messaging Policy \u00a73, Quiet Hours] bans texts of any kind between 8pm and 9am in the customer's local time. If we don't know a customer's local time, we use Central time. That ban covers transactional texts too, so it isn't limited to promotions.\n\nAny promotional text also has to follow these rules:\n- It goes only to customers with verified SMS consent. Implied consent isn't enough, and anyone who has unsubscribed is never texted. [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]\n- No customer gets more than four marketing texts in a calendar month. [Customer Messaging Policy \u00a74, Frequency]\n- A discount can't exceed 15% or $10, whichever is lower, unless the owner approves it. The offer must also state an expiry date no more than 14 days out and say \"one per customer\". [Customer Messaging Policy \u00a75, Offers in Messages]\n\nIf you want to send a promotion, schedule it between 9am and 8pm in the customers' local time. I can draft it and propose it for approval.",
+    "usage": {
+     "input_tokens": 796,
+     "cache_read_tokens": 6642,
+     "cache_write_tokens": 0,
+     "output_tokens": 429
+    },
+    "cost_usd": 0.00721,
+    "latency_ms": 4391,
+    "model_ms": 3998,
+    "tool_ms": 391,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "quiet hours for promotional text messages, time of day sending",
+       "usage": {
+        "input_tokens": 105,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 63
+       }
+      },
+      "latency_ms": 1108
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "quiet hours for promotional text messages, time of day sending",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+         "score": 0.6829,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.5438,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a74, Frequency",
+         "score": 0.5307,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+         "score": 0.5155,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 391
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "No. A promotional text can't go out at 10pm. [Customer Messaging Policy \u00a73, Quiet Hours] bans texts of any kind between 8pm and 9am in the customer's local time. If we don't know a customer's local time, we use Central time. That ban covers transactional texts too, so it isn't limited to promotions.\n\nAny promotional text also has to follow these rules:\n- It goes only to customers with verified SMS consent. Implied consent isn't enough, and anyone who has unsubscribed is never texted. [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]\n- No customer gets more than four marketing texts in a calendar month. [Customer Messaging Policy \u00a74, Frequency]\n- A discount can't exceed 15% or $10, whichever is lower, unless the owner approves it. The offer must also state an expiry date no more than 14 days out and say \"one per customer\". [Customer Messaging Policy \u00a75, Offers in Messages]\n\nIf you want to send a promotion, schedule it between 9am and 8pm in the customers' local time. I can draft it and propose it for approval.",
+       "usage": {
+        "input_tokens": 691,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 366
+       }
+      },
+      "latency_ms": 2890
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a74, Frequency",
+        "Customer Messaging Policy \u00a75, Offers in Messages"
+       ],
+       "retrieved": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a74, Frequency",
+        "Customer Messaging Policy \u00a75, Offers in Messages"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": []
+   },
+   "rep": 2
+  },
+  {
+   "case": {
+    "id": "pol-11",
+    "suite": "policy",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "expected_citations": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "must_mention": [
+     [
+      "15%"
+     ],
+     [
+      "owner",
+      "Linh"
+     ]
+    ]
+   },
+   "gold": null,
+   "grade": {
+    "outcome": "fail",
+    "reasons": [
+     "the answer never says 'owner' or any of 1 other wordings for it"
+    ],
+    "expected": [
+     "Customer Messaging Policy \u00a75, Offers in Messages"
+    ],
+    "found": [
+     "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+     "Customer Messaging Policy \u00a73, Quiet Hours",
+     "Customer Messaging Policy \u00a75, Offers in Messages",
+     "Customer Messaging Policy \u00a76, Required Wording"
+    ]
+   },
+   "trace": {
+    "id": "9cfc68ef-250d-410c-8d7c-55921ff9aecd",
+    "merchant_id": 1,
+    "question": "Can we text our list a 20% off deal?",
+    "created_at": "2026-10-24T15:00:00+00:00",
+    "model": "claude-sonnet-5-5",
+    "status": "answered",
+    "answer": "Not as written. I proposed the campaign, but the check blocked it because 20% is over the 15% cap. Nothing has been sent.\n\nThe policy caps a texted discount at 15% or $10, whichever is lower, unless you approve more [Customer Messaging Policy \u00a75, Offers in Messages]. The check did not accept the 20% offer as approved, so a 15% offer is the safe option.\n\nOnly customers with verified SMS consent who haven't unsubscribed can get marketing texts [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. That is 943 of your 48,179 customers. Customers who only gave a phone number when ordering are excluded.\n\nThe offer must also:\n- Say \"one per customer\" and expire within 14 days [Customer Messaging Policy \u00a75, Offers in Messages].\n- Name the restaurant and end with \"Reply STOP to opt out\" [Customer Messaging Policy \u00a76, Required Wording].\n- Go out outside the 8pm\u20139am quiet hours [Customer Messaging Policy \u00a73, Quiet Hours].\n\nMy draft reads: \"Mekong Noodle House: Enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out.\"\n\nIf you'd like, I can re-propose it at 15% or less. The $10 limit may also apply, so a percentage offer could need to stay under it.",
+    "usage": {
+     "input_tokens": 4418,
+     "cache_read_tokens": 16605,
+     "cache_write_tokens": 0,
+     "output_tokens": 1374
+    },
+    "cost_usd": 0.025897,
+    "latency_ms": 12798,
+    "model_ms": 12415,
+    "tool_ms": 372,
+    "retries": 0,
+    "steps": [
+     {
+      "seq": 1,
+      "actor": "model",
+      "name": "search_policy",
+      "outcome": "proposed",
+      "detail": {
+       "query": "text message campaign rules: consent, quiet hours, offers, discount limits",
+       "usage": {
+        "input_tokens": 104,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 69
+       }
+      },
+      "latency_ms": 1200
+     },
+     {
+      "seq": 2,
+      "actor": "code",
+      "name": "retrieve",
+      "outcome": "4 sections",
+      "detail": {
+       "query": "text message campaign rules: consent, quiet hours, offers, discount limits",
+       "merchant_id": 1,
+       "threshold": 0.4,
+       "hits": [
+        {
+         "label": "Customer Messaging Policy \u00a75, Offers in Messages",
+         "score": 0.6846,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a73, Quiet Hours",
+         "score": 0.6275,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+         "score": 0.5993,
+         "used": true
+        },
+        {
+         "label": "Customer Messaging Policy \u00a76, Required Wording",
+         "score": 0.5753,
+         "used": true
+        }
+       ]
+      },
+      "latency_ms": 347
+     },
+     {
+      "seq": 3,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Count eligible SMS audience",
+       "sql": "select count(*) filter (where sms_opt_in and unsubscribed_at is null) eligible, count(*) total from customers",
+       "usage": {
+        "input_tokens": 687,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 118
+       }
+      },
+      "latency_ms": 1520
+     },
+     {
+      "seq": 4,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "customers"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on customers.merchant_id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT COUNT(*) FILTER(WHERE sms_opt_in AND unsubscribed_at IS NULL) AS eligible, COUNT(*) AS total FROM (SELECT * FROM customers WHERE merchant_id = 1) AS customers LIMIT 500"
+      },
+      "latency_ms": 3
+     },
+     {
+      "seq": 5,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "eligible",
+        "total"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         943,
+         48179
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 19
+     },
+     {
+      "seq": 6,
+      "actor": "model",
+      "name": "run_sql",
+      "outcome": "proposed",
+      "detail": {
+       "purpose": "Restaurant name",
+       "sql": "select name from merchants",
+       "usage": {
+        "input_tokens": 855,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 80
+       }
+      },
+      "latency_ms": 1208
+     },
+     {
+      "seq": 7,
+      "actor": "code",
+      "name": "guard",
+      "outcome": "passed",
+      "detail": {
+       "checks": [
+        {
+         "name": "parses",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "single statement",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "select only",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no writes",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "no unsafe functions",
+         "passed": true,
+         "detail": null
+        },
+        {
+         "name": "allowed tables",
+         "passed": true,
+         "detail": "merchants"
+        },
+        {
+         "name": "tenant scope",
+         "passed": true,
+         "detail": "merchant_id=1 on merchants.id"
+        },
+        {
+         "name": "row limit",
+         "passed": true,
+         "detail": "injected 500"
+        }
+       ],
+       "sql": "SELECT name FROM (SELECT * FROM merchants WHERE id = 1) AS merchants LIMIT 500"
+      },
+      "latency_ms": 2
+     },
+     {
+      "seq": 8,
+      "actor": "code",
+      "name": "execute",
+      "outcome": "ok",
+      "detail": {
+       "columns": [
+        "name"
+       ],
+       "row_count": 1,
+       "rows": [
+        [
+         "Mekong Noodle House"
+        ]
+       ],
+       "truncated": false
+      },
+      "latency_ms": 6
+     },
+     {
+      "seq": 9,
+      "actor": "model",
+      "name": "propose",
+      "outcome": "proposed",
+      "detail": {
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 943 customers with verified SMS consent and no unsubscribe; 20% is above the 15% cap, so it needs your explicit approval.",
+       "reason": "Only verified-consent, non-unsubscribed customers may get marketing texts [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. A discount over 15% or $10 needs owner approval [Customer Messaging Policy \u00a75, Offers in Messages]. The draft has an expiry within 14 days and says one per customer [Customer Messaging Policy \u00a75, Offers in Messages], names the restaurant and ends with the opt-out wording [Customer Messaging Policy \u00a76, Required Wording]. It must not go out between 8pm and 9am [Customer Messaging Policy \u00a73, Quiet Hours].",
+       "order_id": null,
+       "customer_id": null,
+       "amount_cents": null,
+       "discount_pct": 20,
+       "audience_size": 943,
+       "draft_message": "Mekong Noodle House: Enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+       "usage": {
+        "input_tokens": 985,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 644
+       }
+      },
+      "latency_ms": 4696
+     },
+     {
+      "seq": 10,
+      "actor": "code",
+      "name": "check_proposal",
+      "outcome": "blocked",
+      "detail": {
+       "proposal_id": "3d5b89af-953c-43a9-a9db-e29b334ff0f4",
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 943 customers with verified SMS consent and no unsubscribe; 20% is above the 15% cap, so it needs your explicit approval.",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ],
+       "blocked_reason": "20% is over the 15% cap",
+       "audience_size": null,
+       "due_by": null,
+       "needs_owner": false
+      },
+      "latency_ms": 0
+     },
+     {
+      "seq": 11,
+      "actor": "model",
+      "name": "answer",
+      "outcome": "answered",
+      "detail": {
+       "text": "Not as written. I proposed the campaign, but the check blocked it because 20% is over the 15% cap. Nothing has been sent.\n\nThe policy caps a texted discount at 15% or $10, whichever is lower, unless you approve more [Customer Messaging Policy \u00a75, Offers in Messages]. The check did not accept the 20% offer as approved, so a 15% offer is the safe option.\n\nOnly customers with verified SMS consent who haven't unsubscribed can get marketing texts [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. That is 943 of your 48,179 customers. Customers who only gave a phone number when ordering are excluded.\n\nThe offer must also:\n- Say \"one per customer\" and expire within 14 days [Customer Messaging Policy \u00a75, Offers in Messages].\n- Name the restaurant and end with \"Reply STOP to opt out\" [Customer Messaging Policy \u00a76, Required Wording].\n- Go out outside the 8pm\u20139am quiet hours [Customer Messaging Policy \u00a73, Quiet Hours].\n\nMy draft reads: \"Mekong Noodle House: Enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out.\"\n\nIf you'd like, I can re-propose it at 15% or less. The $10 limit may also apply, so a percentage offer could need to stay under it.",
+       "usage": {
+        "input_tokens": 1787,
+        "cache_read_tokens": 3321,
+        "cache_write_tokens": 0,
+        "output_tokens": 463
+       }
+      },
+      "latency_ms": 3791
+     },
+     {
+      "seq": 12,
+      "actor": "code",
+      "name": "citations",
+      "outcome": "passed",
+      "detail": {
+       "cited": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a75, Offers in Messages",
+        "Customer Messaging Policy \u00a76, Required Wording"
+       ],
+       "retrieved": [
+        "Customer Messaging Policy \u00a72, Who May Receive Marketing Texts",
+        "Customer Messaging Policy \u00a73, Quiet Hours",
+        "Customer Messaging Policy \u00a75, Offers in Messages",
+        "Customer Messaging Policy \u00a76, Required Wording"
+       ],
+       "not_retrieved": []
+      },
+      "latency_ms": 0
+     }
+    ],
+    "proposals": [
+     {
+      "id": "3d5b89af-953c-43a9-a9db-e29b334ff0f4",
+      "merchant_id": 1,
+      "trace_id": "9cfc68ef-250d-410c-8d7c-55921ff9aecd",
+      "created_at": "2026-10-24T15:00:00+00:00",
+      "kind": "sms_campaign",
+      "summary": "Text 20% off to the 943 customers with verified SMS consent and no unsubscribe; 20% is above the 15% cap, so it needs your explicit approval.",
+      "status": "blocked",
+      "payload": {
+       "kind": "sms_campaign",
+       "summary": "Text 20% off to the 943 customers with verified SMS consent and no unsubscribe; 20% is above the 15% cap, so it needs your explicit approval.",
+       "reason": "Only verified-consent, non-unsubscribed customers may get marketing texts [Customer Messaging Policy \u00a72, Who May Receive Marketing Texts]. A discount over 15% or $10 needs owner approval [Customer Messaging Policy \u00a75, Offers in Messages]. The draft has an expiry within 14 days and says one per customer [Customer Messaging Policy \u00a75, Offers in Messages], names the restaurant and ends with the opt-out wording [Customer Messaging Policy \u00a76, Required Wording]. It must not go out between 8pm and 9am [Customer Messaging Policy \u00a73, Quiet Hours].",
+       "discount_pct": 20,
+       "audience_size": 943,
+       "draft_message": "Mekong Noodle House: Enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+       "checks": [
+        {
+         "name": "discount",
+         "passed": false,
+         "detail": "20% is over the 15% cap"
+        }
+       ]
+      },
+      "blocked_reason": "20% is over the 15% cap",
+      "audience_size": null,
+      "discount_pct": 20,
+      "draft_message": "Mekong Noodle House: Enjoy 20% off your next order, one per customer. Offer expires 2026-11-06. Reply STOP to opt out",
+      "decided_at": null
+     }
+    ]
+   },
+   "rep": 2
+  }
+ ]
+}
