@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Kicker } from "@/components/kicker";
 import { pageMetadata } from "@/lib/site";
 import { EveryCase } from "@/components/every-case";
@@ -49,18 +48,8 @@ export default function EvaluationPage() {
           The experiment. The same {s.cases} questions, re-run each time I change one variable.
         </h1>
         <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
-          So far that variable has been the retrieval threshold, then five lines in the prompt.
-          Next is the citation label. Each run below says what moved, what it cost, and what I
-          decided.
-        </p>
-        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-          The{" "}
-          <Link href="/scenarios" className="text-primary underline-offset-4 hover:underline">
-            scenarios
-          </Link>{" "}
-          are stories. This is the experiment behind them: the right answer written down before
-          the model sees the question, the same agent and the same prompt as the site, a frozen
-          copy of the data, and code doing the grading.
+          Every run attempts to fix at least one failing case while observing whether the
+          remaining cases succeed or fail.
         </p>
       </section>
 
@@ -72,7 +61,7 @@ export default function EvaluationPage() {
         title="Does the agent interpret the question how an owner would?"
         question="A query can pass all eight safety checks and still answer a different question from the one the owner asked. I wanted to know how often that happens, because nothing in the system would tell me."
         ran="Ten questions where specific words carry a unique definition for each owner: 'lunch', 'regular', 'summer', 'lift', 'net payout'. For each one I wrote the query, ran it against a frozen database, and kept the figure. The model never sees the query. The grader reads every number in the model's answer and passes the case if one of them is within the case's tolerance of mine."
-        found="9 of 10 on the first two runs, the same miss both times: a query that converted time zones in the wrong direction on a retry after a timeout, so September started ten hours early and ended ten hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64. For the third run I added five lines to the prompt saying how to write a local-time boundary, and it came back 10 of 10 with the first query clean."
+        found="9 of 10 on the first two runs, the same miss both times: a query that converted time zones in the wrong direction on a retry after a timeout, so September started ten hours early and ended ten hours early. It passed the guard, ran clean, and came back $2.49 against my $2.64. For the third run I added five lines to the prompt saying how to write a local-time boundary, and it came back 10 of 10 with the first query clean. The fourth run hit the timeout and retry again, and the retry kept the right window."
         decided="Nothing catches this at runtime, and nothing in the guard could, because the query is safe. So I measure it instead of pretending to enforce it, and I put my query beside the model's on every case so a reader can see where the two read a word differently. The prompt line fixed the one mistake I had seen. It is a patch, not a catch: a wrong window written some other way would still pass. The check that would catch it, code comparing a query's date window with the dates in the question, is still on the list."
       >
         <Failures results={sql} />
@@ -84,8 +73,8 @@ export default function EvaluationPage() {
         title="Does the agent find the right rule?"
         question="When an owner asks what is allowed, the agent searches their policies and only sees the sections that score above a similarity threshold. If the right section scores under that line, the agent is told nothing matched and answers as if there is no rule. I wanted to know how often that happens."
         ran={`${policy.length} policy questions, each with the section I expect it to cite. The first run used a threshold of 0.50, a number I picked from ten captured runs because real matches scored above 0.55 and near misses below 0.49. The second run changed that one number to ${s.retrieval_threshold.toFixed(2)} and nothing else.`}
-        found={`11 of ${policy.length} on both threshold runs, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counts as a fail. Recall went from 86% to ${pct(s.retrieval.recall)}. Precision went from 46% to ${pct(s.retrieval.precision)}. The third run changed the prompt, not the threshold, and the retrieval picture stayed where it was: the 0.30 section still hidden, the Allergies section still shown.`}
-        decided="The two errors are not equal. An extra section shown is mostly ignored, and when the agent did lean on one it said that it did not apply. A hidden section makes the agent say there is no rule, and the owner has no way to see through that. So 0.40 stays. It rescued one rule, cost 17 points of precision and one grade, and showed that my rule for a not-covered case (nothing shown, nothing cited) is stricter than the behaviour I want. The miss at 0.28 is unchanged. No threshold reaches it. That one is about the wording of the search, and it is still open."
+        found={`11 of ${policy.length} on both threshold runs, and the same score hides a trade. At 0.50 two misses were the same failure: the right section scored 0.47 and 0.28, the agent was shown nothing, and it said the policies do not cover it. At 0.40 the 0.47 case passes. In its place, a question the policies really do not cover (health inspections) pulls in the Allergies section at 0.41, and the agent cites it to say it does not apply, which the grader counts as a fail. Recall went from 86% to 93%. Precision went from 46% to 29%. The third run changed the prompt, not the threshold, and the retrieval picture stayed where it was. In the fourth run the 0.28 section came through at 0.51, because the agent happened to word its search differently, and recall reached ${pct(s.retrieval.recall)}.`}
+        decided="The two errors are not equal. An extra section shown is mostly ignored, and when the agent did lean on one it said that it did not apply. A hidden section makes the agent say there is no rule, and the owner has no way to see through that. So 0.40 stays. It rescued one rule, cost 17 points of precision and one grade, and showed that my rule for a not-covered case (nothing shown, nothing cited) is stricter than the behaviour I want. The miss at 0.28 passed once, on a run that changed nothing about retrieval, because the agent worded the search better that time. No threshold reaches it on the other wordings. That case is about the wording of the search, one pass does not close it, and the grader rule is the next change."
       >
         <Failures results={policy.filter((r) => !CITATION_CASES.includes(r.case.id))} />
       </Experiment>
@@ -96,8 +85,8 @@ export default function EvaluationPage() {
         title="Does the agent cite only what it was shown?"
         question="An answer that cites a section the agent was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
         ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
-        found="It fired on four answers across three runs, every one of them right. The agent cites the first section with its full label, then shortens a later one: [§5], [§4, Frequency], or the document name without the section title. The step failed each. The campaign case failed all three runs, each time on a different shortening, and the quiet hours case failed only in run 2. A formatting slip, caught by code, and counted against the agent because that is what the check is for."
-        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could let the step accept a short label when it matches exactly one retrieved section, or tell the agent in the prompt to write the full label every time. I lean to the second, because the check is the part I trust and I would rather not teach it to guess. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
+        found="It fired on four answers across the first three runs, every one of them right. The agent cited the first section with its full label, then shortened a later one: [§5], [§4, Frequency], or the document name without the section title. The step failed each. The campaign case failed all three runs, each time on a different shortening, and the quiet hours case failed only in run 2. For the fourth run I added two sentences to the prompt: write the whole label every time, never shorten it. No short label anywhere in that run, and both cases passed."
+        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and one run says it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
       >
         <Failures results={policy.filter((r) => CITATION_CASES.includes(r.case.id))} />
       </Experiment>

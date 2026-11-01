@@ -79,6 +79,7 @@ export type RunRecord = {
 const RUN1 = "20261030T025434Z";
 const RUN2 = "20261031T035921Z";
 const RUN3 = "20261101T024005Z";
+const RUN4 = "20261101T025433Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -132,6 +133,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. The first query used the form the prompt now spells out, a plain timestamp literal converted at each boundary, and it ran clean in one go: 2,633 in-store orders, 1,269 DoorDash, $30.11 against $27.47, a gap of $2.64.",
       "One line in the prompt fixed the mistake it was making. It did not make the mistake catchable. A wrong window written some other way would still pass the guard.",
     ],
+    [RUN4]: [
+      "Passed. The first query timed out on a per-order fee subquery, as in the first two runs, and the retry kept the window at September 1 to October 1 in local time. $30.11 against $27.47, $2.64.",
+      "The retry is where the slip used to happen. Two runs now with the line in the prompt, and it has held both times.",
+    ],
   },
   "pol-02": {
     [RUN1]: [
@@ -149,6 +154,11 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "This time the model named that section in plain words without citing it, said it does not cover DoorDash, and said it could not find a deadline. The citations step failed the answer because sections were shown and none was cited.",
       "Same wrong answer for the owner as in both earlier runs. The prompt line about dates had no bearing on it.",
     ],
+    [RUN4]: [
+      "Passed, and not because of the change in this run. The agent worded its second search as marketplace terms, disputes, chargebacks, window, days, DoorDash, and the Delivery Marketplaces section scored 0.51 against it. The earlier wordings scored it at 0.28 and 0.30.",
+      "The answer says the policies give no deadline because Ridgeline is not on DoorDash, and cites the section. That is the answer the owner needed, three runs late.",
+      "One pass on a search the agent words differently each time is not a fix. It is the evidence that this case turns on the wording of the search.",
+    ],
   },
   "pol-03": {
     [RUN1]: [
@@ -163,6 +173,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN3]: [
       "Passed. The same four sections were shown as in run 2, and this time all four citations carried the full document name.",
       "Nothing changed for this case between run 2 and run 3. The slip is a coin toss until the label rule changes.",
+    ],
+    [RUN4]: [
+      "Passed. Three citations, all with the full label, after the prompt said to write the whole label every time.",
     ],
   },
   "pol-05": {
@@ -180,6 +193,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "As in run 2: the Allergies section was shown at 0.41, and the model cited it while saying it could not find a rule on health inspections.",
       "The grader also missed the phrase it looks for, because the answer says it could not find a rule rather than that the policies do not cover it. Two grader rules, one honest answer.",
     ],
+    [RUN4]: [
+      "As in runs 2 and 3. The Allergies section was shown at 0.41, the agent said the policies do not cover health inspections, and cited the section while saying it sets no inspection rule.",
+      "Three runs the same way. The answer is right every time, and the grader's rule for a not-covered case is the thing that has to change.",
+    ],
   },
   "pol-11": {
     [RUN1]: [
@@ -195,6 +212,10 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Right answer, campaign blocked, for the third time.",
       "One short label again, a different one: [Customer Messaging Policy §5] with the document name but without the section title. The citations step failed it. Three runs, three different shortenings, the same check.",
     ],
+    [RUN4]: [
+      "Passed for the first time. Right answer, campaign blocked, four citations, every one with the full label.",
+      "Where the agent referred back to a section in prose it wrote the name without brackets, and the check only reads brackets, so that is fine.",
+    ],
   },
   "pol-12": {
     [RUN1]: [
@@ -208,6 +229,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN3]: [
       "Passed. Discounts came through at 0.41 on the first search, and a second search found the owner's definition of a regular at 0.62.",
       "The answer cites all three sections with full labels and says 25% needs the owner.",
+    ],
+    [RUN4]: [
+      "Passed. Discounts scored 0.53 on the first search this time, and the owner's definition of a regular 0.62 on the second.",
     ],
   },
 };

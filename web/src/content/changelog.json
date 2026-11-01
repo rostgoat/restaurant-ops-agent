@@ -33,5 +33,16 @@
     ],
     "result": "35 of 38, $0.46 for the run.",
     "conclusion": "The time zone slip is gone: ten of ten sql. Two policy cases flipped the other way for reasons that have nothing to do with the prompt line. The citation slip, which had passed the earlier case in run 1 and failed it in run 2, passed it again and failed the campaign case a third time, so that one is a coin toss until the label rule changes. The not-covered case failed as in run 2. The hidden section at 0.30 is still hidden. Next is the citation label."
+  },
+  {
+    "run": "20261101T025433Z",
+    "date": "2026-11-01",
+    "title": "Fourth run: the prompt says to write the whole citation label every time",
+    "changed": [
+      "Two sentences added after the citing rule in the prompt: write the whole label every time, including when citing the same section again, and never shorten it to [§2] or [House Policy §2]. Nothing else changed.",
+      "Before the full run, the two cases that had slipped were run three times each on their own. All six passed the citations step."
+    ],
+    "result": "37 of 38, $0.47 for the run.",
+    "conclusion": "No short label anywhere in the run. The campaign case passed for the first time. The hidden section also came through, and not because of this change: the agent worded its second search differently and the section scored 0.51 against it, after 0.28 and 0.30 against the earlier wordings. That is the search wording deciding the answer, and one pass does not settle it. The one failure left is the not-covered case, where the answer is right and my grader's rule is wrong. Next is the grader."
   }
 ]
