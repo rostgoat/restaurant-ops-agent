@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
-    <NextThemes attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+    <NextThemes attribute="class" defaultTheme="dark" enableSystem={false} disableTransitionOnChange>
       {children}
     </NextThemes>
   );
