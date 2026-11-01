@@ -121,6 +121,7 @@ CREATE TABLE policy_chunks (
     section     text         NOT NULL,
     body        text         NOT NULL,
     embedding   vector(1536) NOT NULL,
+    search      tsvector     GENERATED ALWAYS AS (to_tsvector('english', body)) STORED,
     UNIQUE (merchant_id, document, section)
 );
 

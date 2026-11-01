@@ -10,7 +10,7 @@ from uuid import uuid4
 
 import anthropic
 
-from app.policies.search import Hit, PolicySearch, hits_payload
+from app.policies.search import Hit, PolicySearch, hits_payload, shown_by
 from app.sql.execute import QueryError, QueryRunner
 from app.sql.guard import DEFAULT_ROW_LIMIT, guard
 
@@ -310,7 +310,7 @@ def _search_policy(
     hits: list[Hit] = policies.search(merchant_id, query, limit=settings.retrieval_limit)
     elapsed = _ms(t0)
     trace.tool_ms += elapsed
-    used = [h for h in hits if h.score >= settings.retrieval_threshold]
+    used = [h for h in hits if shown_by(h, settings.retrieval_threshold)]
     detail = {"query": query, "merchant_id": merchant_id} | hits_payload(
         hits, settings.retrieval_threshold
     )

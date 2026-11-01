@@ -384,7 +384,13 @@ function Checked({ step }: { step: Step }) {
   );
 }
 
-type RetrievedHit = { label: string; score: number; used: boolean };
+type RetrievedHit = { label: string; score: number; used: boolean; word_rank?: number | null; shown_by?: string | null };
+
+const SHOWN_BY: Record<string, string> = {
+  meaning: "",
+  words: " (shown for its words: the best word match, under the threshold)",
+  both: " (close in meaning and the best word match)",
+};
 
 function Retrieved({ step }: { step: Step }) {
   const d = step.detail ?? {};
@@ -395,14 +401,15 @@ function Retrieved({ step }: { step: Step }) {
     <>
       <Title>{none ? "Nothing in the policies came close enough" : `Retrieved ${step.outcome}`}</Title>
       <p className="text-sm text-muted-foreground">
-        Searched this restaurant&apos;s policies only. Threshold {String(d.threshold)}; the model
-        saw only the sections above it.
+        Searched this restaurant&apos;s policies only, by meaning and by words. Threshold{" "}
+        {String(d.threshold)} on the meaning score; the model saw the sections above it, and the
+        one section whose words matched best.
       </p>
       <ul className="mt-2 space-y-1 text-sm">
         {hits.map((h) => (
           <li key={h.label} className={cn(!h.used && "text-muted-foreground")}>
             <span className="font-sql">{h.score.toFixed(2)}</span> {h.label}
-            {!h.used && " (below threshold)"}
+            {h.used ? SHOWN_BY[h.shown_by ?? "meaning"] : " (not shown)"}
           </li>
         ))}
       </ul>

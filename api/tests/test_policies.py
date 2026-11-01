@@ -14,7 +14,7 @@ from anthropic.types import ToolUseBlock
 
 from app.agent import Settings, answer
 from app.policies import FakeEmbedder, Hit, parse_document, read_policies
-from app.policies.search import as_vector, hits_payload
+from app.policies.search import as_vector, fuse, hits_payload, shown_by
 
 from .fakes import FakeClient, FakeRunner, reply, text
 
@@ -109,17 +109,59 @@ def test_vectors_serialise_for_postgres():
     assert as_vector([0.5, 1.0]) == "[0.5,1.0]"
 
 
-def test_hits_payload_marks_what_was_used():
-    hits = [Hit("House Policy §2, Comps", "…", 0.52), Hit("House Policy §3, Refunds", "…", 0.21)]
-    payload = hits_payload(hits, 0.30)
-    assert payload["threshold"] == 0.30
-    assert [(h["label"], h["used"]) for h in payload["hits"]] == [
-        ("House Policy §2, Comps", True),
-        ("House Policy §3, Refunds", False),
+def test_hits_payload_marks_what_was_used_and_why():
+    hits = [
+        Hit("House Policy §2, Comps", "…", 0.52),
+        Hit("House Policy §3, Refunds", "…", 0.21),
+        Hit("Online Ordering and Loyalty Policy §2, Delivery Marketplaces", "…", 0.36, word_rank=1),
+        Hit("House Policy §5, Online Orders", "…", 0.30, word_rank=2),
     ]
+    payload = hits_payload(hits, 0.5)
+    assert [h["shown_by"] for h in payload["hits"]] == ["meaning", None, "words", None]
+    assert [h["used"] for h in payload["hits"]] == [True, False, True, False]
+    assert shown_by(Hit("x", "…", 0.6, word_rank=1), 0.5) == "both"
 
 
-# ------------------------------------------------------------ the loop
+def test_the_best_word_match_surfaces_under_the_threshold():
+    rows = [
+        ("House Policy", "5. Online Orders", "Square Online pickup orders.", 0.43, 0.0),
+        ("House Policy", "3. Refunds", "Refunds within 7 days.", 0.40, 0.0),
+        ("Online Ordering and Loyalty Policy", "2. Delivery Marketplaces", "Not us", 0.36, 0.1),
+        ("House Policy", "1. Scope", "Who this applies to.", 0.33, 0.0),
+    ]
+    hits = fuse(rows, limit=4)
+    assert hits[0].label == "Online Ordering and Loyalty Policy §2, Delivery Marketplaces"
+    assert hits[0].word_rank == 1
+    assert [h.word_rank for h in hits[1:]] == [None, None, None]
+
+
+def test_a_word_match_is_shown_to_the_model_and_cited():
+    client = FakeClient(
+        reply(search_policy("DoorDash dispute deadline")),
+        reply(
+            text(
+                "Ridgeline is not on DoorDash "
+                "[Online Ordering and Loyalty Policy §2, Delivery Marketplaces]."
+            )
+        ),
+    )
+    search = FakeSearch(
+        [
+            Hit("House Policy §5, Online Orders", "Square Online pickup orders.", 0.43),
+            Hit(
+                "Online Ordering and Loyalty Policy §2, Delivery Marketplaces",
+                "Not on DoorDash.",
+                0.36,
+                word_rank=1,
+            ),
+        ]
+    )
+    trace = ask("q", client, search, Settings(retrieval_threshold=0.40))
+    retrieve = next(s for s in trace.steps if s.name == "retrieve")
+    assert retrieve.outcome == "2 sections"
+    assert [h["shown_by"] for h in retrieve.detail["hits"]] == ["meaning", "words"]
+    assert trace.status == "answered"
+    assert next(s for s in trace.steps if s.name == "citations").outcome == "passed"
 
 
 def test_a_policy_question_retrieves_then_answers_with_a_checked_citation():
@@ -144,7 +186,13 @@ def test_a_policy_question_retrieves_then_answers_with_a_checked_citation():
     ]
     assert search.calls == [(1, "manager comp limit", 4)]
     retrieve = trace.steps[1].detail
-    assert retrieve["hits"][0] == {"label": "House Policy §2, Comps", "score": 0.61, "used": True}
+    assert retrieve["hits"][0] == {
+        "label": "House Policy §2, Comps",
+        "score": 0.61,
+        "word_rank": None,
+        "used": True,
+        "shown_by": "meaning",
+    }
     assert retrieve["hits"][1]["used"] is False
     sent = json.loads(client.requests[1]["messages"][2]["content"][0]["content"])
     assert sent == {

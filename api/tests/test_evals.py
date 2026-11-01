@@ -138,7 +138,10 @@ def test_a_not_covered_question_is_judged_by_what_the_answer_says():
     shown_nothing = trace(answer="The policies do not cover that.", steps=cited([], used=[]))
     assert grade(case, shown_nothing).outcome == "pass"
     dismissed = trace(
-        answer="The policies do not cover that. The nearest section is [House Policy §7, Allergies], which says nothing about it.",
+        answer=(
+            "The policies do not cover that. The nearest section is "
+            "[House Policy §7, Allergies], which says nothing about it."
+        ),
         steps=cited(["House Policy §7, Allergies"]),
     )
     assert grade(case, dismissed).outcome == "pass"

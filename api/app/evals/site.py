@@ -51,7 +51,8 @@ def traces(run: dict[str, Any]) -> dict[str, Any]:
 
 def main() -> None:
     entries = json.loads(CHANGELOG.read_text())
-    loaded = [(e, json.loads((RUNS / f"{e['run']}.json").read_text())) for e in entries if e.get("run")]
+    runs = [e for e in entries if e.get("run")]
+    loaded = [(e, json.loads((RUNS / f"{e['run']}.json").read_text())) for e in runs]
     OUT.write_text(json.dumps([slim(e, run) for e, run in loaded], indent=1) + "\n")
     TRACES.write_text(json.dumps({e["run"]: traces(run) for e, run in loaded}) + "\n")
     print(f"wrote {OUT} and {TRACES} with {len(loaded)} runs")
