@@ -1,3 +1,4 @@
+import Markdown from "react-markdown";
 import { Kicker } from "@/components/kicker";
 import { pageMetadata } from "@/lib/site";
 import { EveryCase } from "@/components/every-case";
@@ -164,7 +165,9 @@ function Runs() {
             <h3 className="mt-2 text-2xl">{e.title}</h3>
             <ul className="mt-4 list-disc space-y-2 pl-5 text-lg leading-relaxed text-muted-foreground">
               {e.changed.map((c) => (
-                <li key={c}>{c}</li>
+                <li key={c}>
+                  <Inline text={c} />
+                </li>
               ))}
             </ul>
             <p className="mt-4 text-lg leading-relaxed">
@@ -240,6 +243,24 @@ function passed(results: Result[]): number {
 
 function pct(v: number | null): string {
   return v === null ? "n/a" : `${Math.round(v * 100)}%`;
+}
+
+// One changelog line, with a markdown link allowed and no paragraph wrapper.
+function Inline({ text }: { text: string }) {
+  return (
+    <Markdown
+      components={{
+        p: ({ children }) => <>{children}</>,
+        a: ({ href, children }) => (
+          <a href={href} className="text-primary underline-offset-4 hover:underline">
+            {children}
+          </a>
+        ),
+      }}
+    >
+      {text}
+    </Markdown>
+  );
 }
 
 function longDate(iso: string): string {

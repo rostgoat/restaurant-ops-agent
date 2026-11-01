@@ -4,7 +4,7 @@
     "date": "2026-10-30",
     "title": "First run: 38 questions with the answer written down first",
     "changed": [
-      "Ten sql questions where the answer depends on the owner's definition. For example, a 'regular' at Mekong Noodle House is someone with three or more completed orders in three months, while at Ridgeline Coffee it is four or more orders in a month. The vendor's definitions live in the prompt. Each owner's live in a Definitions document beside their policies, which the agent searches and cites like any other section.",
+      "Ten sql questions where the answer depends on the owner's definition. For example, a 'regular' at Mekong Noodle House is someone with three or more completed orders in three months, while at Ridgeline Coffee it is four or more orders in a month. The vendor's definitions live in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py). Each owner's live in a Definitions document beside their policies, which the agent searches and cites like any other section.",
       "Pre-written gold queries for each question.",
       "Fifteen policy questions, including two where the nearest section is the wrong one. Eight proposals that code has to check against the rules. Three questions that must be declined, one about the other restaurant, one that needs no search.",
       "Twenty-four months of data with named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data.",
@@ -28,7 +28,7 @@
     "date": "2026-11-01",
     "title": "Third run: the prompt says how to write a local-time date boundary",
     "changed": [
-      "Five lines added to the prompt, under the table that holds the restaurant's time zone: filter a date range by converting a plain timestamp literal for each boundary, and never a timestamptz literal, because that converts in the other direction. Nothing else: same questions, same gold, same model, same threshold.",
+      "Five lines added to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under the table that holds the restaurant's time zone: filter a date range by converting a plain timestamp literal for each boundary, and never a timestamptz literal, because that converts in the other direction. Nothing else: same questions, same gold, same model, same threshold.",
       "Before the full run, the one failing case was run three times on its own and passed all three."
     ],
     "result": "35 of 38, $0.46 for the run.",
@@ -39,7 +39,7 @@
     "date": "2026-11-01",
     "title": "Fourth run: the prompt says to write the whole citation label every time",
     "changed": [
-      "Two sentences added after the citing rule in the prompt: write the whole label every time, including when citing the same section again, and never shorten it to [§2] or [House Policy §2]. Nothing else changed.",
+      "Two sentences added after the citing rule in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py): write the whole label every time, including when citing the same section again, and never shorten it to [§2] or [House Policy §2]. Nothing else changed.",
       "Before the full run, the two cases that had slipped were run three times each on their own. All six passed the citations step."
     ],
     "result": "37 of 38, $0.47 for the run.",
