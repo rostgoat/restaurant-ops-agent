@@ -99,11 +99,13 @@ export default function ArchitecturePage() {
           four tools. <Code>run_sql</Code> writes one <Code>SELECT</Code> and says what it answers.{" "}
           <Code>search_policy</Code> asks for the rules on a topic. <Code>propose</Code> drafts an
           action: a dispute, a text campaign, a comp or a note to the owner. <Code>decline</Code>{" "}
-          turns the question down and says why. The model can call up
-          to six tools in one request, in any order, or answer in plain text with none. None of the
-          four can write, send or file anything. A question that tells the model to delete or
-          change something, like the injection case in the evaluation, has no tool to do it with.{" "}
-          <File path="api/app/agent/tools.py" />
+          turns the question down and says why.
+        </p>
+        <p className="mt-4">
+          The model can call up to six tools in one request, in any order, or answer in plain
+          text with none. None of the four can write, send or file anything. A question that
+          tells the model to delete or change something, like the injection case in the
+          evaluation, has no tool to do it with. <File path="api/app/agent/tools.py" />
         </p>
 
         <Separator className="my-14" />
@@ -113,12 +115,20 @@ export default function ArchitecturePage() {
         <p>
           The guard takes the SQL apart with <Code>sqlglot</Code> into the parts the database would see, a
           parse tree, instead of reading it as text. A string match misses a write hidden behind a
-          comment or odd casing. A parsed query cannot hide one. It runs eight
-          checks: the query parses, it is one statement, it is a <Code>SELECT</Code>, it contains no write, it
-          calls no function that reads files or reaches the network, it reads only the seven
-          allowed tables, it is scoped to one restaurant, and it fits under a row limit. The scope
-          check does not look for a restaurant filter in the query. It adds one. Every table in the query is replaced
-          by that restaurant&apos;s rows, so a join or a subquery cannot reach another restaurant.
+          comment or odd casing. A parsed query cannot hide one.
+        </p>
+        <p className="mt-4">
+          It runs eight checks: the query parses, it is one statement, it is a{" "}
+          <Code>SELECT</Code>, it contains no write, it calls no function that reads files or
+          reaches the network, it reads only the seven allowed tables, it is scoped to one
+          restaurant, and it fits under a row limit.
+        </p>
+        <p className="mt-4">
+          The scope check does not look for a restaurant filter in the query. It adds one. Every
+          table in the query is replaced by that restaurant&apos;s rows, so a join or a subquery
+          cannot reach another restaurant.
+        </p>
+        <p className="mt-4">
           A blocked query goes back to the model with the name of the check that failed, and the
           model can try again. If nothing runs, the trace ends as blocked.{" "}
           <File path="api/app/sql/guard.py" />
@@ -144,19 +154,26 @@ export default function ArchitecturePage() {
           Each restaurant has three policy documents written as a manual, with numbered sections.
           Each section is stored in Postgres with an embedding, using <Code>pgvector</Code>, and
           with the search form of its words. A search is limited to the asking restaurant before
-          any score is computed, the same way the guard limits a query. Every section is then
-          scored two ways: how close its meaning is to the search, and how many of the
-          search&apos;s words it contains, each word weighted by how rare it is in that
-          restaurant&apos;s policies. The two rankings are merged by rank. Up to four sections
-          come back. The model sees those with a meaning score above{" "}
-          {s.retrieval_threshold.toFixed(2)}, and the one section whose words match best even
-          when its meaning score is under the bar. The rest are written to the trace but not
-          shown, and the trace records which score showed each section. When nothing qualifies,
-          the model is told so. I chose a threshold over a fixed top four because a question the
-          policies do not cover should return nothing, not the nearest miss, and added the word
-          match because an embedding does not see a name like DoorDash that a section is about.
-          The two restaurants&apos; rules differ on purpose, so a section from the wrong
-          restaurant would be a wrong decision, not just a wrong answer.{" "}
+          any score is computed, the same way the guard limits a query. The two restaurants&apos;
+          rules differ on purpose, so a section from the wrong restaurant would be a wrong
+          decision, not just a wrong answer.
+        </p>
+        <p className="mt-4">
+          Every section is scored two ways: how close its meaning is to the search, and how many
+          of the search&apos;s words it contains, each word weighted by how rare it is in that
+          restaurant&apos;s policies. The two rankings are merged by rank, and up to four
+          sections come back.
+        </p>
+        <p className="mt-4">
+          The model sees those with a meaning score above {s.retrieval_threshold.toFixed(2)}, and
+          the one section whose words match best even when its meaning score is under the bar.
+          The rest are written to the trace but not shown, and the trace records which score
+          showed each section. When nothing qualifies, the model is told so.
+        </p>
+        <p className="mt-4">
+          I chose a threshold over a fixed top four because a question the policies do not cover
+          should return nothing, not the nearest miss. I added the word match because an
+          embedding does not see a name like DoorDash that a section is about.{" "}
           <File path="api/app/policies/search.py" />
         </p>
 
@@ -168,11 +185,15 @@ export default function ArchitecturePage() {
           A proposal is structured: a kind, an order or customer, an amount or a discount, an
           audience, a draft message. Code checks it against a limits file kept beside each
           restaurant&apos;s policies: dispute windows per platform, the discount cap, the consent
-          rule, the audience cap, the comp limit, the required opt-out wording. For a text
-          campaign the checker counts the audience itself from the consent flags in the data and
-          overwrites whatever the model claimed. A proposal ends pending, pending for the owner,
-          or blocked with the reason. Nothing is sent, filed or comped at this point.{" "}
-          <File path="api/app/agent/proposals.py" />
+          rule, the audience cap, the comp limit, the required opt-out wording.
+        </p>
+        <p className="mt-4">
+          For a text campaign the checker counts the audience itself from the consent flags in
+          the data and overwrites whatever the model claimed.
+        </p>
+        <p className="mt-4">
+          A proposal ends pending, pending for the owner, or blocked with the reason. Nothing is
+          sent, filed or comped at this point. <File path="api/app/agent/proposals.py" />
         </p>
 
         <Separator className="my-14" />
@@ -183,9 +204,11 @@ export default function ArchitecturePage() {
           The model cites the sections it used in brackets, like [House Policy §2, Comps]. After
           the answer, code checks every citation against the sections that were retrieved. A
           citation to a section the model was not shown fails the check. So does an answer that
-          used policy and cites nothing. The answer still goes out, and the trace shows the failed
-          check. On the site a citation opens the section it names.{" "}
-          <File path="api/app/agent/loop.py" />
+          used policy and cites nothing.
+        </p>
+        <p className="mt-4">
+          The answer still goes out, and the trace shows the failed check. On the site a citation
+          opens the section it names. <File path="api/app/agent/loop.py" />
         </p>
 
         <Separator className="my-14" />
@@ -206,10 +229,13 @@ export default function ArchitecturePage() {
         </h2>
         <p>
           Every step is a row: who did it, the model, code or a person, what it decided, how long
-          it took. Each model turn records its tokens, including how many came from the prompt
-          cache, and the trace prices the request from the published rates. The cost per question
-          on the Evaluation page is the sum of those rows, and every trace on that page is
-          rendered from them. <File path="api/app/agent/trace.py" />
+          it took.
+        </p>
+        <p className="mt-4">
+          Each model turn records its tokens, including how many came from the prompt cache, and
+          the trace prices the request from the published rates. The cost per question on the
+          Evaluation page is the sum of those rows, and every trace on that page is rendered from
+          them. <File path="api/app/agent/trace.py" />
         </p>
 
         <Separator className="my-14" />
