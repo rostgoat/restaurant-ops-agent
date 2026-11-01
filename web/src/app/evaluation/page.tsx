@@ -252,7 +252,7 @@ function Inline({ text }: { text: string }) {
       components={{
         p: ({ children }) => <>{children}</>,
         a: ({ href, children }) => (
-          <a href={href} className="text-primary underline-offset-4 hover:underline">
+          <a href={href} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">
             {children}
           </a>
         ),
