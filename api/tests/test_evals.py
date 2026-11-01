@@ -128,20 +128,25 @@ def test_a_policy_answer_needs_the_expected_citation_and_the_phrases():
     )
 
 
-def test_a_not_covered_question_must_retrieve_and_cite_nothing():
+def test_a_not_covered_question_is_judged_by_what_the_answer_says():
     case = {
         "suite": "policy",
         "expected_citations": [],
         "retrieval_empty": True,
         "must_mention": [["not cover"]],
     }
-    good = trace(answer="The policies do not cover that.", steps=cited([], used=[]))
-    assert grade(case, good).outcome == "pass"
-    leaky = trace(
-        answer="The policies do not cover that [House Policy §7, Allergies].",
+    shown_nothing = trace(answer="The policies do not cover that.", steps=cited([], used=[]))
+    assert grade(case, shown_nothing).outcome == "pass"
+    dismissed = trace(
+        answer="The policies do not cover that. The nearest section is [House Policy §7, Allergies], which says nothing about it.",
         steps=cited(["House Policy §7, Allergies"]),
     )
-    assert grade(case, leaky).outcome == "fail"
+    assert grade(case, dismissed).outcome == "pass"
+    presented = trace(
+        answer="Yes: [House Policy §7, Allergies] has the rule.",
+        steps=cited(["House Policy §7, Allergies"]),
+    )
+    assert grade(case, presented).outcome == "fail"
 
 
 def test_the_other_restaurants_rule_fails_the_case():

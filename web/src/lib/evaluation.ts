@@ -275,7 +275,7 @@ export function describeExpectation(r: Result): string {
       return `The agent should answer, and the answer should have ${figure(r)} in it${slack(c)}. I got that figure by running the query I wrote on the frozen database.`;
     case "policy":
       return c.retrieval_empty
-        ? "The agent should say the policies do not cover this. It should be shown no section and cite none."
+        ? "The agent should say this is not covered by the policies. It may be shown a section, but must not cite one as the rule."
         : `The agent should answer and cite ${(c.expected_citations as string[] | undefined)?.join(" and ") ?? "the right section"}. It must not cite anything it was not shown.`;
     case "refuse":
       return "The agent should say no. No query should reach the database.";

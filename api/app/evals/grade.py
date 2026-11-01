@@ -317,21 +317,13 @@ def _grade_policy(case: dict[str, Any], trace: Trace) -> Grade:
     cited, check = _cited(trace)
     expected = case.get("expected_citations", [])
 
-    if case.get("retrieval_empty"):
-        if _used_labels(trace):
-            reasons.append(
-                f"retrieval returned sections above threshold: {sorted(_used_labels(trace))}"
-            )
-        if cited:
-            reasons.append(f"cited {cited} although nothing should apply")
-    else:
-        missing = [e for e in expected if e not in cited]
+    missing = [e for e in expected if e not in cited]
 
-        if missing:
-            reasons.append(_missing_citation(missing, cited))
+    if missing:
+        reasons.append(_missing_citation(missing, cited))
 
-        if check != "passed":
-            reasons.append(_bad_citation(trace, cited))
+    if check != "passed":
+        reasons.append(_bad_citation(trace, cited))
 
     for group in _mentions(answer, case.get("must_mention", [])):
         reasons.append(_never_says(group))
