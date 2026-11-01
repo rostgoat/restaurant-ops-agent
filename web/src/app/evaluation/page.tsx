@@ -31,7 +31,7 @@ const outline = [
   { slug: "citations", title: "Does the agent cite only what it was shown?" },
   { slug: "actions", title: "Does code hold the line on actions?" },
   { slug: "every-case", title: "Every case" },
-  { slug: "limitations", title: "Limitations" },
+  { slug: "conclusion", title: "Conclusion" },
 ];
 
 export default function EvaluationPage() {
@@ -118,27 +118,54 @@ export default function EvaluationPage() {
       </section>
 
       <section className="mt-24">
-        <h2 id="limitations" className="mb-6 scroll-mt-28 text-3xl">Limitations</h2>
+        <h2 id="conclusion" className="mb-6 scroll-mt-28 text-3xl">Conclusion</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            The graders check less than a person would. The SQL grader looks for my figure among
-            the numbers in the answer, so a right number reached by a wrong query passes, and an
-            answer that states the right figure and the wrong one both passes too. I saw that
-            happen on one case. The policy grader checks that the right section is cited and that
-            a few phrases appear. It does not judge whether the explanation is sound.
+            <strong className="text-foreground">What six runs showed.</strong> Every failure the
+            first run found was one of three things.
+          </p>
+          <ol className="list-decimal space-y-2 pl-6">
+            <li>
+              A slip the agent can be told not to make. The date boundary and the citation label,
+              one prompt line each, and neither has come back in the runs since.
+            </li>
+            <li>
+              A rule of mine that was wrong. The not-covered case, and two phrase lists that did
+              not have the words the agent used.
+            </li>
+            <li>
+              A limit of the design. The hidden section that no threshold and no wording could
+              reach, which needed a search that sees words as well as meaning. That one was the
+              only failure about the system rather than the prompt or the test, and it took a new
+              mechanism, not a line.
+            </li>
+          </ol>
+          <p>
+            <strong className="text-foreground">What the score means.</strong> 38 of 38 on the
+            sixth run is not evidence the agent works. It is evidence that these 38 questions,
+            which I wrote, no longer catch it. Three of the fixes were patches for a slip I had
+            seen, and the page says so where each one lives. What the runs do show is that one
+            change at a time can be measured on this set for about fifty cents, and that the
+            matrix tells you which change moved which case.
           </p>
           <p>
-            {s.cases} cases catch regressions. They do not pin down a rate, and one run of a
-            setting is one sample: the model words its own searches differently each time, so the
-            same case can pass today and fail tomorrow. Ground truth is mine: a query I wrote for each SQL case, the section I named for each
-            policy case, and the status the trace records for refusals and proposals. If I read a
-            word wrong, the gold is wrong, and the eval will not tell me.
+            <strong className="text-foreground">What is caught, measured, and neither.</strong>{" "}
+            An action that breaks a rule is caught by code before anyone sees it, eight of eight,
+            every run. A safe query that answers the wrong question is measured against my query
+            and not caught, and the one case of it was fixed by telling the agent how to write a
+            date. A cited section that does not support the answer is still neither: the
+            citations step knows a section was shown, not that it says what the answer claims.
+            That is the gap I have not built, because I do not yet know how to check support
+            without a second model whose own errors I would then have to measure.
           </p>
           <p>
-            Every case runs through the same code path as the site, with the same prompt, tools
-            and settings, on a frozen copy of the data with the clock set to{" "}
-            {s.frozen_now.slice(0, 10)}. A request that errors is counted apart from the
-            model&apos;s failures. The run file with every trace is in the repository under
+            <strong className="text-foreground">What the graders cannot see.</strong> The SQL
+            grader looks for my figure among the numbers in the answer, so a right number from a
+            wrong query passes. The policy grader checks the section cited and a list of phrases,
+            and twice the list was short. Ground truth is mine throughout. If I read a word wrong,
+            the gold is wrong, and the eval will not tell me. Every case runs through the same
+            code as the site, on a frozen copy of the data with the clock set to{" "}
+            {s.frozen_now.slice(0, 10)}, and every trace is in the repository under
             api/evals/runs.
           </p>
         </div>
