@@ -47,17 +47,18 @@ export function FailureCard({
   return (
     <article className="border-t pt-8">
       <h3 className="text-2xl">{headline ?? `Case ${id}`}</h3>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm text-muted-foreground">
-        <p>
+      <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
+        <span>
           <Link href={`/evaluation/${id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
             {id}
           </Link>
           , from the {suite.split(":")[0].toLowerCase()} suite
-        </p>
-        <p className="flex items-center gap-2">
+        </span>
+        <span aria-hidden>·</span>
+        <span className="flex items-center gap-2">
           Asked as <MerchantBadge merchantId={merchantId} />
-        </p>
-      </div>
+        </span>
+      </p>
       <blockquote className="mt-4 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {question}
       </blockquote>
