@@ -9,6 +9,18 @@ import { SITE_DESCRIPTION } from "@/lib/site";
 const wrongNumber = data.results.find((r) => r.case.id === "sql-05")!;
 const caught = data.results.find((r) => r.case.id === "pro-06")!;
 
+function cents(usd: number | null): string {
+  const c = Math.round((usd ?? 0) * 100);
+
+  return c === 1 ? "a cent" : `${c} cents`;
+}
+
+function seconds(ms: number | null): string {
+  const sec = Math.round((ms ?? 0) / 1000);
+
+  return `${sec} seconds`;
+}
+
 export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   alternates: { canonical: "/" },
@@ -43,7 +55,8 @@ export default function HomePage() {
           is that record, one run at a time.
         </p>
         <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
-          {data.summary.cases} questions. {runs.length} runs. Every trace on the site.
+          {data.summary.cases} questions. {runs.length} runs. About {cents(data.summary.cost_per_answered_median_usd)}{" "}
+          and {seconds(data.summary.latency_median_ms)} per answer.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
