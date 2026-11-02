@@ -196,10 +196,11 @@ function Runs() {
         {changelog.map((e, i) => (
           <li key={e.run ?? i} className="relative pb-12 pl-8 last:pb-0">
             <span className="absolute top-2 -left-[5px] size-[9px] rounded-full bg-primary" aria-hidden />
-            <p className="font-sql text-xs text-muted-foreground">
-              {e.run ? `Run ${runs.findIndex((r) => r.run === e.run) + 1}` : "Regrade"}, {longDate(e.date)}
-            </p>
-            <h3 className="mt-2 text-2xl">{e.title}</h3>
+            <p className="font-sql text-xs text-muted-foreground">{longDate(e.date)}</p>
+            <h3 className="mt-2 text-2xl">
+              {e.run ? `Run ${runs.findIndex((r) => r.run === e.run) + 1}: ` : ""}
+              {e.title}
+            </h3>
             <ul className="mt-4 list-disc space-y-2 pl-5 text-lg leading-relaxed text-muted-foreground">
               {e.changed.map((c) => (
                 <li key={c}>

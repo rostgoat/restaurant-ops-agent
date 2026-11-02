@@ -2,7 +2,7 @@
   {
     "run": "20261030T025434Z",
     "date": "2026-10-30",
-    "title": "First run: 38 questions with the answer written down first",
+    "title": "38 questions with the answer written down first",
     "changed": [
       "Ten sql questions where the answer depends on the owner's definition. For example, a 'regular' at Mekong Noodle House is someone with three or more completed orders in three months, while at Ridgeline Coffee it is four or more orders in a month. The vendor's definitions live in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py). Each owner's live in a Definitions document beside their policies, which the agent searches and cites like any other section.",
       "Pre-written gold queries for each question.",
@@ -22,7 +22,7 @@
   {
     "run": "20261031T035921Z",
     "date": "2026-10-31",
-    "title": "Second run: the retrieval threshold moves from 0.50 to 0.40",
+    "title": "The retrieval threshold moves from 0.50 to 0.40",
     "changed": [
       "One number changed, the similarity score a policy section needs before the model sees it, from 0.50 to 0.40. Nothing else: same questions, same gold, same model, same prompt."
     ],
@@ -39,7 +39,7 @@
   {
     "run": "20261101T024005Z",
     "date": "2026-11-01",
-    "title": "Third run: the prompt says how to write a local-time date boundary",
+    "title": "The prompt says how to write a local-time date boundary",
     "changed": [
       "Five lines added to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under the table that holds the restaurant's time zone: filter a date range by converting a plain timestamp literal for each boundary, and never a timestamptz literal, because that converts in the other direction. Nothing else: same questions, same gold, same model, same threshold.",
       "Before the full run, the one failing case was run three times on its own and passed all three."
@@ -56,7 +56,7 @@
   {
     "run": "20261101T025433Z",
     "date": "2026-11-01",
-    "title": "Fourth run: the prompt says to write the whole citation label every time",
+    "title": "The prompt says to write the whole citation label every time",
     "changed": [
       "Two sentences added after the citing rule in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py): write the whole label every time, including when citing the same section again, and never shorten it to [§2] or [House Policy §2]. Nothing else changed.",
       "Before the full run, the two cases that had slipped were run three times each on their own. All six passed the citations step."
@@ -73,7 +73,7 @@
   {
     "run": "20261101T031947Z",
     "date": "2026-11-01",
-    "title": "Fifth run: the grader's rule for a not-covered case",
+    "title": "The grader's rule for a not-covered case",
     "changed": [
       "Two rules deleted from [the grader](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/evals/grade.py). A question the policies do not cover used to fail if any section was shown or cited. Now it passes when the answer says the policies do not cover it and cites nothing as the rule, and the citations step applies to every policy case.",
       "This changes the test, not the agent. Scored by the new rule, run 2 would be 34 and run 4 would be 38. Run 3 would stay at 35, because that answer said it couldn't find a rule, and my phrase list does not have those words."
@@ -107,7 +107,7 @@
   {
     "run": "20261101T043023Z",
     "date": "2026-11-01",
-    "title": "Sixth run: the policy search matches words as well as meaning",
+    "title": "The policy search matches words as well as meaning",
     "changed": [
       "[The search](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/policies/search.py) now scores every section two ways. The meaning score is the embedding similarity, as before. The word score is the sum of the rarity of the search's words that appear in the section, within this restaurant's policies, so 'DoorDash' in one section of twenty-five outweighs 'order' in fifteen. The two rankings are merged by rank, and the section whose words match best is shown even when its meaning score is under the threshold. One new column in the policy table, built by Postgres from the section text.",
       "A new mechanism with its own tests, and the first run of a new retriever. The threshold, the prompt and the grader did not change.",
@@ -125,7 +125,7 @@
   {
     "run": "20261101T230259Z",
     "date": "2026-11-01",
-    "title": "Seventh run: one question added, and nothing else",
+    "title": "One question added, and nothing else",
     "changed": [
       "A new sql case, sql-11: how many catering orders in October. The owner's reading is an order with an item from the Catering category on the menu. Nothing on the order itself says catering, no channel, no label, no discount. The question came from asking the live agent questions with a second plausible reading, after the set had gone to 38 of 38.",
       "No change to the prompt, the search, the threshold or the grader. The run shows the set with the new case before anything is done about it."
@@ -141,7 +141,7 @@
   {
     "run": "20261101T232428Z",
     "date": "2026-11-01",
-    "title": "Eighth run: the prompt says a word may be a menu category, and the catering question moves to a finished month",
+    "title": "The prompt says a word may be a menu category, and the catering question moves to a finished month",
     "changed": [
       "Four lines in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under Queries: a word in the question may be the name of a menu category or item, check the categories and items tables for it before saying the data cannot identify something, and an empty search proves only that the word is not where you looked.",
       "The case itself was wrong. It asked about October, and the eval's clock is frozen at 24 October, so the agent rightly counted to the 24th while my gold counted to the end of the data. It now asks about September, a finished month, with the gold at 22.",
@@ -158,7 +158,7 @@
   {
     "run": "20261102T030225Z",
     "date": "2026-11-02",
-    "title": "Ninth run: the same 39 questions on Haiku 5.5",
+    "title": "The same 39 questions on Haiku 5.5",
     "changed": [
       "The model, from Sonnet 5.5 to Haiku 5.5, at the same effort. Nothing else: same prompt, same threshold, same grader.",
       "Before the run, 34 ad hoc questions on Sonnet built to make it cite a section for a rule the section does not contain, in four shapes: a lookalike section with a different figure, a section silent on the sub-case, a section that points to a rule in another document, and a section that defers to outside law. It never did."
