@@ -51,7 +51,7 @@ export default function HomePage() {
             size="lg"
             className="h-11 px-5 font-heading text-base"
           >
-            <Link href="/evaluation">See the experiments</Link>
+            <Link href="/evaluation">See the evaluation</Link>
           </Button>
           <Button
             asChild
@@ -95,7 +95,7 @@ export default function HomePage() {
 
       <section className="mt-16">
         <Button asChild size="lg" className="h-14 px-8 font-heading text-lg">
-          <Link href="/evaluation">See the experiment</Link>
+          <Link href="/evaluation">See the evaluation</Link>
         </Button>
       </section>
     </>
