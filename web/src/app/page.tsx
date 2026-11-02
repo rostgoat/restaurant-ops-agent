@@ -45,7 +45,7 @@ export default function HomePage() {
           </li>
           <li>
             A cited section that does not support the answer. Not caught by anything, and not
-            seen yet in 34 questions written to cause it.
+            seen yet, in the runs or in questions written to cause it.
           </li>
         </ol>
         <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
