@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
-export function PageOutline({ items }: { items: { slug: string; title: string }[] }) {
+export type OutlineItem = { slug: string; title: string; children?: { slug: string; title: string }[] };
+
+export function PageOutline({ items }: { items: OutlineItem[] }) {
   const [active, setActive] = useState(items[0]?.slug);
 
   useEffect(() => {
@@ -68,6 +70,20 @@ export function PageOutline({ items }: { items: { slug: string; title: string }[
               >
                 <span className="font-sql text-xs text-muted-foreground">{i + 1}</span> {item.title}
               </a>
+              {item.children && (
+                <ol className="mb-1 ml-5 space-y-0.5 border-l pl-2">
+                  {item.children.map((child) => (
+                    <li key={child.slug}>
+                      <a
+                        href={`#${child.slug}`}
+                        className="block rounded-sm px-2 py-0.5 text-xs leading-snug text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        <span className="font-sql">{child.slug}</span> {child.title}
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </li>
           ))}
         </ol>

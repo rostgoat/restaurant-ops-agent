@@ -45,7 +45,7 @@ export function FailureCard({
   views: RunView[];
 }) {
   return (
-    <article className="border-t pt-8">
+    <article id={id} className="scroll-mt-28 border-t pt-8">
       <h3 className="text-2xl">{headline ?? `Case ${id}`}</h3>
       <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
         <span>

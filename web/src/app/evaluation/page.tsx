@@ -9,6 +9,7 @@ import {
   data,
   errors,
   failed,
+  headline,
   runs,
   suite,
   type Entry,
@@ -24,16 +25,9 @@ export const metadata = pageMetadata(
   "/evaluation",
 );
 
-const outline = [
-  { slug: "summary", title: "Summary" },
-  { slug: "runs", title: "Run history" },
-  { slug: "meaning", title: "Does the agent understand the question?" },
-  { slug: "retrieval", title: "Does the agent find the right rule?" },
-  { slug: "citations", title: "Do citations match the retrieved policies?" },
-  { slug: "actions", title: "Does the action checker enforce the rules?" },
-  { slug: "every-case", title: "All test results" },
-  { slug: "conclusion", title: "Findings and limitations" },
-];
+function cards(results: Result[]): { slug: string; title: string }[] {
+  return failed(results).map((r) => ({ slug: r.case.id, title: headline[r.case.id] ?? r.case.question }));
+}
 
 export default function EvaluationPage() {
   const s = data.summary;
@@ -44,7 +38,30 @@ export default function EvaluationPage() {
 
   return (
     <>
-      <PageOutline items={outline} />
+      <PageOutline
+        items={[
+          { slug: "summary", title: "Summary" },
+          { slug: "runs", title: "Run history" },
+          { slug: "meaning", title: "Does the agent understand the question?", children: cards(sql) },
+          {
+            slug: "retrieval",
+            title: "Does the agent find the right rule?",
+            children: cards(policy.filter((r) => !CITATION_CASES.includes(r.case.id))),
+          },
+          {
+            slug: "citations",
+            title: "Do citations match the retrieved policies?",
+            children: cards(policy.filter((r) => CITATION_CASES.includes(r.case.id))),
+          },
+          {
+            slug: "actions",
+            title: "Does the action checker enforce the rules?",
+            children: cards([...propose, ...guarded]),
+          },
+          { slug: "every-case", title: "All test results" },
+          { slug: "conclusion", title: "Findings and limitations" },
+        ]}
+      />
       <section>
         <Kicker page="Evaluation" />
         <h1 className="mt-4 max-w-[36ch] text-4xl sm:text-6xl">
