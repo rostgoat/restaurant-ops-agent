@@ -48,3 +48,4 @@ CLAUDE.md
 
 # local debugging helper
 api/dump.py
+.gstack/
