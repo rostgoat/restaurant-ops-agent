@@ -52,18 +52,18 @@ export function FailureCard({
           <Link href={`/evaluation/${id}`} className="font-sql text-xs text-primary underline-offset-4 hover:underline">
             {id}
           </Link>
-          , from the {suite.split(":")[0].toLowerCase()} suite
+           · {suite.split(":")[0]} tests
         </span>
         <span aria-hidden>·</span>
         <span className="flex items-center gap-2">
-          Asked as <MerchantBadge merchantId={merchantId} />
+          Restaurant: <MerchantBadge merchantId={merchantId} />
         </span>
       </p>
       <blockquote className="mt-4 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {question}
       </blockquote>
       <div className="mt-8">
-        <h4 className="mb-2 text-base">What should happen</h4>
+        <h4 className="mb-2 text-base">Expected result</h4>
         <p className="max-w-[70ch] leading-relaxed">{expected}</p>
       </div>
       <div className="mt-10">

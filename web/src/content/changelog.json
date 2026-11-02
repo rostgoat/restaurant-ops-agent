@@ -2,174 +2,174 @@
   {
     "run": "20261030T025434Z",
     "date": "2026-10-30",
-    "title": "38 questions with the answer written down first",
+    "title": "Testing 38 questions against expected results",
     "changed": [
-      "Ten sql questions where the answer depends on the owner's definition. For example, a 'regular' at Mekong Noodle House is someone with three or more completed orders in three months, while at Ridgeline Coffee it is four or more orders in a month. The vendor's definitions live in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py). Each owner's live in a Definitions document beside their policies, which the agent searches and cites like any other section.",
-      "Pre-written gold queries for each question.",
-      "Fifteen policy questions, including two where the nearest section is the wrong one. Eight proposals that code has to check against the rules. Three questions that must be declined, one about the other restaurant, one that needs no search.",
-      "Twenty-four months of data with named menus, food costs, one price per item per channel, a promotion, loyalty rewards, seasonal items and regulars who stop coming, so these questions have answers in the data.",
-      "Retrieval threshold 0.50, a number picked from ten captured runs before this set existed."
+      "Ten SQL questions that depend on how each owner defines a term. A 'regular' at Mekong Noodle House has three or more completed orders in three months; at Ridgeline Coffee, four or more orders in a month. General definitions are in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py). Each restaurant's definitions are in a document the agent can search alongside its policies.",
+      "I wrote a reference query for each SQL question to calculate the expected answer.",
+      "Fifteen policy questions, including two where the closest search result does not answer the question. Eight action proposals to check against the rules. Three requests the agent should decline, one question about another restaurant's data, and one it can answer without searching.",
+      "Twenty-four months of test data, including menus, food costs, prices by sales channel, a promotion, loyalty rewards, seasonal items, and regular customers who stop ordering.",
+      "The policy search uses a similarity threshold of 0.50. I chose it after inspecting ten earlier runs."
     ],
     "result": "34 of 38, $0.44.",
     "moved": [
-      "[sql-05](/evaluation/sql-05) wrong by 6%: a safe query with a time zone slip.",
-      "[pol-02](/evaluation/pol-02) and [pol-12](/evaluation/pol-12) hidden by the threshold, at 0.28 and 0.47.",
-      "[pol-11](/evaluation/pol-11) right answer, short citation label, failed by code."
+      "[sql-05](/evaluation/sql-05) was wrong by 6%. The query passed the safety checks but used the wrong time zone conversion.",
+      "[pol-02](/evaluation/pol-02) and [pol-12](/evaluation/pol-12) failed because the relevant sections scored 0.28 and 0.47, below the search threshold.",
+      "[pol-11](/evaluation/pol-11) answered correctly but shortened a citation label, which the citation check rejected."
     ],
-    "next": "The retrieval threshold, 0.50 to 0.40.",
+    "next": "Lower the search threshold from 0.50 to 0.40.",
     "passed": 34
   },
   {
     "run": "20261031T035921Z",
     "date": "2026-10-31",
-    "title": "The retrieval threshold moves from 0.50 to 0.40",
+    "title": "Lowering the search threshold to 0.40",
     "changed": [
-      "One number changed, the similarity score a policy section needs before the model sees it, from 0.50 to 0.40. Nothing else: same questions, same gold, same model, same prompt."
+      "I lowered the minimum similarity score for showing a policy section from 0.50 to 0.40. The questions, expected answers, model, and prompt stayed the same."
     ],
     "result": "33 of 38, $0.46.",
     "moved": [
-      "[pol-12](/evaluation/pol-12) fixed.",
-      "[pol-05](/evaluation/pol-05) new failure: a near section shown and dismissed, which my grader counts as a fail.",
-      "[pol-03](/evaluation/pol-03) failed on the same label slip as pol-11.",
-      "[sql-05](/evaluation/sql-05), [pol-02](/evaluation/pol-02) and [pol-11](/evaluation/pol-11) unchanged. Recall 86% to 93%, precision 46% to 29%."
+      "[pol-12](/evaluation/pol-12) passed.",
+      "[pol-05](/evaluation/pol-05) failed. The agent cited a related section to explain that it did not apply, which the grader treated as an error.",
+      "[pol-03](/evaluation/pol-03) failed because it shortened a citation label, as pol-11 had in the first run.",
+      "[sql-05](/evaluation/sql-05), [pol-02](/evaluation/pol-02), and [pol-11](/evaluation/pol-11) still failed. Retrieval recall rose from 86% to 93%; precision fell from 46% to 29%."
     ],
-    "next": "The threshold stays. A prompt line on date boundaries, for sql-05.",
+    "next": "Keep the lower threshold and add instructions for date boundaries to address sql-05.",
     "passed": 33
   },
   {
     "run": "20261101T024005Z",
     "date": "2026-11-01",
-    "title": "The prompt says how to write a local-time date boundary",
+    "title": "Adding time zone instructions to the prompt",
     "changed": [
-      "Five lines added to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under the table that holds the restaurant's time zone: filter a date range by converting a plain timestamp literal for each boundary, and never a timestamptz literal, because that converts in the other direction. Nothing else: same questions, same gold, same model, same threshold.",
-      "Before the full run, the one failing case was run three times on its own and passed all three."
+      "I added five lines to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py) explaining how to convert date boundaries into the restaurant's time zone. The instructions specify timestamp literals rather than timestamptz literals, which convert in the opposite direction. The questions, expected answers, model, and search threshold stayed the same.",
+      "Before the full run, I tested the failing case three times on its own. It passed all three times."
     ],
     "result": "35 of 38, $0.46.",
     "moved": [
-      "[sql-05](/evaluation/sql-05) fixed.",
-      "[pol-03](/evaluation/pol-03) passed, [pol-11](/evaluation/pol-11) failed again. The label slip is a coin toss.",
-      "[pol-02](/evaluation/pol-02) and [pol-05](/evaluation/pol-05) unchanged."
+      "[sql-05](/evaluation/sql-05) passed.",
+      "[pol-03](/evaluation/pol-03) passed, but [pol-11](/evaluation/pol-11) failed again. The agent still sometimes shortened citation labels.",
+      "[pol-02](/evaluation/pol-02) and [pol-05](/evaluation/pol-05) still failed."
     ],
-    "next": "The citation label.",
+    "next": "Tell the agent to use full citation labels.",
     "passed": 35
   },
   {
     "run": "20261101T025433Z",
     "date": "2026-11-01",
-    "title": "The prompt says to write the whole citation label every time",
+    "title": "Requiring full citation labels",
     "changed": [
-      "Two sentences added after the citing rule in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py): write the whole label every time, including when citing the same section again, and never shorten it to [§2] or [House Policy §2]. Nothing else changed.",
-      "Before the full run, the two cases that had slipped were run three times each on their own. All six passed the citations step."
+      "I added two sentences to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py) requiring the full citation label every time, including repeated citations. Short forms such as [§2] and [House Policy §2] are not accepted. Nothing else changed.",
+      "Before the full run, I tested each of the two affected cases three times. All six answers passed the citation check."
     ],
     "result": "37 of 38, $0.47.",
     "moved": [
-      "[pol-11](/evaluation/pol-11) fixed, and no short label anywhere in the run.",
-      "[pol-02](/evaluation/pol-02) passed, by luck: a different search wording scored the section 0.51. One pass does not close it.",
-      "[pol-05](/evaluation/pol-05) unchanged."
+      "[pol-11](/evaluation/pol-11) passed. No answer in the run used a shortened citation label.",
+      "[pol-02](/evaluation/pol-02) passed after the agent used different search wording. The relevant section scored 0.51, above the threshold, but the search problem remained unresolved.",
+      "[pol-05](/evaluation/pol-05) still failed."
     ],
-    "next": "The grader's rule for a not-covered case.",
+    "next": "Review how the grader handles questions the policies do not cover.",
     "passed": 37
   },
   {
     "run": "20261101T031947Z",
     "date": "2026-11-01",
-    "title": "The grader's rule for a not-covered case",
+    "title": "Correcting the grader for questions outside the policies",
     "changed": [
-      "Two rules deleted from [the grader](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/evals/grade.py). A question the policies do not cover used to fail if any section was shown or cited. Now it passes when the answer says the policies do not cover it and cites nothing as the rule, and the citations step applies to every policy case.",
-      "This changes the test, not the agent. Scored by the new rule, run 2 would be 34 and run 4 would be 38. Run 3 would stay at 35, because that answer said it couldn't find a rule, and my phrase list does not have those words."
+      "I removed two rules from [the grader](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/evals/grade.py). A question outside the policies used to fail if the agent retrieved or cited any section. It now passes if the answer says the policies do not cover the question and does not present a citation as an applicable rule. The citation check also applies to every policy case.",
+      "With this grading change, run 2 would score 34 and run 4 would score 38. Run 3 would still score 35: its answer said it couldn't find a rule, but the grader's accepted phrases did not include that wording."
     ],
     "result": "36 of 38, $0.49.",
     "moved": [
-      "[pol-05](/evaluation/pol-05) passed, but not because of the rule: the near section scored 0.38, under the 0.40 threshold, so it was not shown and nothing was cited.",
-      "[pol-02](/evaluation/pol-02) failed again. Three searches, best score 0.36, nothing cited.",
-      "[pol-11](/evaluation/pol-11) failed on wording: the answer said 'you' to the owner, and my phrase list wants 'owner'. The labels were all full."
+      "[pol-05](/evaluation/pol-05) passed, though this run did not test the grading change. The related section scored 0.38, below the 0.40 threshold, so the agent never saw or cited it.",
+      "[pol-02](/evaluation/pol-02) failed again. Across three searches, the relevant section's best score was 0.36. The answer had no citation.",
+      "[pol-11](/evaluation/pol-11) failed because the answer addressed the owner as 'you', while the grader required the word 'owner'. All citation labels were complete."
     ],
-    "next": "The phrase lists, for 'couldn't find' and 'you'.",
+    "next": "Add accepted phrases for 'couldn't find' and for answers that address the owner as 'you'.",
     "passed": 36
   },
   {
     "run": null,
     "date": "2026-11-01",
-    "title": "Regrade: two phrase lists widened, no model run",
+    "title": "Regrading earlier answers with more accepted phrases",
     "changed": [
-      "Two word lists in [the cases](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/evals/cases.json) grew. The health inspections case accepts 'couldn't find' and 'could not find' as ways of saying the policies do not cover it. The campaign case accepts 'you approve', 'you can approve' and 'your approval' as naming the owner, because the owner is the one asking.",
-      "The five runs were graded again with today's grader, which also carries the not-covered rule from run 5. Nothing was asked of the model."
+      "I expanded two phrase lists in [the test cases](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/evals/cases.json). The health inspection case now accepts 'couldn't find' and 'could not find'. The campaign case accepts 'you approve', 'you can approve', and 'your approval', since the person asking is the owner.",
+      "I regraded the five saved runs using these phrases and the grading change from run 5. I did not call the model again."
     ],
     "passed": null,
-    "result": "By today's grader: run 2 is 34, run 3 is 36, run 4 is 38, run 5 is 37.",
+    "result": "After regrading: run 2 passed 34, run 3 passed 36, run 4 passed 38, and run 5 passed 37.",
     "moved": [
-      "[pol-05](/evaluation/pol-05) passes in runs 2, 3 and 4. Each answer said the policies do not cover it, in words my list did not have, or cited the near section to say it does not apply.",
-      "[pol-11](/evaluation/pol-11) passes in run 5. The answer told the owner 'unless you approve more', which names the owner when the owner is asking.",
-      "[pol-02](/evaluation/pol-02) is the one failure left in every run but run 4, and the only one about the agent. Twice in five runs the list was missing a wording the agent used."
+      "[pol-05](/evaluation/pol-05) passed in runs 2, 3, and 4. Those answers either used wording the grader had not accepted or cited a related section to explain that it did not apply.",
+      "[pol-11](/evaluation/pol-11) passed in run 5. Its answer said 'unless you approve more', correctly referring to the owner.",
+      "[pol-02](/evaluation/pol-02) still failed in every run except run 4. Expanding the phrase lists corrected grading errors; it did not fix the search that hid the relevant section."
     ],
-    "next": "The hidden section needs a search that matches a word as well as a meaning. Six single-case reps of prompt wording put its score at 0.37 to 0.39 against a 0.40 line. That is code, a different system, and the next experiment."
+    "next": "Add keyword matching to policy search. I had tried prompt changes six times on the failing case, but the relevant section still scored between 0.37 and 0.39, below the 0.40 threshold."
   },
   {
     "run": "20261101T043023Z",
     "date": "2026-11-01",
-    "title": "The policy search matches words as well as meaning",
+    "title": "Adding keyword matching to policy search",
     "changed": [
-      "[The search](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/policies/search.py) now scores every section two ways. The meaning score is the embedding similarity, as before. The word score is the sum of the rarity of the search's words that appear in the section, within this restaurant's policies, so 'DoorDash' in one section of twenty-five outweighs 'order' in fifteen. The two rankings are merged by rank, and the section whose words match best is shown even when its meaning score is under the threshold. One new column in the policy table, built by Postgres from the section text.",
-      "A new mechanism with its own tests, and the first run of a new retriever. The threshold, the prompt and the grader did not change.",
-      "Before the full run, the hidden-section case was run three times on its own and passed all three, after passing one of six with prompt wording."
+      "[Policy search](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/policies/search.py) now ranks sections by both embedding similarity and matching words. Rare words receive more weight: 'DoorDash' in one of 25 sections counts more than 'order' in 15. The search combines the rankings and always includes the best keyword match, even if its similarity score is below the threshold. Postgres builds the keyword index from each section's text in a new table column.",
+      "I added tests for the search changes. The threshold, prompt, and grader stayed the same.",
+      "Before the full run, I tested the failing case three times with keyword matching. It passed all three, compared with one of six attempts using prompt changes alone."
     ],
     "passed": 38,
     "result": "38 of 38, $0.47.",
     "moved": [
-      "[pol-02](/evaluation/pol-02) passed. Its first search showed the Delivery Marketplaces section for its words, with a meaning score of 0.34, and the agent cited it.",
-      "Recall 93% to 100%. Precision 29% to 28%: 50 sections shown across 38 searches against 45 in run 5. Five were shown for their words alone. One was the section this change was for. The other four were the same section every time, the scope preamble of the house policy, which shares common words with most questions and which the agent set aside each time.",
-      "Nothing else moved."
+      "[pol-02](/evaluation/pol-02) passed. The first search returned the Delivery Marketplaces section through keyword matching, despite a similarity score of 0.34. The agent cited it.",
+      "Recall rose from 93% to 100%; precision fell from 29% to 28%. The agent saw 50 sections across 38 searches, compared with 45 sections in run 5. Five appeared through keyword matching alone: the previously missed section and, on four searches, the House Policy introduction. The agent ignored the introduction each time.",
+      "All other test outcomes stayed the same."
     ],
-    "next": "Nothing is failing. The next run is a different model, or a different set of questions, and either one is a new experiment."
+    "next": "All 38 tests pass. Try a different model or add questions to test behavior this set does not cover."
   },
   {
     "run": "20261101T230259Z",
     "date": "2026-11-01",
-    "title": "One question added, and nothing else",
+    "title": "Adding a question about catering orders",
     "changed": [
-      "A new sql case, sql-11: how many catering orders in October. The owner's reading is an order with an item from the Catering category on the menu. Nothing on the order itself says catering, no channel, no label, no discount. The question came from asking the live agent questions with a second plausible reading, after the set had gone to 38 of 38.",
-      "No change to the prompt, the search, the threshold or the grader. The run shows the set with the new case before anything is done about it."
+      "I added sql-11, asking how many catering orders the restaurant had in October. A catering order contains an item from the menu's Catering category; the order itself has no catering channel, label, or discount. I found this case while trying questions the agent could reasonably interpret in more than one way, after it passed all 38 existing tests.",
+      "The prompt, search, threshold, and grader stayed the same so I could test the new question before making any fixes."
     ],
     "passed": 38,
     "result": "38 of 39, $0.49.",
     "moved": [
-      "[sql-11](/evaluation/sql-11) failed, as it had three times in ad hoc asks. The agent searched the order's source label and discount name for the word catering, found nothing, and said the data has no way to identify a catering order. It never looked at the menu categories, which are in its prompt.",
-      "Nothing else moved."
+      "[sql-11](/evaluation/sql-11) failed, as it had in three earlier manual tests. The agent searched order source labels and discount names for 'catering', found nothing, and said the data could not identify catering orders. It did not check the menu categories, although the prompt describes them.",
+      "All other test outcomes stayed the same."
     ],
-    "next": "A fix for the empty result read as a fact. The two misses of this shape so far, this one and a question about a day with no data, both turned zero rows into a claim about the restaurant."
+    "next": "Address answers that treat an empty query result as proof the data cannot answer the question. I had seen this twice: for catering orders and for a day with no data."
   },
   {
     "run": "20261101T232428Z",
     "date": "2026-11-01",
-    "title": "The prompt says a word may be a menu category, and the catering question moves to a finished month",
+    "title": "Checking menu categories and correcting the catering test dates",
     "changed": [
-      "Four lines in [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py), under Queries: a word in the question may be the name of a menu category or item, check the categories and items tables for it before saying the data cannot identify something, and an empty search proves only that the word is not where you looked.",
-      "The case itself was wrong. It asked about October, and the eval's clock is frozen at 24 October, so the agent rightly counted to the 24th while my gold counted to the end of the data. It now asks about September, a finished month, with the gold at 22.",
-      "Before the full run, three single-case reps each way on the September wording. Without the line, two of three found the menu. With the line, three of three. On the October wording the day before, none of three had."
+      "I added four lines to [the prompt](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/agent/prompt.py) telling the agent to check menu categories and items when a question names something it cannot find elsewhere. The instructions also explain that an empty search only shows that the word was absent from the fields searched.",
+      "I corrected the test question too. It asked about October, but the test clock is fixed at October 24. The agent correctly counted through the 24th, while my reference query counted through the end of the data. The question now asks about September, a complete month with 22 catering orders.",
+      "Before the full run, I tested the September question three times with and without the new instructions. Without them, the agent found the menu category twice; with them, all three times. In the previous day's tests using the October question, it had found the category zero times out of three."
     ],
     "passed": 39,
     "result": "39 of 39, $0.49.",
     "moved": [
-      "[sql-11](/evaluation/sql-11) passed. The agent listed the Catering category's six items first, then counted completed September orders that include one.",
-      "Nothing else moved. Precision 28% to 30%."
+      "[sql-11](/evaluation/sql-11) passed. The agent first listed the six items in the Catering category, then counted completed September orders containing at least one of them.",
+      "All other test outcomes stayed the same. Retrieval precision rose from 28% to 30%."
     ],
-    "next": "Two changes in one run, and the second was a correction to the test, so the single-case reps are the evidence that the line did the work. The third case on the home page, a cited section that does not support the answer, still has no example."
+    "next": "The full run included both a prompt change and a corrected question, so it cannot establish how much the prompt helped. The separate tests provide some evidence. I also still need an example where the agent cites a section that does not support its answer, the third type of error described on the home page."
   },
   {
     "run": "20261102T030225Z",
     "date": "2026-11-02",
-    "title": "The same 39 questions on Haiku 5.5",
+    "title": "Testing Haiku 5.5 on the same 39 questions",
     "changed": [
-      "The model, from Sonnet 5.5 to Haiku 5.5, at the same effort. Nothing else: same prompt, same threshold, same grader.",
-      "Before the run, 34 ad hoc questions on Sonnet built to make it cite a section for a rule the section does not contain, in four shapes: a lookalike section with a different figure, a section silent on the sub-case, a section that points to a rule in another document, and a section that defers to outside law. It never did."
+      "I switched from Sonnet 5.5 to Haiku 5.5 at the same reasoning effort. The prompt, search threshold, and grader stayed the same.",
+      "Before this run, I manually tested Sonnet with 34 questions designed to make it cite a section for a rule that was not there. These covered sections with a different figure, sections silent on a specific situation, references to another document, and references to outside law. None produced that error."
     ],
     "passed": 37,
     "result": "37 of 39, $0.04.",
     "moved": [
-      "[pol-15](/evaluation/pol-15) failed on wording: the answer says \"don't include\" and my phrase list has \"not include\" and \"doesn't include\".",
-      "[pro-04](/evaluation/pro-04) failed because Haiku asked the owner to check for a packing photo instead of proposing the dispute, so the checker had nothing to check.",
-      "Nothing else moved. Cost 12 times lower, latency the same, no answer used markdown."
+      "[pol-15](/evaluation/pol-15) failed because the answer said \"don't include\", while the grader only accepted \"not include\" and \"doesn't include\".",
+      "[pro-04](/evaluation/pro-04) failed because Haiku asked the owner to check for a packing photo instead of proposing a dispute. The action checker therefore received no proposal.",
+      "All other test outcomes stayed the same. Haiku cost about one-twelfth as much, with similar response times. No answer used Markdown formatting."
     ],
-    "next": "The phrase list, again. And the cited-figure check, so a stretched citation is caught by code rather than left to the model."
+    "next": "Add the missing phrase to the grader. Add a code check for figures attributed to policy sections so the system can detect citations that do not support those figures."
   }
 ]

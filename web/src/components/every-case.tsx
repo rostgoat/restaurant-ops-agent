@@ -20,9 +20,9 @@ export function EveryCase({ cases, runs }: { cases: Case[]; runs: RunRecord[] })
     <Table className="min-w-[720px]">
       <TableHeader>
         <TableRow>
-          <TableHead>Case</TableHead>
+          <TableHead>Test</TableHead>
           <TableHead>Question</TableHead>
-          <TableHead>Asked as</TableHead>
+          <TableHead>Restaurant</TableHead>
           {runs.map((r, i) => (
             <TableHead key={r.run} className="whitespace-nowrap">
               Run {i + 1}

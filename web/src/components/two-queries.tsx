@@ -8,27 +8,26 @@ export function TwoQueries({ gold, model }: { gold: string; model: string | null
   return (
     <div className="grid gap-8 md:grid-cols-2">
       <div>
-        <h3 className="mb-1 text-base">The query I wrote</h3>
+        <h3 className="mb-1 text-base">Reference query</h3>
         <p className="text-sm text-muted-foreground">
-          The question read the way the owner means it. Run on the frozen database for the figure the grader
-          expects.
+          I wrote this query to calculate the expected answer on the fixed test database.
         </p>
-        <Clamped label="the query I wrote">
+        <Clamped label="the reference query">
           <Sql sql={stripHeader(gold)} />
         </Clamped>
       </div>
       <div>
-        <h3 className="mb-1 text-base">The query the model wrote</h3>
+        <h3 className="mb-1 text-base">Agent query</h3>
         <p className="text-sm text-muted-foreground">
-          Its last query, laid out for reading. The trace has it as sent. The guard added the restaurant filter
-          and the row limit before it ran.
+          The agent’s last query, formatted for readability. The trace includes the original SQL
+          and the version run after the safety checks added a restaurant filter and row limit.
         </p>
         {model ? (
-          <Clamped label="the model's query">
+          <Clamped label="the agent’s query">
             <Sql sql={readable(model)} />
           </Clamped>
         ) : (
-          <p className="mt-2 text-sm text-muted-foreground">No query ran.</p>
+          <p className="mt-2 text-sm text-muted-foreground">The agent did not submit a query.</p>
         )}
       </div>
     </div>

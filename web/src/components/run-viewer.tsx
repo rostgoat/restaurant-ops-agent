@@ -36,17 +36,17 @@ export function RunViewer({
 
   return (
     <div>
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
         {views.map((v) => (
           <Button
             key={v.run}
             size="lg"
             variant="outline"
-            className={`h-11 min-w-[8.5rem] px-4 font-heading text-base ${
+            className={`h-11 px-4 font-heading text-base ${
               v.run === run ? "border-primary bg-primary/10 text-primary ring-1 ring-primary hover:bg-primary/15 hover:text-primary" : ""
             }`}
             disabled={!v.ran}
-            title={v.ran ? undefined : "This case was not in this run"}
+            title={v.ran ? undefined : "This test was not included in this run"}
             onClick={() => setRun(v.run)}
           >
             {v.label}{" "}
@@ -57,7 +57,7 @@ export function RunViewer({
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <div>
-          <Heading className={headingClass}>What the grader found in {view.label.toLowerCase()}</Heading>
+          <Heading className={headingClass}>Grading result for {view.label.toLowerCase()}</Heading>
           {view.reasons.length > 0 ? (
             <ul className="list-disc space-y-1 pl-5 leading-relaxed">
               {view.reasons.map((reason) => (
@@ -70,7 +70,7 @@ export function RunViewer({
         </div>
         {view.diagnosis && (
           <div>
-            <Heading className={headingClass}>What the {view.label.toLowerCase()} trace shows</Heading>
+            <Heading className={headingClass}>Notes on {view.label.toLowerCase()}</Heading>
             <ul className="list-disc space-y-1 pl-5 leading-relaxed">
               {view.diagnosis.map((line) => (
                 <li key={line}>{line}</li>
@@ -88,7 +88,7 @@ export function RunViewer({
 
       {trace.answer && (
         <div className="mt-6">
-          <Heading className={headingClass}>What it answered</Heading>
+          <Heading className={headingClass}>Agent answer</Heading>
           <Answer
             text={trace.answer}
             merchantId={merchantId}

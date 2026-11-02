@@ -109,7 +109,7 @@ export function TraceMeta({ trace, children }: { trace: Trace; children?: React.
     {
       icon: Clock,
       value: seconds(trace.latency_ms),
-      label: trace.model_ms > 0 ? `${seconds(trace.model_ms)} in the model` : "wall time",
+      label: trace.model_ms > 0 ? `${seconds(trace.model_ms)} model time` : "total time",
     },
     {
       icon: ListOrdered,
@@ -156,7 +156,7 @@ export function statusLine(trace: Trace): string {
       const guard = trace.steps.find((s) => s.name === "guard" && s.outcome === "blocked");
       const check = guard?.detail?.blocked_by;
 
-      return check ? `Blocked by the guard at the “${check}” check.` : "Blocked by the guard.";
+      return check ? `Blocked by the SQL safety check: ${check}.` : "Blocked by the SQL safety checks.";
     }
     default:
       return "Failed.";
@@ -201,14 +201,14 @@ const renderers: Record<string, Renderer> = {
   ),
   "guard:passed": (d) => (
     <>
-      <Title>Guard passed</Title>
+      <Title>SQL safety checks passed</Title>
       <Checks checks={d.checks} />
       {typeof d.sql === "string" && <QueryAsRun sql={d.sql} />}
     </>
   ),
   "guard:blocked": (d) => (
     <>
-      <Title>Guard blocked it at “{String(d.blocked_by)}”</Title>
+      <Title>SQL blocked: {String(d.blocked_by)}</Title>
       <p>{String(d.reason)}</p>
       <Checks checks={d.checks} />
     </>
@@ -216,7 +216,7 @@ const renderers: Record<string, Renderer> = {
   "execute:ok": (d, step) => (
     <>
       <Title>
-        Ran it: {count(Number(d.row_count ?? 0))} {Number(d.row_count) === 1 ? "row" : "rows"} in{" "}
+        Query returned {count(Number(d.row_count ?? 0))} {Number(d.row_count) === 1 ? "row" : "rows"} in{" "}
         {seconds(step.latency_ms)}
       </Title>
       <Rows detail={d} />
@@ -224,7 +224,7 @@ const renderers: Record<string, Renderer> = {
   ),
   "execute:error": (d) => (
     <>
-      <Title>The database rejected it</Title>
+      <Title>Query failed</Title>
       <p>{String(d.error)}</p>
     </>
   ),
@@ -249,7 +249,7 @@ const renderers: Record<string, Renderer> = {
       <Usage detail={d} />
     </>
   ),
-  "respond:max_tokens": () => <Title>The model ran out of room before finishing</Title>,
+  "respond:max_tokens": () => <Title>The model reached its output token limit</Title>,
   "respond:error": (d) => (
     <>
       <Title>The model call failed</Title>
@@ -258,7 +258,7 @@ const renderers: Record<string, Renderer> = {
   ),
   "search_policy:proposed": (d) => (
     <>
-      <Title>Looked up the policy</Title>
+      <Title>Requested a policy search</Title>
       <p className="text-muted-foreground">&ldquo;{String(d.query)}&rdquo;</p>
       <Usage detail={d} />
     </>
@@ -266,17 +266,17 @@ const renderers: Record<string, Renderer> = {
   "retrieve:unavailable": () => <Title>Policy search is not available</Title>,
   "citations:passed": (d) => (
     <>
-      <Title>Citations checked</Title>
+      <Title>Citation check passed</Title>
       <p className="text-muted-foreground">
         {Array.isArray(d.cited) && d.cited.length > 0
-          ? `Every section cited was one that was retrieved: ${(d.cited as string[]).join("; ")}.`
-          : "Nothing was retrieved and nothing was cited."}
+          ? `All citations matched retrieved sections: ${(d.cited as string[]).join("; ")}.`
+          : "No sections were retrieved or cited."}
       </p>
     </>
   ),
   "citations:failed": (d) => (
     <>
-      <Title>Citations failed</Title>
+      <Title>Citation check failed</Title>
       <p>{String(d.reason)}.</p>
       {Array.isArray(d.not_retrieved) && d.not_retrieved.length > 0 && (
         <p className="text-muted-foreground">Not retrieved: {(d.not_retrieved as string[]).join("; ")}</p>
@@ -370,7 +370,7 @@ function Checked({ step }: { step: Step }) {
       ? "Blocked the proposal"
       : step.outcome === "needs the owner"
         ? "Checked the proposal: the owner must approve"
-        : "Checked the proposal: waiting for a person";
+        : "Proposal checked: awaiting human review";
 
   return (
     <>
@@ -388,8 +388,8 @@ type RetrievedHit = { label: string; score: number; used: boolean; word_rank?: n
 
 const SHOWN_BY: Record<string, string> = {
   meaning: "",
-  words: " (shown for its words: the best word match, under the threshold)",
-  both: " (close in meaning and the best word match)",
+  words: " (best keyword match; below similarity threshold)",
+  both: " (matches by similarity and keywords)",
 };
 
 function Retrieved({ step }: { step: Step }) {
@@ -399,11 +399,11 @@ function Retrieved({ step }: { step: Step }) {
 
   return (
     <>
-      <Title>{none ? "Nothing in the policies came close enough" : `Retrieved ${step.outcome}`}</Title>
+      <Title>{none ? "No policy sections met the search criteria" : `Retrieved ${step.outcome}`}</Title>
       <p className="text-sm text-muted-foreground">
-        Searched this restaurant&apos;s policies only, by meaning and by words. Threshold{" "}
-        {String(d.threshold)} on the meaning score; the model saw the sections above it, and the
-        one section whose words matched best.
+        Search is limited to this restaurant&apos;s policies. The similarity threshold is{" "}
+        {String(d.threshold)}. When keyword matching is enabled, search also includes the best
+        keyword match, even below that threshold.
       </p>
       <ul className="mt-2 space-y-1 text-sm">
         {hits.map((h) => (
@@ -489,7 +489,7 @@ function Rows({ detail }: { detail: Record<string, unknown> }) {
       </Table>
       {hidden > 0 && (
         <p className="mt-1 text-sm text-muted-foreground">
-          and {count(hidden)} more {hidden === 1 ? "row" : "rows"} the model saw
+          {count(hidden)} additional {hidden === 1 ? "row was" : "rows were"} returned to the agent
         </p>
       )}
     </div>
