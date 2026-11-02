@@ -8,6 +8,7 @@ import { SITE_DESCRIPTION } from "@/lib/site";
 
 const wrongNumber = data.results.find((r) => r.case.id === "sql-05")!;
 const caught = data.results.find((r) => r.case.id === "pro-06")!;
+const hidden = data.results.find((r) => r.case.id === "pol-02")!;
 
 function cents(usd: number | null): string {
   const c = Math.round((usd ?? 0) * 100);
@@ -112,6 +113,18 @@ export default function HomePage() {
             "Of 29,762 customers with a phone number, 563 have verified consent and have not unsubscribed.",
             "In two runs the agent put the audience at 121. The checker recounts it from the consent flags and uses its own number.",
             "563 is over the 500 cap, so the campaign waited for the owner in every run. Nothing was sent.",
+          ]}
+        />
+        <CaseCard
+          id={hidden.case.id}
+          kicker="Hidden by the search, fixed by changing it"
+          headline={headline[hidden.case.id]}
+          merchantId={hidden.case.merchant_id}
+          question={hidden.case.question}
+          lines={[
+            "Ridgeline is on no delivery marketplace, and one sentence in its policies says so. For five runs the search never showed it, so the agent told the owner there was no rule.",
+            "The sentence scored 0.28 by meaning against the question. An embedding does not see that the word DoorDash is in it.",
+            "Run 6 changed the search to match words as well as meaning. The section came up first for the word DoorDash and has been cited in every run since.",
           ]}
         />
       </section>
