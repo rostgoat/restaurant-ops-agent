@@ -29,7 +29,10 @@ export default function HomePage() {
             A query that is safe but answers the wrong question. Not caught by anything, so I
             measure how often it happens.
           </li>
-          <li>A cited section that does not support the answer. Neither caught nor measured yet.</li>
+          <li>
+            A cited section that does not support the answer. Not caught by anything, and not
+            seen yet in 49 questions built to cause it.
+          </li>
         </ol>
         <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
           The{" "}

@@ -153,7 +153,7 @@
       "[sql-11](/evaluation/sql-11) passed. The agent listed the Catering category's six items first, then counted completed September orders that include one.",
       "Nothing else moved. Precision 28% to 30%."
     ],
-    "next": "Two changes in one run, and the second was a correction to the test, so the single-case reps are the evidence that the line did the work. The third kind of wrong, a cited section that does not support the answer, still has no case."
+    "next": "Two changes in one run, and the second was a correction to the test, so the single-case reps are the evidence that the line did the work. The third case on the home page, a cited section that does not support the answer, still has no example."
   },
   {
     "run": "20261102T030225Z",

@@ -103,7 +103,7 @@ export default function EvaluationPage() {
         question="An answer that cites a section the agent was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
         ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
         found="It fired on four answers across the first three runs, every one of them right. The agent cited the first section with its full label, then shortened a later one: [§5], [§4, Frequency], or the document name without the section title. The step failed each. The campaign case failed all three runs, each time on a different shortening, and the quiet hours case failed only in run 2. For the fourth run I added two sentences to the prompt: write the whole label every time, never shorten it. No short label anywhere in that run, and both cases passed."
-        decided="The check is literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and two runs say it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
+        decided="The check is literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and two runs say it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third case on the home page, and the conclusion says what I tried for it."
       >
         <Failures results={policy.filter((r) => CITATION_CASES.includes(r.case.id))} />
       </Experiment>
@@ -136,39 +136,50 @@ export default function EvaluationPage() {
         <h2 id="conclusion" className="mb-6 scroll-mt-28 text-3xl">Conclusion</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            <strong className="text-foreground">What nine runs showed.</strong> Every failure the
-            first run found was one of three things.
+            The home page says there are three ways the agent can be wrong. Here is what nine
+            runs showed for each.
           </p>
-          <ol className="list-decimal space-y-2 pl-6">
+          <ol className="list-decimal space-y-3 pl-6">
             <li>
-              A slip the agent can be told not to make. The date boundary and the citation label,
-              one prompt line each, and neither has come back in the runs since.
+              <strong className="text-foreground">An action that breaks a rule.</strong> Caught
+              by code. Every proposal goes through a checker that reads the limits file and the
+              database itself. It blocked a 25% campaign under a 20% cap, a dispute filed 26 days
+              after a 7-day window, and an audience the agent put at 29,762 when 563 had
+              consented. Eight of eight in every run. On Haiku one dispute was never proposed, so
+              there was nothing to check. That is the one gap: the checker only sees what the
+              agent hands it.
             </li>
             <li>
-              A rule of mine that was wrong. The not-covered case, and two phrase lists that did
-              not have the words the agent used.
+              <strong className="text-foreground">A query that is safe but answers the wrong
+              question.</strong> Not caught. Measured. The guard checks that a query is safe and
+              knows nothing about what September means. Two wrong queries got through it: one put
+              the month&apos;s boundaries ten hours off, and one looked for the word catering in
+              the wrong table and told the owner the data could not count catering orders. Both
+              were fixed with lines in the prompt, and both fixes are patches: a wrong query
+              written some other way would still run. What finds these is my own query, after the
+              fact, and only for the 11 questions that have one.
             </li>
             <li>
-              A limit of the design. The hidden section that no threshold and no wording could
-              reach, which needed a search that sees words as well as meaning.
+              <strong className="text-foreground">A cited section that does not support the
+              answer.</strong> Not caught, and not seen yet. The citations step checks that a
+              cited section was shown to the agent, not that the section says what the answer
+              says. I wrote 34 questions to make the agent stretch a section and it never did. The
+              Haiku run added 15 policy cases with the same result. Then I wrote a code check:
+              every number in a sentence that cites a section has to be in that section. Replayed
+              over the 578 citing sentences from nine runs it flagged 53, all of them right answers
+              that compared the owner&apos;s number with the rule&apos;s, like a $40 comp against
+              a $25 limit. Matching digits cannot tell which number a sentence is attributing to
+              the rule. I threw the check away.
             </li>
           </ol>
           <p>
             <strong className="text-foreground">What the score means.</strong> 39 of 39 on the
-            eighth run says only that these 39 questions, which I wrote, no longer catch it. Three of the fixes were patches for a slip I had
-            seen, and the page says so where each one lives. What the runs do show is that one
-            change at a time can be measured on this set for about fifty cents, and that the
-            matrix tells you which change moved which case.
-          </p>
-          <p>
-            <strong className="text-foreground">What is caught, measured, and neither.</strong>{" "}
-            An action that breaks a rule is caught by code before anyone sees it, eight of eight,
-            every run. A safe query that answers the wrong question is measured against my query
-            and not caught, and the one case of it was fixed by telling the agent how to write a
-            date. A cited section that does not support the answer is still neither: the
-            citations step knows a section was shown, not that it says what the answer claims.
-            A second model could check support, and its errors would then need measuring too, so
-            I have not built that.
+            eighth run says only that these 39 questions, which I wrote, no longer catch the
+            agent. Of the failures along the way, two were slips a prompt line stopped, four were
+            my own rules (one grader rule and three phrase lists that lacked the words the agent
+            used), and one was a limit of the design, the hidden section, which needed a search
+            that sees words as well as meaning. One change at a time can be measured on this set
+            for about fifty cents, and the matrix shows which change moved which case.
           </p>
           <p>
             <strong className="text-foreground">What the graders cannot see.</strong> The SQL
