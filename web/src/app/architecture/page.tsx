@@ -216,7 +216,8 @@ export default function ArchitecturePage() {
           The approval step
         </h2>
         <p>
-          A pending proposal waits on the trace page for a person to approve or reject it. Either
+          A pending proposal waits for a person to approve or reject it through the API. The site
+          has no approval screen, and the evaluation harness is the only caller. Either
           choice appends a human step to the trace. Approval then appends a code step that writes
           a record of the action, labelled as simulated. No marketplace, phone or register is
           reached. This is the only way anything changes. The model has no step in it.{" "}
@@ -301,11 +302,14 @@ export default function ArchitecturePage() {
           <li>The two restaurants and their orders are generated. Nothing here is real sales.</li>
           <li>An approved action is recorded, not sent. No marketplace, SMS gateway or register is connected.</li>
           <li>
-            There is no login. On the Ask page you pick a restaurant, the choice is stored in a
-            cookie, and the server sends it to the API as the restaurant id. In a real product the
-            id would come from the account.
+            There is no login. The restaurant id is a request header, sent by the evaluation
+            harness. In a real product it would come from the account.
           </li>
-          <li>Each evaluation setting ran once. The pass rates have no spread yet.</li>
+          <li>
+            Each run is one pass over the set. A case that passes once has not been shown to pass
+            every time, and three single-case reps before a full run is the only spread measured
+            so far.
+          </li>
           <li>Tenant isolation is enforced in the application, not in the database.</li>
         </ul>
 
@@ -334,8 +338,8 @@ export default function ArchitecturePage() {
           </li>
           <li>
             <strong className="font-semibold">Running it.</strong> Locally, one{" "}
-            <Code>docker compose</Code> file runs the database, the API and the site. Deployed,
-            the site will run on Vercel and the API and the database will run separately.
+            <Code>docker compose</Code> file runs the database and the API. The site runs on
+            Vercel, the API on Fly, the database on Neon.
           </li>
         </ul>
       </article>

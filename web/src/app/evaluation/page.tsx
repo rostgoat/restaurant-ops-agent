@@ -135,7 +135,7 @@ export default function EvaluationPage() {
         <h2 id="conclusion" className="mb-6 scroll-mt-28 text-3xl">Conclusion</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            <strong className="text-foreground">What six runs showed.</strong> Every failure the
+            <strong className="text-foreground">What eight runs showed.</strong> Every failure the
             first run found was one of three things.
           </p>
           <ol className="list-decimal space-y-2 pl-6">
