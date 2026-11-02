@@ -5,6 +5,7 @@ import { Bricolage_Grotesque, Inter } from "next/font/google";
 import Link from "next/link";
 import { BackToTop } from "@/components/back-to-top";
 import { GitHubLink } from "@/components/github-link";
+import { LinkedInLink } from "@/components/linkedin-link";
 import { NavLinks } from "@/components/nav-links";
 import { PageNav } from "@/components/page-nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="flex items-center sm:order-3">
               <span aria-hidden className="mx-2 hidden h-5 w-px bg-border sm:block" />
               <GitHubLink variant="ghost" />
+              <LinkedInLink variant="ghost" />
               <ThemeToggle />
             </div>
             <ul className="flex w-full flex-wrap items-center gap-x-2 sm:order-2 sm:w-auto sm:gap-x-4">

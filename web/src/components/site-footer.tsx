@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FooterNav } from "@/components/nav-links";
 import { GitHubLink } from "@/components/github-link";
+import { LinkedInLink } from "@/components/linkedin-link";
 import { ThemeToggle } from "@/components/theme";
 
 export function SiteFooter() {
@@ -17,6 +18,7 @@ export function SiteFooter() {
           </p>
           <div className="mt-5 flex items-center gap-2">
             <GitHubLink />
+            <LinkedInLink />
             <ThemeToggle />
           </div>
         </div>
