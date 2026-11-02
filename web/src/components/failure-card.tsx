@@ -62,11 +62,11 @@ export function FailureCard({
       <blockquote className="mt-4 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {question}
       </blockquote>
-      <div className="mt-6">
+      <div className="mt-8">
         <h4 className="mb-2 text-base">What should happen</h4>
         <p className="max-w-[70ch] leading-relaxed">{expected}</p>
       </div>
-      <div className="mt-6">
+      <div className="mt-10">
         <RunViewer views={views} merchantId={merchantId} goldSql={goldSql} />
       </div>
     </article>
