@@ -25,6 +25,7 @@ export const metadata = pageMetadata(
 );
 
 const outline = [
+  { slug: "summary", title: "Summary" },
   { slug: "runs", title: "The runs" },
   { slug: "meaning", title: "Does the agent interpret the question how an owner would?" },
   { slug: "retrieval", title: "Does the agent find the right rule?" },
@@ -53,7 +54,11 @@ export default function EvaluationPage() {
           Every run attempts to fix at least one failing case while observing whether the
           remaining cases succeed or fail.
         </p>
-        <p className="mt-6 max-w-[70ch] text-lg leading-relaxed">
+      </section>
+
+      <section id="summary" className="mt-16 scroll-mt-28">
+        <h2 className="mb-6 text-3xl">Summary</h2>
+        <p className="max-w-[70ch] text-lg leading-relaxed">
           I wrote {s.cases} questions a restaurant owner would ask, each with the answer worked
           out by hand before the agent saw it: a figure from a query I wrote, a policy section
           it should cite, or an action it should propose or refuse. The first run passed 34.
@@ -187,8 +192,8 @@ export default function EvaluationPage() {
 // each one, what the score did, and what I concluded.
 function Runs() {
   return (
-    <section className="mt-24">
-      <h2 id="runs" className="mb-8 scroll-mt-28 text-3xl">The runs</h2>
+    <section id="runs" className="mt-16 scroll-mt-28">
+      <h2 className="mb-8 text-3xl">The runs</h2>
       <ol className="border-l">
         {changelog.map((e, i) => (
           <li key={e.run ?? i} className="relative pb-12 pl-8 last:pb-0">
