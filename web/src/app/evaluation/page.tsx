@@ -53,6 +53,15 @@ export default function EvaluationPage() {
           Every run attempts to fix at least one failing case while observing whether the
           remaining cases succeed or fail.
         </p>
+        <p className="mt-6 max-w-[70ch] text-lg leading-relaxed">
+          I wrote {s.cases} questions a restaurant owner would ask, each with the answer worked
+          out by hand before the agent saw it: a figure from a query I wrote, a policy section
+          it should cite, or an action it should propose or refuse. The first run passed 34.
+          Each run after that changed one thing, a prompt line, a threshold, a grader rule, the
+          search itself, and re-ran all {s.cases} to see what that one change moved. Eight runs
+          later it passes {s.cases}, and every failure along the way has a name and a cost on
+          this page.
+        </p>
       </section>
 
       <Runs />
