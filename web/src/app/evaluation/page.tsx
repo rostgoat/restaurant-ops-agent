@@ -64,7 +64,8 @@ export default function EvaluationPage() {
           it should cite, or an action it should propose or refuse. The first run passed 34.
           Each run after that changed one thing, a prompt line, a threshold, a grader rule, the
           search itself, and re-ran all {s.cases} to see what that one change moved. Eight runs
-          later it passes {s.cases}, and every failure along the way has a name and a cost on
+          later it passes {s.cases} on Sonnet 5.5. The ninth run put the same questions to Haiku
+          5.5: 37, at a twelfth of the cost. Every failure along the way has a name and a cost on
           this page.
         </p>
       </section>
@@ -135,7 +136,7 @@ export default function EvaluationPage() {
         <h2 id="conclusion" className="mb-6 scroll-mt-28 text-3xl">Conclusion</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            <strong className="text-foreground">What eight runs showed.</strong> Every failure the
+            <strong className="text-foreground">What nine runs showed.</strong> Every failure the
             first run found was one of three things.
           </p>
           <ol className="list-decimal space-y-2 pl-6">

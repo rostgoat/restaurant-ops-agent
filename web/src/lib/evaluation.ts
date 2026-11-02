@@ -86,6 +86,7 @@ const RUN5 = "20261101T031947Z";
 const RUN6 = "20261101T043023Z";
 const RUN7 = "20261101T230259Z";
 const RUN8 = "20261101T232428Z";
+const RUN9 = "20261102T030225Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -149,6 +150,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. The first query listed the Catering category and its six items. The second counted completed September orders with one of them: 22.",
       "Four lines in the prompt. Without them, the September wording found the menu two times in three and the October wording never. With them, three of three and this run.",
     ],
+    [RUN9]: ["Passed on Haiku: 22, with the count by channel beside it."],
   },
   "sql-05": {
     [RUN1]: [
@@ -177,6 +179,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed, $2.64. Four runs with the date line, four passes.",
     ],
     [RUN8]: ["Passed, $2.64."],
+    [RUN9]: ["Passed on Haiku, $2.64, with the same 2,633 and 1,269 orders."],
   },
   "pol-02": {
     [RUN1]: [
@@ -210,6 +213,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Six runs, five misses on wording, and the fix was not wording. The embedding search could not see the word, and now something does.",
     ],
     [RUN8]: ["Passed. Shown for the word DoorDash again, and cited."],
+    [RUN9]: ["Passed on Haiku. The section scored 0.40 by meaning, on the line, and ranked first by words."],
   },
   "pol-03": {
     [RUN1]: [
@@ -235,6 +239,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. Full labels, three citations.",
     ],
     [RUN8]: ["Passed."],
+    [RUN9]: ["Passed on Haiku, three citations, every label in full."],
   },
   "pol-05": {
     [RUN1]: [
@@ -267,6 +272,9 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "This is the precision cost of the word search in one trace: one extra section, read and set aside.",
     ],
     [RUN8]: ["Passed."],
+    [RUN9]: [
+      "Passed on Haiku. Allergies was shown at 0.41 and Comps for its words at 0.31. The answer said the policies do not cover health inspections and named both as the closest sections.",
+    ],
   },
   "pol-11": {
     [RUN1]: [
@@ -295,6 +303,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. Four citations in full, the campaign blocked, 563 customers counted.",
     ],
     [RUN8]: ["Passed."],
+    [RUN9]: ["Passed on Haiku: 15% cap, 563 customers with verified consent, four full labels."],
   },
   "pol-12": {
     [RUN1]: [
@@ -319,6 +328,20 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Passed. The scope preamble was shown for its words on both searches and ignored. Discounts, Catering and the owner's definition of a regular were cited.",
     ],
     [RUN8]: ["Passed."],
+    [RUN9]: ["Passed on Haiku."],
+  },
+  "pol-15": {
+    [RUN9]: [
+      "Haiku said the policies and sales data don't include any discount for hospital staff, cited House §4 for the 10% and 15% it does list, and did not borrow Ridgeline's badge rule.",
+      "The grader's phrase list has 'not include', 'doesn't include' and 'does not include', and the answer says 'don't include'. Right answer, phrase list short for the third time.",
+    ],
+  },
+  "pro-04": {
+    [RUN9]: [
+      "Haiku looked up the order and its payment, read the missing-item section, and asked the owner to check for a packing photo instead of proposing the dispute.",
+      "Sonnet proposed in every earlier run and let the checker decide. The case expects the proposal, because the checker is where the rule is applied. With no proposal, code had nothing to check.",
+      "Haiku's reading of the section is right. An order over $40 needs a photo, and the data has no photo records. The difference is who decides: the model, or code after a person.",
+    ],
   },
 };
 
@@ -331,6 +354,8 @@ export const headline: Record<string, string> = {
   "pol-03": "The same sloppy citation, on a different question",
   "pol-05": "A question the policies do not cover, and a section shown anyway",
   "pol-12": "A rule hidden by a hair at 0.50, found at 0.40",
+  "pol-15": "The right answer in words the grader did not have, on a smaller model",
+  "pro-04": "A dispute the smaller model would not propose",
 };
 
 export function modelQuery(trace: Trace): string | null {

@@ -154,5 +154,22 @@
       "Nothing else moved. Precision 28% to 30%."
     ],
     "next": "Two changes in one run, and the second was a correction to the test, so the single-case reps are the evidence that the line did the work. The third kind of wrong, a cited section that does not support the answer, still has no case."
+  },
+  {
+    "run": "20261102T030225Z",
+    "date": "2026-11-02",
+    "title": "Ninth run: the same 39 questions on Haiku 5.5",
+    "changed": [
+      "The model, from Sonnet 5.5 to Haiku 5.5, at the same effort. Nothing else: same prompt, same threshold, same grader.",
+      "Before the run, 34 ad hoc questions on Sonnet built to make it cite a section for a rule the section does not contain, in four shapes: a lookalike section with a different figure, a section silent on the sub-case, a section that points to a rule in another document, and a section that defers to outside law. It never did."
+    ],
+    "passed": 37,
+    "result": "37 of 39, $0.04.",
+    "moved": [
+      "[pol-15](/evaluation/pol-15) failed on wording: the answer says \"don't include\" and my phrase list has \"not include\" and \"doesn't include\".",
+      "[pro-04](/evaluation/pro-04) failed because Haiku asked the owner to check for a packing photo instead of proposing the dispute, so the checker had nothing to check.",
+      "Nothing else moved. Cost 12 times lower, latency the same, no answer used markdown."
+    ],
+    "next": "The phrase list, again. And the cited-figure check, so a stretched citation is caught by code rather than left to the model."
   }
 ]

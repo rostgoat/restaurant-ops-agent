@@ -270,8 +270,10 @@ export default function ArchitecturePage() {
           <li>
             <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> Chosen on a
             side-by-side with Opus 5.5 on ten captured questions, before the evaluation set
-            existed: the same outcomes at half the cost. No other model has run on the evaluation
-            set yet. That is the next experiment.
+            existed: the same outcomes at half the cost. The ninth evaluation run put the same 39
+            questions to Haiku 5.5: 37 of 39 at a twelfth of the cost, with one answer that was
+            right in words the grader did not have and one dispute it asked about instead of
+            proposing. The Evaluation page has both.
           </li>
           <li>
             <strong className="font-semibold">Prompt caching.</strong> The system prompt, the
