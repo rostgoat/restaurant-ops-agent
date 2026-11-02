@@ -5,9 +5,8 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { PageOutline } from "@/components/page-outline";
 import { Button } from "@/components/ui/button";
-import { RunHistory } from "@/components/every-case";
 import { RunViewer } from "@/components/run-viewer";
-import { data, describeExpectation, runs, runViews, suiteTitle } from "@/lib/evaluation";
+import { data, describeExpectation, runViews, suiteTitle } from "@/lib/evaluation";
 import { pageMetadata } from "@/lib/site";
 
 export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -54,9 +53,6 @@ export default async function CasePage(props: { params: Promise<{ id: string }> 
       <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
         Asked as <MerchantBadge merchantId={c.merchant_id} />
       </p>
-      <div className="mt-3">
-        <RunHistory id={c.id} runs={runs} />
-      </div>
 
       <div id="expectation" className="mt-12 max-w-[70ch] scroll-mt-28">
         <h2 className="mb-2 text-xl">What should happen</h2>

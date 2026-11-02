@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { RunHistory } from "@/components/every-case";
 import { MerchantBadge } from "@/components/merchant-badge";
 import { RunViewer } from "@/components/run-viewer";
 import {
   describeExpectation,
   headline,
-  runs,
   runViews,
   suiteTitle,
   type Result,
-  type RunRecord,
   type RunView,
 } from "@/lib/evaluation";
 
@@ -23,7 +20,6 @@ export function CaseFailure({ result: r }: { result: Result }) {
       question={r.case.question}
       expected={describeExpectation(r)}
       goldSql={r.case.gold_sql}
-      runs={runs}
       views={runViews(r.case.id)}
     />
   );
@@ -37,7 +33,6 @@ export function FailureCard({
   question,
   expected,
   goldSql,
-  runs,
   views,
 }: {
   id: string;
@@ -47,7 +42,6 @@ export function FailureCard({
   question: string;
   expected: string;
   goldSql?: string;
-  runs: RunRecord[];
   views: RunView[];
 }) {
   return (
@@ -63,9 +57,6 @@ export function FailureCard({
         <p className="flex items-center gap-2">
           Asked as <MerchantBadge merchantId={merchantId} />
         </p>
-      </div>
-      <div className="mt-3">
-        <RunHistory id={id} runs={runs} />
       </div>
       <blockquote className="mt-4 rounded-md bg-muted px-5 py-4 text-lg italic leading-relaxed">
         {question}

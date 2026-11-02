@@ -59,19 +59,3 @@ export function EveryCase({ cases, runs }: { cases: Case[]; runs: RunRecord[] })
   );
 }
 
-// "Run 1 pass, Run 2 fail": a case's outcome in every run, for a card or page.
-export function RunHistory({ id, runs }: { id: string; runs: RunRecord[] }) {
-  return (
-    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
-      {runs.map((r, i) => {
-        const o = r.outcomes[id]?.outcome;
-
-        return (
-          <span key={r.run} className="inline-flex items-center gap-1">
-            Run {i + 1} {o ? <OutcomeBadge outcome={o} /> : <span className="text-xs">not run</span>}
-          </span>
-        );
-      })}
-    </p>
-  );
-}
