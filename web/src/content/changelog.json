@@ -170,6 +170,22 @@
       "[pro-04](/evaluation/pro-04) failed because Haiku asked the owner to check for a packing photo instead of proposing a dispute. The action checker therefore received no proposal.",
       "All other test outcomes stayed the same. Haiku cost about one-twelfth as much, with similar response times. No answer used Markdown formatting."
     ],
-    "next": "Add the missing phrase to the grader. Add a code check for figures attributed to policy sections so the system can detect citations that do not support those figures."
+    "next": "Add the missing phrase to the grader. Decide which model the agent keeps. Then a closing run on that model, with nothing else changed."
+  },
+  {
+    "run": "20261102T040145Z",
+    "date": "2026-11-02",
+    "title": "The same 39 questions on Sonnet 5.5 again, as a closing run",
+    "changed": [
+      "The grader accepts \"don't include\" and \"do not include\" on the hospital staff question. Run 9 regraded with it passes 38 of 39.",
+      "The model decision is written down: the agent stays on Sonnet 5.5, because Haiku did not propose the Uber Eats dispute, and proposing an action for code to check is the part that matters most.",
+      "Nothing else changed. This run repeats run 8 to check that 39 of 39 holds a second time on the same model."
+    ],
+    "passed": 39,
+    "result": "39 of 39, $0.48.",
+    "moved": [
+      "Nothing moved. Every test passed, including the two Haiku missed. Precision 30%, recall 100%, the same as run 8."
+    ],
+    "next": "The experiment is closed. Every failure across ten runs has a name on this page, and each of the three cases from the home page has a verdict."
   }
 ]

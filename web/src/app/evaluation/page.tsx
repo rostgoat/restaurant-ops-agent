@@ -68,10 +68,11 @@ export default function EvaluationPage() {
           <p>
             The first run passed 34 of the original 38 tests. Between runs, I changed the prompts,
             search settings, or grading rules, then repeated the tests to check whether the
-            change helped or caused other failures. By the eighth run, Sonnet 5.5 passed all {s.cases}.
+            change helped or caused other failures. By the eighth run, Sonnet 5.5 passed all {s.cases},
+            and a closing tenth run on Sonnet passed all {s.cases} again.
           </p>
           <p>
-            I then tested Haiku 5.5 on the same questions. It passed 37 of {s.cases} at about
+            I then tested Haiku 5.5 on the same questions. It passed 38 of {s.cases} at about
             one-twelfth the cost. The results below show what failed, what I changed, and how
             the two models compared.
           </p>
@@ -143,7 +144,7 @@ export default function EvaluationPage() {
         <h2 id="conclusion" className="mb-6 scroll-mt-28 text-3xl">Findings and limitations</h2>
         <div className="space-y-4 text-lg leading-relaxed text-muted-foreground">
           <p>
-            Nine runs tested whether the agent could follow action rules, calculate the right
+            Ten runs tested whether the agent could follow action rules, calculate the right
             figures, and use policy citations correctly. The results show where the checks
             helped and where they are still incomplete.
           </p>

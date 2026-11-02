@@ -87,6 +87,7 @@ const RUN6 = "20261101T043023Z";
 const RUN7 = "20261101T230259Z";
 const RUN8 = "20261101T232428Z";
 const RUN9 = "20261102T030225Z";
+const RUN10 = "20261102T040145Z";
 export const runs = runsFile as RunRecord[];
 const traces = tracesFile as Record<string, Record<string, Trace>>;
 
@@ -153,6 +154,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. The answer counted 22 orders and included a breakdown by sales channel.",
     ],
+    [RUN10]: ["Passed on Sonnet again: 22."],
   },
   "sql-05": {
     [RUN1]: [
@@ -186,6 +188,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku with $2.64, based on 2,633 in-store orders and 1,269 DoorDash orders.",
     ],
+    [RUN10]: ["Passed on Sonnet again, $2.64."],
   },
   "pol-02": {
     [RUN1]: [
@@ -224,6 +227,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. The section scored 0.40 by similarity, at the threshold, and ranked first for keywords.",
     ],
+    [RUN10]: ["Passed on Sonnet again."],
   },
   "pol-03": {
     [RUN1]: [
@@ -254,6 +258,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. All three citations used full labels.",
     ],
+    [RUN10]: ["Passed on Sonnet again, every label in full."],
   },
   "pol-05": {
     [RUN1]: [
@@ -290,6 +295,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. The search returned Allergies at 0.41 and Comps through keyword matching at a similarity score of 0.31. The answer identified them as the closest sections and correctly said the policies did not cover health inspections.",
     ],
+    [RUN10]: ["Passed on Sonnet again."],
   },
   "pol-11": {
     [RUN1]: [
@@ -323,6 +329,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. The answer identified the 15% cap and 563 customers with verified consent, with all four citation labels complete.",
     ],
+    [RUN10]: ["Passed on Sonnet again."],
   },
   "pol-12": {
     [RUN1]: [
@@ -352,12 +359,15 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku.",
     ],
+    [RUN10]: ["Passed on Sonnet again."],
   },
   "pol-15": {
     [RUN9]: [
       "Haiku correctly said the policies and sales data did not include a hospital staff discount. It cited House §4 for the listed 10% and 15% discounts and did not apply Ridgeline's badge rule to this restaurant.",
       "The answer used \"don't include\". The grader accepted \"not include\", \"doesn't include\", and \"does not include\", so it rejected the correct answer. This was the third case affected by a missing phrase.",
+      "Regraded as a pass on 2 November, after 'don't include' joined the phrase list.",
     ],
+    [RUN10]: ["Passed on Sonnet, which said there is no hospital staff discount."],
   },
   "pro-04": {
     [RUN9]: [
@@ -365,6 +375,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Sonnet had proposed a dispute in every earlier run and passed it to the action checker. This test requires a proposal so the checker can apply the rules; Haiku's answer gave it nothing to check.",
       "Haiku correctly read the photo requirement: orders over $40 need a photo, and the data has no photo records. The failure reflects the test's requirement to submit a proposal for checking.",
     ],
+    [RUN10]: ["Passed on Sonnet, which proposed the dispute and left the decision to the checker."],
   },
 };
 

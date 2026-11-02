@@ -271,9 +271,10 @@ export default function ArchitecturePage() {
             <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> Chosen on a
             side-by-side with Opus 5.5 on ten captured questions, before the evaluation set
             existed: the same outcomes at half the cost. The ninth evaluation run put the same 39
-            questions to Haiku 5.5: 37 of 39 at a twelfth of the cost, with one answer that was
-            right in words the grader did not have and one dispute it asked about instead of
-            proposing. The Evaluation page has both.
+            questions to Haiku 5.5: 38 of 39 at a twelfth of the cost. The one miss was the Uber
+            Eats dispute, which Haiku asked the owner about instead of proposing, so the checker
+            never saw it. Proposing an action for code to check is the part of this agent that
+            matters most, so the model stays Sonnet. A question costs about a cent.
           </li>
           <li>
             <strong className="font-semibold">Prompt caching.</strong> The system prompt, the

@@ -446,7 +446,9 @@
           "doesn't include",
           "does not include",
           "no standard",
-          "no automatic"
+          "no automatic",
+          "don't include",
+          "do not include"
         ]
       ],
       "must_not_mention": [
