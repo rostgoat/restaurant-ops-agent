@@ -12,7 +12,7 @@ const caught = data.results.find((r) => r.case.id === "pro-06")!;
 function cents(usd: number | null): string {
   const c = Math.round((usd ?? 0) * 100);
 
-  return c === 1 ? "a cent" : `${c} cents`;
+  return c === 1 ? "1 cent" : `${c} cents`;
 }
 
 function seconds(ms: number | null): string {
@@ -54,10 +54,6 @@ export default function HomePage() {
           </Link>{" "}
           is that record, one run at a time.
         </p>
-        <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
-          {data.summary.cases} questions. {runs.length} runs. About {cents(data.summary.cost_per_answered_median_usd)}{" "}
-          and {seconds(data.summary.latency_median_ms)} per answer.
-        </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
             asChild
@@ -77,6 +73,20 @@ export default function HomePage() {
             </a>
           </Button>
         </div>
+      </section>
+
+      <section className="mt-16 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          [String(data.summary.cases), "questions"],
+          [String(runs.length), "runs"],
+          [cents(data.summary.cost_per_answered_median_usd), "per answer"],
+          [seconds(data.summary.latency_median_ms), "per answer"],
+        ].map(([figure, label]) => (
+          <div key={`${figure} ${label}`} className="rounded-lg border bg-card px-5 py-4">
+            <p className="font-heading text-3xl">{figure}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+          </div>
+        ))}
       </section>
 
       <section className="mt-28 space-y-12">
