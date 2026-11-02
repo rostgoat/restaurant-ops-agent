@@ -98,7 +98,8 @@ export default function ArchitecturePage() {
           The model gets the question and a description of the seven tables it may read. It has
           four tools. <Code>run_sql</Code> writes one <Code>SELECT</Code> and says what it answers.{" "}
           <Code>search_policy</Code> asks for the rules on a topic. <Code>propose</Code> drafts an
-          action: a dispute, a text campaign, a comp or a note to the owner. <Code>decline</Code>{" "}
+          action: a dispute, a text campaign, a comp, a note to the owner or something else.{" "}
+          <Code>decline</Code>{" "}
           turns the question down and says why.
         </p>
         <p className="mt-4">
@@ -217,8 +218,8 @@ export default function ArchitecturePage() {
         </h2>
         <p>
           A pending proposal waits for a person to approve or reject it through the API. The site
-          has no approval screen, and the evaluation harness is the only caller. Either
-          choice appends a human step to the trace. Approval then appends a code step that writes
+          has no approval screen and the evaluation does not approve anything, so only someone
+          with the API token can. Either choice appends a human step to the trace. Approval then appends a code step that writes
           a record of the action, labelled as simulated. No marketplace, phone or register is
           reached. This is the only way anything changes. The model has no step in it.{" "}
           <File path="api/app/routes/proposals.py" />
@@ -305,13 +306,13 @@ export default function ArchitecturePage() {
           <li>The two restaurants and their orders are generated. Nothing here is real sales.</li>
           <li>An approved action is recorded, not sent. No marketplace, SMS gateway or register is connected.</li>
           <li>
-            There is no login. The restaurant id is a request header, sent by the evaluation
-            harness. In a real product it would come from the account.
+            There is no login. The restaurant id is a request header on the API and a parameter
+            in the evaluation harness. In a real product it would come from the account.
           </li>
           <li>
-            Each run is one pass over the set. A case that passes once has not been shown to pass
-            every time, and three single-case reps before a full run is the only spread measured
-            so far.
+            Each run is one pass over the set. Two full passes with the same settings, runs 8
+            and 10, agreed on every case, and three single-case repeats before a change is the
+            only other measure of spread.
           </li>
           <li>Tenant isolation is enforced in the application, not in the database.</li>
         </ul>
