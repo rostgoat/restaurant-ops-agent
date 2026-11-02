@@ -402,7 +402,12 @@ export function failed(results: Result[]): Result[] {
 
 export function describeExpectation(r: Result): string {
   const c = r.case as Result["case"] & Record<string, unknown>;
-  const kind = String(c.proposal_kind ?? "").replace("_", " ");
+  const proposalNames: Record<string, string> = {
+    file_dispute: "dispute",
+    sms_campaign: "text campaign",
+    comp: "comp",
+  };
+  const kind = proposalNames[String(c.proposal_kind)] ?? "action";
 
   switch (c.suite) {
     case "sql":
