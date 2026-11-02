@@ -12,9 +12,11 @@ person.
 Two fictional restaurants, generated orders, no real sales data. Built as an
 applied AI case study. The site walks through it:
 
-- **Evaluation.** 38 questions with the right answer written down first,
-  graded by code, run again after every change. Six runs so far, each
-  changing one thing, with every failure named and every trace shown.
+- **Evaluation.** 39 questions with the right answer written down first,
+  graded by code, run again after every change. Ten runs, each changing one
+  thing, with every failure named and every trace shown. Sonnet 5.5 ends on
+  39 of 39; Haiku 5.5 on the same questions, 38 of 39 at a twelfth of the
+  cost.
 - **Architecture.** The request path as a diagram, one section per step with
   a link to the file, the decisions, and what it does not do.
 
@@ -50,7 +52,8 @@ docker compose run --rm tools python ../data/generate.py --out ../data/out --pro
 ```
 
 Model: Claude Sonnet 5.5. Embeddings: OpenAI text-embedding-3-small. Database:
-Postgres with pgvector.
+Postgres, with pgvector for the policy embeddings and its full-text search for
+their words.
 
 ## Licence
 
