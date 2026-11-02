@@ -68,8 +68,8 @@ export default function EvaluationPage() {
           <p>
             The first run passed 34 of the original 38 tests. Between runs, I changed the prompts,
             search settings, or grading rules, then repeated the tests to check whether the
-            change helped or caused other failures. By the eighth run, Sonnet 5.5 passed all {s.cases},
-            and a closing tenth run on Sonnet passed all {s.cases} again.
+            change helped or caused other failures. By the eighth run, Sonnet 5.5 passed all {s.cases}.
+            A closing tenth run on Sonnet passed all {s.cases} again.
           </p>
           <p>
             I then tested Haiku 5.5 on the same questions. It passed 38 of {s.cases} at about

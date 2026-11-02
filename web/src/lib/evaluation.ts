@@ -154,7 +154,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. The answer counted 22 orders and included a breakdown by sales channel.",
     ],
-    [RUN10]: ["Passed on Sonnet again: 22."],
+    [RUN10]: ["Passed on Sonnet again. The answer counted 22 catering orders."],
   },
   "sql-05": {
     [RUN1]: [
@@ -188,7 +188,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku with $2.64, based on 2,633 in-store orders and 1,269 DoorDash orders.",
     ],
-    [RUN10]: ["Passed on Sonnet again, $2.64."],
+    [RUN10]: ["Passed on Sonnet again with $2.64, the same figure as runs 3 through 9."],
   },
   "pol-02": {
     [RUN1]: [
@@ -258,7 +258,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     [RUN9]: [
       "Passed on Haiku. All three citations used full labels.",
     ],
-    [RUN10]: ["Passed on Sonnet again, every label in full."],
+    [RUN10]: ["Passed on Sonnet again. Every citation used a full label."],
   },
   "pol-05": {
     [RUN1]: [
@@ -367,7 +367,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "The answer used \"don't include\". The grader accepted \"not include\", \"doesn't include\", and \"does not include\", so it rejected the correct answer. This was the third case affected by a missing phrase.",
       "Regraded as a pass on 2 November, after 'don't include' joined the phrase list.",
     ],
-    [RUN10]: ["Passed on Sonnet, which said there is no hospital staff discount."],
+    [RUN10]: ["Passed on Sonnet. The answer said Mekong has no hospital staff discount, in words the grader accepts."],
   },
   "pro-04": {
     [RUN9]: [
@@ -375,7 +375,7 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
       "Sonnet had proposed a dispute in every earlier run and passed it to the action checker. This test requires a proposal so the checker can apply the rules; Haiku's answer gave it nothing to check.",
       "Haiku correctly read the photo requirement: orders over $40 need a photo, and the data has no photo records. The failure reflects the test's requirement to submit a proposal for checking.",
     ],
-    [RUN10]: ["Passed on Sonnet, which proposed the dispute and left the decision to the checker."],
+    [RUN10]: ["Passed on Sonnet. The agent proposed the dispute and the action checker evaluated it, as in every earlier Sonnet run."],
   },
 };
 
