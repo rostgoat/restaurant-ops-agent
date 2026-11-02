@@ -17,14 +17,14 @@ type Case = { id: string; question: string; merchant_id: number };
 // runs is the thing a reader wants to find, so it is marked.
 export function EveryCase({ cases, runs }: { cases: Case[]; runs: RunRecord[] }) {
   return (
-    <Table className="min-w-[720px]">
+    <Table className="min-w-[960px]">
       <TableHeader>
         <TableRow>
           <TableHead>Test</TableHead>
-          <TableHead>Question</TableHead>
+          <TableHead className="min-w-[28rem]">Question</TableHead>
           <TableHead>Restaurant</TableHead>
           {runs.map((r, i) => (
-            <TableHead key={r.run} className="whitespace-nowrap">
+            <TableHead key={r.run} className="w-20 whitespace-nowrap">
               Run {i + 1}
             </TableHead>
           ))}
@@ -42,7 +42,7 @@ export function EveryCase({ cases, runs }: { cases: Case[]; runs: RunRecord[] })
                   {c.id}
                 </Link>
               </TableCell>
-              <TableCell className="whitespace-normal">{c.question}</TableCell>
+              <TableCell className="min-w-[28rem] whitespace-normal">{c.question}</TableCell>
               <TableCell className="whitespace-nowrap">
                 <MerchantBadge merchantId={c.merchant_id} />
               </TableCell>
