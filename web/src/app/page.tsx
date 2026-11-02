@@ -36,7 +36,9 @@ export default function HomePage() {
           I built an agent that answers a restaurant owner&apos;s questions. Then I tried to find out
           what happens when it is wrong.
         </h1>
-        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">There are three ways it can be wrong.</p>
+        <p className="mt-8 text-xl leading-relaxed text-muted-foreground">
+          I tested three ways it could go wrong.
+        </p>
         <ol className="mt-4 list-decimal space-y-2 pl-6 text-xl leading-relaxed text-muted-foreground">
           <li>An action that breaks a rule. Caught by code before anyone sees it.</li>
           <li>
@@ -49,11 +51,11 @@ export default function HomePage() {
           </li>
         </ol>
         <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
-          The{" "}
+          The{' '}
           <Link href="/evaluation" className="text-primary underline-offset-4 hover:underline">
-            evaluation
-          </Link>{" "}
-          is that record, one run at a time.
+            evaluation results
+          </Link>{' '}
+          show the failures, the changes I made, and the cost of each run.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
@@ -61,7 +63,7 @@ export default function HomePage() {
             size="lg"
             className="h-11 px-5 font-heading text-base"
           >
-            <Link href="/evaluation">See the evaluation</Link>
+            <Link href="/evaluation">View evaluation results</Link>
           </Button>
           <Button
             asChild
@@ -78,10 +80,10 @@ export default function HomePage() {
 
       <section className="mt-16 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          [String(data.summary.cases), "questions"],
-          [String(runs.length), "runs"],
-          [cents(data.summary.cost_per_answered_median_usd), "per answer"],
-          [seconds(data.summary.latency_median_ms), "per answer"],
+          [String(data.summary.cases), "test questions"],
+          [String(runs.length), "evaluation runs"],
+          [cents(data.summary.cost_per_answered_median_usd), "median cost per answer"],
+          [seconds(data.summary.latency_median_ms), "median response time"],
         ].map(([figure, label]) => (
           <div key={`${figure} ${label}`} className="rounded-lg border bg-card px-5 py-4">
             <p className="font-heading text-3xl">{figure}</p>
@@ -90,7 +92,23 @@ export default function HomePage() {
         ))}
       </section>
 
+      <p className="mt-3 text-sm text-muted-foreground">
+        Cost and response time are from the latest evaluation run.
+      </p>
+
       <section className="mt-28 space-y-12">
+        <CaseCard
+          id={caught.case.id}
+          kicker="Caught by code"
+          headline="The action checker corrected the customer count"
+          merchantId={caught.case.merchant_id}
+          question={caught.case.question}
+          lines={[
+            "Of 29,762 customers with phone numbers, 563 have verified consent and have not unsubscribed.",
+            "In two runs, the agent estimated 121 eligible customers. The action checker counted them from the database and replaced that estimate with 563.",
+            "That exceeds the 500-customer limit, so the campaign required the owner's approval in every run. No messages were sent.",
+          ]}
+        />
         <CaseCard
           id={wrongNumber.case.id}
           kicker="Measured, not caught"
@@ -98,40 +116,28 @@ export default function HomePage() {
           merchantId={wrongNumber.case.merchant_id}
           question={wrongNumber.case.question}
           lines={[
-            "The query passed every safety check and ran clean. Its date range started and ended ten hours early.",
-            "It answered $2.49. The right figure is $2.64, and only my own query, run afterwards, could tell.",
-            "A line in the prompt fixed it in run 3. A wrong window written another way would still run.",
-          ]}
-        />
-        <CaseCard
-          id={caught.case.id}
-          kicker="Caught by code"
-          headline="The agent said 121 customers. Code counted 563."
-          merchantId={caught.case.merchant_id}
-          question={caught.case.question}
-          lines={[
-            "Of 29,762 customers with a phone number, 563 have verified consent and have not unsubscribed.",
-            "In two runs the agent put the audience at 121. The checker recounts it from the consent flags and uses its own number.",
-            "563 is over the 500 cap, so the campaign waited for the owner in every run. Nothing was sent.",
+            "The query passed the safety checks, but a time zone error shifted both ends of its date range ten hours early.",
+            "The agent answered $2.49. My reference query gave $2.64, so the test failed.",
+            "Date conversion instructions corrected this case in run 3. The safety checks still cannot tell whether a query uses the dates the owner intended.",
           ]}
         />
         <CaseCard
           id={hidden.case.id}
-          kicker="Hidden by the search, fixed by changing it"
+          kicker="A fourth thing, found on the way: hidden by the search, fixed by changing it"
           headline={headline[hidden.case.id]}
           merchantId={hidden.case.merchant_id}
           question={hidden.case.question}
           lines={[
-            "Ridgeline is on no delivery marketplace, and one sentence in its policies says so. For five runs the search never showed it, so the agent told the owner there was no rule.",
-            "The sentence scored 0.28 by meaning against the question. An embedding does not see that the word DoorDash is in it.",
-            "Run 6 changed the search to match words as well as meaning. The section came up first for the word DoorDash and has been cited in every run since.",
+            "Ridgeline's policies say it does not use delivery marketplaces. Search missed that section in four of the first five runs, and the agent gave advice without it.",
+            "An early search gave the section a similarity score of 0.28, below the threshold, even though it contained the word DoorDash.",
+            "Run 6 added keyword matching. The section ranked first for DoorDash, was shown to the agent, and has been cited in every run since.",
           ]}
         />
       </section>
 
       <section className="mt-16">
         <Button asChild size="lg" className="h-14 px-8 font-heading text-lg">
-          <Link href="/evaluation">See the evaluation</Link>
+          <Link href="/evaluation">View evaluation results</Link>
         </Button>
       </section>
     </>

@@ -14,8 +14,8 @@ const host =
 export const SITE_URL = new URL(host);
 export const SITE_NAME = "Restaurant ops agent";
 export const SITE_DESCRIPTION =
-  "An AI agent that answers a restaurant's questions from its own sales data and policies. " +
-  "Code decides what runs, a person approves every action, and every step is traced, costed and evaluated.";
+  "A restaurant operations agent tested on sales questions, policy answers, and action proposals. " +
+  "See the evaluation results, failures, costs, and implementation.";
 
 const OG_IMAGE = { url: "/opengraph-image", width: 1200, height: 630, alt: SITE_NAME };
 

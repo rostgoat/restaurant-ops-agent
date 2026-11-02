@@ -37,7 +37,7 @@ export function CaseCard({
         href={`/evaluation/${id}`}
         className="mt-4 inline-flex items-center gap-1 font-heading text-base text-primary underline-offset-4 hover:underline"
       >
-        The full record, every run <ArrowRight className="size-4" aria-hidden />
+        View results for this test <ArrowRight className="size-4" aria-hidden />
       </Link>
     </article>
   );
