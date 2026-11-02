@@ -102,7 +102,7 @@ export default function EvaluationPage() {
         question="An answer that cites a section the agent was never shown is an answer made up. A code step compares every citation in the answer with the sections retrieved. I wanted to see it fire."
         ran="Every policy case runs through it. The grader recomputes the check from the answer text, so a regrade uses today's parser and not the one from the day of the run."
         found="It fired on four answers across the first three runs, every one of them right. The agent cited the first section with its full label, then shortened a later one: [§5], [§4, Frequency], or the document name without the section title. The step failed each. The campaign case failed all three runs, each time on a different shortening, and the quiet hours case failed only in run 2. For the fourth run I added two sentences to the prompt: write the whole label every time, never shorten it. No short label anywhere in that run, and both cases passed."
-        decided="This is the check doing its job, and it is also the check being literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and two runs say it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
+        decided="The check is literal. A reader knows which document [§4, Frequency] means when only one document was shown. I could have let the step accept a short label when it matches exactly one retrieved section, or tell the agent to write the full label every time. I chose the second, because the check is the part I trust and I would rather not teach it to guess, and two runs say it held. What the step still does not do is read: it knows a cited section was shown, not that the section supports the answer. That is the third kind of wrong, and it has no code behind it yet."
       >
         <Failures results={policy.filter((r) => CITATION_CASES.includes(r.case.id))} />
       </Experiment>
@@ -114,7 +114,7 @@ export default function EvaluationPage() {
         question="When the agent proposes an action, code re-derives every rule from the limits file and the database before a person sees it. I wanted to know whether anything that breaks a rule gets through."
         ran={`${propose.length} proposals: disputes inside and outside their window, campaigns over and under the discount cap, an audience the agent counted wrong, a comp over the manager's limit. And ${guarded.length} questions that must be declined, scoped to the asking restaurant, or answered without a search.`}
         found={`${passed(propose)} of ${propose.length}, and ${passed(guarded)} of ${guarded.length}. The checker counted 563 customers with verified consent where the agent said everyone with a phone number, 29,762 of them. It blocked a 25% campaign under a 20% cap and a dispute filed 26 days after a 7-day window.`}
-        decided="This is the strongest part of the system, and the reason is structural: the agent's proposal is an input, and the verdict comes from code reading the same rules a person would. It is the part worth extending. The cost is that every rule has to be written down as a limit a program can check, and the owners' policies are written for people."
+        decided="The strongest part of the system, because the agent's proposal is an input and the verdict comes from code reading the same rules a person would. It is the part worth extending. The cost is that every rule has to be written down as a limit a program can check, and the owners' policies are written for people."
       >
         <Failures results={[...propose, ...guarded]} />
       </Experiment>
@@ -149,15 +149,12 @@ export default function EvaluationPage() {
             </li>
             <li>
               A limit of the design. The hidden section that no threshold and no wording could
-              reach, which needed a search that sees words as well as meaning. That one was the
-              only failure about the system rather than the prompt or the test, and it took a new
-              mechanism, not a line.
+              reach, which needed a search that sees words as well as meaning.
             </li>
           </ol>
           <p>
-            <strong className="text-foreground">What the score means.</strong> 38 of 38 on the
-            sixth run is not evidence the agent works. It is evidence that these 38 questions,
-            which I wrote, no longer catch it. Three of the fixes were patches for a slip I had
+            <strong className="text-foreground">What the score means.</strong> 39 of 39 on the
+            eighth run says only that these 39 questions, which I wrote, no longer catch it. Three of the fixes were patches for a slip I had
             seen, and the page says so where each one lives. What the runs do show is that one
             change at a time can be measured on this set for about fifty cents, and that the
             matrix tells you which change moved which case.
@@ -169,8 +166,8 @@ export default function EvaluationPage() {
             and not caught, and the one case of it was fixed by telling the agent how to write a
             date. A cited section that does not support the answer is still neither: the
             citations step knows a section was shown, not that it says what the answer claims.
-            That is the gap I have not built, because I do not yet know how to check support
-            without a second model whose own errors I would then have to measure.
+            A second model could check support, and its errors would then need measuring too, so
+            I have not built that.
           </p>
           <p>
             <strong className="text-foreground">What the graders cannot see.</strong> The SQL

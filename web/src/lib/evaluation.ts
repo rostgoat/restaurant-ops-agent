@@ -250,12 +250,12 @@ export const diagnosis: Record<string, Record<string, string[]>> = {
     ],
     [RUN3]: [
       "As in run 2: the Allergies section was shown at 0.41, and the model cited it while saying it could not find a rule on health inspections.",
-      "The grader also missed the phrase it looks for, because the answer says it could not find a rule rather than that the policies do not cover it. Two grader rules, one honest answer.",
+      "The grader also missed the phrase it looks for, because the answer says it could not find a rule rather than that the policies do not cover it.",
       "Regraded as a pass on 1 November, after 'couldn't find' joined the phrase list.",
     ],
     [RUN4]: [
       "As in runs 2 and 3. The Allergies section was shown at 0.41, the agent said the policies do not cover health inspections, and cited the section while saying it sets no inspection rule.",
-      "Three runs the same way. The answer is right every time, and the grader's rule for a not-covered case is the thing that has to change.",
+      "The answer is right every time. The grader's rule for a not-covered case is what has to change.",
       "Regraded as a pass on 1 November, after the not-covered rule changed.",
     ],
     [RUN5]: [

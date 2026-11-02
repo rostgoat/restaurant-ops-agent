@@ -36,7 +36,7 @@ export default function HomePage() {
           <Link href="/evaluation" className="text-primary underline-offset-4 hover:underline">
             evaluation
           </Link>{" "}
-          is the record of finding that out, one run at a time, with the numbers.
+          is that record, one run at a time.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button

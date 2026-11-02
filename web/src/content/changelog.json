@@ -100,7 +100,7 @@
     "moved": [
       "[pol-05](/evaluation/pol-05) passes in runs 2, 3 and 4. Each answer said the policies do not cover it, in words my list did not have, or cited the near section to say it does not apply.",
       "[pol-11](/evaluation/pol-11) passes in run 5. The answer told the owner 'unless you approve more', which names the owner when the owner is asking.",
-      "[pol-02](/evaluation/pol-02) is the one failure left in every run but run 4, and the only one about the agent. A word list checks words and a person checks meaning. Twice in five runs the list was missing a wording I should have put in."
+      "[pol-02](/evaluation/pol-02) is the one failure left in every run but run 4, and the only one about the agent. Twice in five runs the list was missing a wording the agent used."
     ],
     "next": "The hidden section needs a search that matches a word as well as a meaning. Six single-case reps of prompt wording put its score at 0.37 to 0.39 against a 0.40 line. That is code, a different system, and the next experiment."
   },
@@ -110,7 +110,7 @@
     "title": "Sixth run: the policy search matches words as well as meaning",
     "changed": [
       "[The search](https://github.com/rostgoat/restaurant-ops-agent/blob/main/api/app/policies/search.py) now scores every section two ways. The meaning score is the embedding similarity, as before. The word score is the sum of the rarity of the search's words that appear in the section, within this restaurant's policies, so 'DoorDash' in one section of twenty-five outweighs 'order' in fifteen. The two rankings are merged by rank, and the section whose words match best is shown even when its meaning score is under the threshold. One new column in the policy table, built by Postgres from the section text.",
-      "This is a different kind of change from the prompt lines: a new mechanism, with its own tests, and the first run of a new retriever. The threshold, the prompt and the grader did not change.",
+      "A new mechanism with its own tests, and the first run of a new retriever. The threshold, the prompt and the grader did not change.",
       "Before the full run, the hidden-section case was run three times on its own and passed all three, after passing one of six with prompt wording."
     ],
     "passed": 38,
