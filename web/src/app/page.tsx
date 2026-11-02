@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Kicker } from "@/components/kicker";
-import { CaseFailure } from "@/components/failure-card";
+import { CaseCard } from "@/components/case-card";
 import { Button } from "@/components/ui/button";
-import { data } from "@/lib/evaluation";
+import { data, headline, runs } from "@/lib/evaluation";
 import { SITE_DESCRIPTION } from "@/lib/site";
 
-const example = data.results.find((r) => r.case.id === "sql-05")!;
+const wrongNumber = data.results.find((r) => r.case.id === "sql-05")!;
+const caught = data.results.find((r) => r.case.id === "pro-06")!;
 
 export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
@@ -31,7 +32,7 @@ export default function HomePage() {
           </li>
           <li>
             A cited section that does not support the answer. Not caught by anything, and not
-            seen yet in 49 questions built to cause it.
+            seen yet in 34 questions written to cause it.
           </li>
         </ol>
         <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
@@ -40,6 +41,9 @@ export default function HomePage() {
             evaluation
           </Link>{" "}
           is that record, one run at a time.
+        </p>
+        <p className="mt-4 text-xl leading-relaxed text-muted-foreground">
+          {data.summary.cases} questions. {runs.length} runs. Every trace on the site.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button
@@ -62,11 +66,37 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mt-28">
-        <p className="mb-3 font-heading text-base text-primary">
-          Experiment 1
-        </p>
-        <CaseFailure result={example} />
+      <section className="mt-28 space-y-12">
+        <CaseCard
+          id={wrongNumber.case.id}
+          kicker="Measured, not caught"
+          headline={headline[wrongNumber.case.id]}
+          merchantId={wrongNumber.case.merchant_id}
+          question={wrongNumber.case.question}
+          lines={[
+            "The query passed every safety check and ran clean. Its date range started and ended ten hours early.",
+            "It answered $2.49. The right figure is $2.64, and only my own query, run afterwards, could tell.",
+            "A line in the prompt fixed it in run 3. A wrong window written another way would still run.",
+          ]}
+        />
+        <CaseCard
+          id={caught.case.id}
+          kicker="Caught by code"
+          headline="The agent said 121 customers. Code counted 563."
+          merchantId={caught.case.merchant_id}
+          question={caught.case.question}
+          lines={[
+            "Of 29,762 customers with a phone number, 563 have verified consent and have not unsubscribed.",
+            "In two runs the agent put the audience at 121. The checker recounts it from the consent flags and uses its own number.",
+            "563 is over the 500 cap, so the campaign waited for the owner in every run. Nothing was sent.",
+          ]}
+        />
+      </section>
+
+      <section className="mt-16">
+        <Button asChild size="lg" className="h-14 px-8 font-heading text-lg">
+          <Link href="/evaluation">See the experiment</Link>
+        </Button>
       </section>
     </>
   );

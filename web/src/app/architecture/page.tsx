@@ -8,24 +8,24 @@ import { count } from "@/lib/format";
 
 export const metadata = pageMetadata(
   "Architecture",
-  "How a question becomes an answer: the model picks a tool, code checks and runs it, a person approves. One section per step with a link to the file, the decisions, and what it does not do.",
+  "How the agent uses tools, checks SQL and policy citations, and submits actions for human approval. Includes implementation links, design choices, and limitations.",
   "/architecture",
 );
 
 const REPO = "https://github.com/rostgoat/restaurant-ops-agent/blob/main/";
 
 const sections = [
-  { slug: "tools", title: "The model picks a tool" },
-  { slug: "guard", title: "The guard" },
-  { slug: "database", title: "The database" },
-  { slug: "retrieval", title: "Policy retrieval" },
-  { slug: "proposals", title: "Proposals and the checker" },
-  { slug: "citations", title: "The citation check" },
-  { slug: "approval", title: "The approval step" },
-  { slug: "trace", title: "The trace and the cost" },
-  { slug: "decisions", title: "Decisions" },
-  { slug: "gaps", title: "What it does not do" },
-  { slug: "stack", title: "Stack" },
+  { slug: "tools", title: "Tools available to the model" },
+  { slug: "guard", title: "SQL safety checks" },
+  { slug: "database", title: "Query execution" },
+  { slug: "retrieval", title: "Policy search" },
+  { slug: "proposals", title: "Action proposals and checks" },
+  { slug: "citations", title: "Citation checks" },
+  { slug: "approval", title: "Human approval" },
+  { slug: "trace", title: "Traces and costs" },
+  { slug: "decisions", title: "Design choices" },
+  { slug: "gaps", title: "Limitations" },
+  { slug: "stack", title: "Technology and hosting" },
 ];
 
 function Code({ children }: { children: string }) {
@@ -58,277 +58,269 @@ export default function ArchitecturePage() {
       <PageOutline items={sections} />
       <article className="text-lg leading-relaxed">
         <Kicker page="Architecture" />
-        <h1 className="mt-4 mb-10 text-4xl sm:text-5xl">How a question becomes an answer</h1>
+        <h1 className="mt-4 mb-10 text-4xl sm:text-5xl">How the agent handles a request</h1>
         <p>
-          Every request goes through the same steps. The{" "}
-          <span className="font-semibold text-model">model</span> decides what to try.{" "}
-          <span className="font-semibold text-code">Code</span> decides what runs. A{" "}
-          <span className="font-semibold text-human">person</span> decides what happens. The model
-          cannot run a query, send a message or file a dispute. Only code and a person can, and the
-          trace records every step.
+          The <span className="font-semibold text-model">model</span> chooses tools and drafts an
+          answer. <span className="font-semibold text-code">Code</span> checks its queries and
+          action proposals before running them. A{' '}
+          <span className="font-semibold text-human">person</span> reviews any allowed proposal.
+          This demo records approved actions as simulations. The trace records the tool calls,
+          checks, results, and approvals.
         </p>
 
         <ul className="mt-8 list-disc space-y-2 pl-6">
-          <li>
-            The model writes SQL, searches the policies and drafts actions. It cannot run a query,
-            send a message or file a dispute.
-          </li>
-          <li>Code takes every query apart before it runs: no writes, one restaurant&apos;s rows only, read-only.</li>
-          <li>
-            Policy search is limited to one restaurant, to sections close enough in meaning and
-            to the one whose words match best. Citations are checked.
-          </li>
-          <li>An action waits for a person. Approval produces a simulated record, not a real send.</li>
-          <li>Every step is recorded with who did it, what it cost and how long it took.</li>
+          <li>The model can submit SQL, search policies, draft actions, or decline a request.</li>
+          <li>SQL checks restrict queries to read-only operations on one restaurant’s data.</li>
+          <li>Policy search uses similarity and keywords, followed by a citation label check.</li>
+          <li>Allowed proposals require human approval before a simulated action is recorded.</li>
+          <li>Traces show the steps, token costs, and time taken.</li>
         </ul>
 
         <figure className="my-14">
           <ArchitectureDiagram />
           <figcaption className="mt-4 text-base text-muted-foreground">
-            The request path. Each box is a step the trace records, in the colour the trace uses.
-            <span className="sm:hidden"> Scroll it sideways to see the code lane.</span>
+            The main request steps, using the same actor colours as the trace.
+            <span className="sm:hidden"> Scroll sideways to see the application steps.</span>
           </figcaption>
         </figure>
 
         <Separator className="my-14" />
         <h2 id="tools" className="mb-3 scroll-mt-28 text-2xl">
-          The model picks a tool
+          Tools available to the model
         </h2>
         <p>
-          The model gets the question and a description of the seven tables it may read. It has
-          four tools. <Code>run_sql</Code> writes one <Code>SELECT</Code> and says what it answers.{" "}
-          <Code>search_policy</Code> asks for the rules on a topic. <Code>propose</Code> drafts an
-          action: a dispute, a text campaign, a comp, a note to the owner or something else.{" "}
-          <Code>decline</Code>{" "}
-          turns the question down and says why.
+          The model receives the question and descriptions of the seven tables it can query.
+          It has four tools: <Code>run_sql</Code> submits a <Code>SELECT</Code> query with a
+          description of its purpose; <Code>search_policy</Code> searches the restaurant’s rules;
+          <Code>propose</Code> drafts an action such as a dispute, text campaign, comp, or note;
+          and <Code>decline</Code> turns down a request with an explanation.
         </p>
         <p className="mt-4">
-          The model can call up to six tools in one request, in any order, or answer in plain
-          text with none. None of the four can write, send or file anything. A question that
-          tells the model to delete or change something, like the injection case in the
-          evaluation, has no tool to do it with. <File path="api/app/agent/tools.py" />
+          The model can make up to six tool calls per request or answer directly without a tool.
+          The tools do not send messages, file disputes, change prices, or delete records. A
+          request to change or delete data cannot give the model access to an operation these
+          tools do not support. <File path="api/app/agent/tools.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="guard" className="mb-3 scroll-mt-28 text-2xl">
-          The guard
+          SQL safety checks
         </h2>
         <p>
-          The guard takes the SQL apart with <Code>sqlglot</Code> into the parts the database would see, a
-          parse tree, instead of reading it as text. A string match misses a write hidden behind a
-          comment or odd casing. A parsed query cannot hide one.
+          The SQL guard uses <Code>sqlglot</Code> to parse a query into a syntax tree. This lets it
+          inspect SQL operations and table references directly, including queries with comments
+          or unusual formatting.
         </p>
         <p className="mt-4">
-          It runs eight checks: the query parses, it is one statement, it is a{" "}
-          <Code>SELECT</Code>, it contains no write, it calls no function that reads files or
-          reaches the network, it reads only the seven allowed tables, it is scoped to one
-          restaurant, and it fits under a row limit.
+          It checks eight conditions: valid syntax, one statement, a <Code>SELECT</Code> operation,
+          no writes, no prohibited functions such as file or network access, only the seven
+          permitted tables, queries limited to one restaurant, and a row limit.
         </p>
         <p className="mt-4">
-          The scope check does not look for a restaurant filter in the query. It adds one. Every
-          table in the query is replaced by that restaurant&apos;s rows, so a join or a subquery
-          cannot reach another restaurant.
+          The guard adds the restaurant filter itself. It replaces each table reference with a
+          filtered query containing only that restaurant’s rows. This also applies to tables
+          inside joins and subqueries.
         </p>
         <p className="mt-4">
-          A blocked query goes back to the model with the name of the check that failed, and the
-          model can try again. If nothing runs, the trace ends as blocked.{" "}
+          When a check fails, the model receives the check name and can submit another query.
+          If no query succeeds, the trace records the request as blocked.{' '}
           <File path="api/app/sql/guard.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="database" className="mb-3 scroll-mt-28 text-2xl">
-          The database
+          Query execution
         </h2>
         <p>
-          The query runs in a read-only transaction with a five-second statement timeout. If a
-          write got past the guard, the database refuses it. If a query is slow, the database
-          stops it. The model gets at most a hundred rows, and the trace keeps exactly the rows it
-          got, so a wrong figure can be checked against what the model saw.{" "}
-          <File path="api/app/sql/execute.py" />
+          Queries run in read-only transactions with a five-second statement timeout. The
+          database rejects writes and stops queries that exceed the timeout. The model receives
+          at most 100 rows. The trace stores the same rows so a reader can compare the answer
+          with the data the model received. <File path="api/app/sql/execute.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="retrieval" className="mb-3 scroll-mt-28 text-2xl">
-          Policy retrieval
+          Policy search
         </h2>
         <p>
-          Each restaurant has three policy documents written as a manual, with numbered sections.
-          Each section is stored in Postgres with an embedding, using <Code>pgvector</Code>, and
-          with the search form of its words. A search is limited to the asking restaurant before
-          any score is computed, the same way the guard limits a query. The two restaurants&apos;
-          rules differ on purpose, so a section from the wrong restaurant would be a wrong
-          decision, not just a wrong answer.
+          Each restaurant has three policy documents divided into numbered sections. Postgres
+          stores each section with an embedding for similarity search, using <Code>pgvector</Code>,
+          and an index of its words for keyword search. Both searches are limited to the asking
+          restaurant before scoring. The two restaurants deliberately have different rules, so
+          returning another restaurant’s policy can change the advice.
         </p>
         <p className="mt-4">
-          Every section is scored two ways: how close its meaning is to the search, and how many
-          of the search&apos;s words it contains, each word weighted by how rare it is in that
-          restaurant&apos;s policies. The two rankings are merged by rank, and up to four
-          sections come back.
+          Search ranks sections by embedding similarity and by matching keywords. Rare words
+          receive more weight than common ones within the restaurant’s policies. The search
+          combines the two rankings and returns up to four candidate sections.
         </p>
         <p className="mt-4">
-          The model sees those with a meaning score above {s.retrieval_threshold.toFixed(2)}, and
-          the one section whose words match best even when its meaning score is under the bar.
-          The rest are written to the trace but not shown, and the trace records which score
-          showed each section. When nothing qualifies, the model is told so.
+          The model receives candidates whose similarity score meets the threshold of{' '}
+          {s.retrieval_threshold.toFixed(2)}, plus the best keyword match even if its similarity
+          score is lower. The trace records all candidates and identifies which search method
+          qualified each section. If no candidate qualifies, the model is told there are no
+          results.
         </p>
         <p className="mt-4">
-          I chose a threshold over a fixed top four because a question the policies do not cover
-          should return nothing, not the nearest miss. I added the word match because an
-          embedding does not see a name like DoorDash that a section is about.{" "}
+          The threshold allows search to return no sections when the policies do not cover a
+          question. I added keyword matching after similarity search repeatedly missed the
+          Delivery Marketplaces section for a question about DoorDash.{' '}
           <File path="api/app/policies/search.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="proposals" className="mb-3 scroll-mt-28 text-2xl">
-          Proposals and the checker
+          Action proposals and checks
         </h2>
         <p>
-          A proposal is structured: a kind, an order or customer, an amount or a discount, an
-          audience, a draft message. Code checks it against a limits file kept beside each
-          restaurant&apos;s policies: dispute windows per platform, the discount cap, the consent
-          rule, the audience cap, the comp limit, the required opt-out wording.
+          A proposal contains structured fields such as action type, order or customer, amount,
+          discount, audience, and draft message. The checker compares those fields with a limits
+          file stored alongside each restaurant’s policies. The file defines dispute windows,
+          discount and comp limits, consent requirements, audience caps, and opt-out wording.
         </p>
         <p className="mt-4">
-          For a text campaign the checker counts the audience itself from the consent flags in
-          the data and overwrites whatever the model claimed.
+          For a text campaign, the checker counts eligible customers from the database’s consent
+          fields and replaces the model’s audience estimate with that count.
         </p>
         <p className="mt-4">
-          A proposal ends pending, pending for the owner, or blocked with the reason. Nothing is
-          sent, filed or comped at this point. <File path="api/app/agent/proposals.py" />
+          The checker either blocks the proposal with a reason or leaves it pending for review,
+          specifying when the owner must approve it. No message, dispute, or comp is carried out
+          at this stage. <File path="api/app/agent/proposals.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="citations" className="mb-3 scroll-mt-28 text-2xl">
-          The citation check
+          Citation checks
         </h2>
         <p>
-          The model cites the sections it used in brackets, like [House Policy §2, Comps]. After
-          the answer, code checks every citation against the sections that were retrieved. A
-          citation to a section the model was not shown fails the check. So does an answer that
-          used policy and cites nothing.
+          The model cites policy sections using full labels in brackets, such as
+          [House Policy §2, Comps]. After it answers, code compares each label with the sections
+          returned to the model. A citation fails if its label does not match a returned section.
+          An answer with no citations also fails when the check requires them.
         </p>
         <p className="mt-4">
-          The answer still goes out, and the trace shows the failed check. On the site a citation
-          opens the section it names. <File path="api/app/agent/loop.py" />
+          A failed citation check is recorded in the trace but does not stop the answer from
+          being displayed. Readers can open a citation to see the policy section. The check
+          verifies the label, not whether the section supports the answer.{' '}
+          <File path="api/app/agent/loop.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="approval" className="mb-3 scroll-mt-28 text-2xl">
-          The approval step
+          Human approval
         </h2>
         <p>
-          A pending proposal waits for a person to approve or reject it through the API. The site
-          has no approval screen and the evaluation does not approve anything, so only someone
-          with the API token can. Either choice appends a human step to the trace. Approval then appends a code step that writes
-          a record of the action, labelled as simulated. No marketplace, phone or register is
-          reached. This is the only way anything changes. The model has no step in it.{" "}
+          A person with the API token can approve or reject a pending proposal through the API.
+          The site has no approval screen, and evaluation runs do not approve proposals. Either
+          decision adds a human step to the trace. Approval also adds a code step that records
+          a simulated action. It does not contact a marketplace, SMS provider, or register.
+          The model does not participate in the approval step.{' '}
           <File path="api/app/routes/proposals.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="trace" className="mb-3 scroll-mt-28 text-2xl">
-          The trace and the cost
+          Traces and costs
         </h2>
         <p>
-          Every step is a row: who did it, the model, code or a person, what it decided, how long
-          it took.
+          Each trace step records its actor—model, code, or human—along with the operation,
+          result, and duration.
         </p>
         <p className="mt-4">
-          Each model turn records its tokens, including how many came from the prompt cache, and
-          the trace prices the request from the published rates. The cost per question on the
-          Evaluation page is the sum of those rows, and every trace on that page is rendered from
-          them. <File path="api/app/agent/trace.py" />
+          Model turns also record token usage, including prompt cache reads and writes. The
+          application calculates request costs using its configured model rates. The Evaluation
+          page adds those costs to show the total for each question and displays the saved
+          steps. <File path="api/app/agent/trace.py" />
         </p>
 
         <Separator className="my-14" />
         <h2 id="decisions" className="mb-3 scroll-mt-28 text-2xl">
-          Decisions
+          Design choices
         </h2>
         <ul className="list-disc space-y-3 pl-6">
           <li>
-            <strong className="font-semibold">Python and <Code>sqlglot</Code> over Node.</strong>{" "}
-            <Code>sqlglot</Code> parses SQL into a tree and lets the guard rewrite it. The guard is
-            the enforcement layer, so the API is written in the language that has the parser.
+            <strong className="font-semibold">Python API.</strong> I chose Python for
+            <Code>sqlglot</Code>, which provides the SQL parser and query rewriting used by the
+            guard.
           </li>
           <li>
-            <strong className="font-semibold">No ORM.</strong> The model writes the SQL. An ORM
-            writes SQL for you, which is the opposite of what this project does. Queries go
-            through <Code>psycopg</Code> directly.
+            <strong className="font-semibold">Direct SQL access.</strong> Queries go through
+            <Code>psycopg</Code>. The model supplies the SQL, so this query path does not use an
+            ORM to generate it.
           </li>
           <li>
-            <strong className="font-semibold">Scoping by rewrite, not row-level security.</strong>{" "}
-            Row-level security would do this job inside Postgres. I rewrite the query instead so the
-            trace can show the filter being added. The data is generated, so there is nothing to
-            protect.
+            <strong className="font-semibold">Restaurant filters added by the application.</strong>{' '}
+            The guard rewrites queries so the trace can show exactly where restaurant filters
+            were added. This demo uses generated data. Postgres row-level security would allow
+            the database to enforce isolation as well; that is not implemented here.
           </li>
           <li>
-            <strong className="font-semibold">A threshold, not a top four.</strong> A question the
-            policies do not cover should return nothing. The threshold is{" "}
-            {s.retrieval_threshold.toFixed(2)} on the meaning score, with one exception: the
-            section whose words match the search best is shown regardless. The Evaluation page
-            has the runs that set the number and added the exception, and what each cost.
+            <strong className="font-semibold">Similarity threshold and keyword matching.</strong>{' '}
+            The similarity threshold is {s.retrieval_threshold.toFixed(2)}. The best keyword
+            match can also qualify below that threshold. The Evaluation page records the runs
+            that led to these choices, including missed rules and irrelevant results.
           </li>
           <li>
-            <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> Chosen on a
-            side-by-side with Opus 5.5 on ten captured questions, before the evaluation set
-            existed: the same outcomes at half the cost. The ninth evaluation run put the same 39
-            questions to Haiku 5.5: 38 of 39 at a twelfth of the cost. The one miss was the Uber
-            Eats dispute. Haiku asked the owner about it instead of proposing it, so the checker
-            never received it. I kept Sonnet because proposing actions for the checker to
-            evaluate is the agent&apos;s most important function. A question costs about one cent.
+            <strong className="font-semibold">Sonnet 5.5 at medium effort.</strong> In an early
+            comparison on ten questions, Sonnet produced the same outcomes as Opus 5.5 at half
+            the cost. Haiku later passed 38 of 39 evaluation tests at about one-twelfth the cost.
+            It missed the Uber Eats dispute because it asked the owner for more information
+            instead of submitting a proposal. I kept Sonnet because submitting actions for the
+            checker is a central requirement. A Sonnet question costs about one cent.
           </li>
           <li>
-            <strong className="font-semibold">Prompt caching.</strong> The system prompt, the
-            tool definitions and the table descriptions are the same for every question, about{" "}
-            {count(cached.prompt)} tokens. They are cached, so every turn after the first reads
-            them at a tenth of the price. On the first evaluation case&apos;s answering turn,{" "}
-            {count(cached.read)} of {count(cached.input)} input tokens came from the cache. The
-            trace records this on every turn and the cost per question includes it. Answers are
-            not cached. Every question is a live run.
+            <strong className="font-semibold">Prompt caching.</strong> The system prompt, tool
+            definitions, and table descriptions are reused across questions. About{' '}
+            {count(cached.prompt)} tokens were read from cache on the first evaluation case’s
+            answering turn: {count(cached.read)} of {count(cached.input)} input tokens. Cache
+            reads cost one-tenth of the standard input rate. Each turn records cache usage, and
+            the displayed cost includes it. Answers are generated for every request.
           </li>
           <li>
-            <strong className="font-semibold">Deterministic graders.</strong> No model grades
-            another model. A case passes on a figure, a citation or a status the trace records.
+            <strong className="font-semibold">Grading in code.</strong> Tests compare the answer
+            with expected figures, citations, phrases, or recorded statuses. They do not use
+            another model as a judge.
           </li>
           <li>
-            <strong className="font-semibold">Two databases from one schema.</strong> The demo
-            database serves the API. The generator can append one day of orders
-            to it at a time, and the job that would do that nightly is not built. The evaluation
-            database is frozen so a score today compares with one next month.
+            <strong className="font-semibold">Separate demo and evaluation databases.</strong>{' '}
+            Both use the same schema. The demo data generator can append a day of orders, but
+            there is no nightly job to run it. Evaluation data stays fixed so results from
+            different runs can be compared.
           </li>
         </ul>
 
         <Separator className="my-14" />
         <h2 id="gaps" className="mb-3 scroll-mt-28 text-2xl">
-          What it does not do
+          Limitations
         </h2>
         <ul className="list-disc space-y-3 pl-6">
-          <li>The two restaurants and their orders are generated. Nothing here is real sales.</li>
-          <li>An approved action is recorded, not sent. No marketplace, SMS gateway or register is connected.</li>
+          <li>The restaurants, policies, and orders are generated for the demo.</li>
+          <li>Approved actions are simulated. No marketplace, SMS provider, or register is connected.</li>
           <li>
-            There is no login. The restaurant id is a request header on the API and a parameter
-            in the evaluation harness. In a real product it would come from the account.
+            There is no user login. The API receives the restaurant ID in a request header;
+            evaluation runs pass it as a test parameter. An authenticated product would need to
+            derive that ID from the user’s account.
           </li>
           <li>
-            Each run is one pass over the set. Two full passes with the same settings, runs 8
-            and 10, agreed on every case, and three single-case repeats before a change is the
-            only other measure of spread.
+            Most configurations have only one full evaluation run. Runs 8 and 10 used the same
+            settings and agreed on every result. Some changes also had three repeats of an
+            individual test. This provides limited evidence about variation between runs.
           </li>
-          <li>Tenant isolation is enforced in the application, not in the database.</li>
+          <li>The application enforces restaurant isolation; the database does not use row-level security.</li>
         </ul>
 
         <Separator className="my-14" />
         <h2 id="stack" className="mb-3 scroll-mt-28 text-2xl">
-          Stack
+          Technology and hosting
         </h2>
         <ul className="list-disc space-y-3 pl-6">
           <li>
             <strong className="font-semibold">API.</strong> <Code>FastAPI</Code>, with{" "}
-            <Code>psycopg</Code> for the database and <Code>sqlglot</Code> for the guard.
+            <Code>psycopg</Code> for database access and <Code>sqlglot</Code> for SQL checks.
           </li>
           <li>
             <strong className="font-semibold">Database.</strong> Postgres, with <Code>pgvector</Code>{" "}
-            for the policy embeddings and its own full-text search for their words.
+            for policy embeddings and Postgres full-text search for keyword matching.
           </li>
           <li>
             <strong className="font-semibold">Embeddings.</strong> OpenAI{" "}
@@ -341,9 +333,9 @@ export default function ArchitecturePage() {
             <strong className="font-semibold">Site.</strong> <Code>Next.js</Code>.
           </li>
           <li>
-            <strong className="font-semibold">Running it.</strong> Locally, one{" "}
-            <Code>docker compose</Code> file runs the database and the API. The site runs on
-            Vercel, the API on Fly, the database on Neon.
+            <strong className="font-semibold">Hosting.</strong> Locally, one{" "}
+            <Code>docker compose</Code> file starts the database and API. The hosted site uses
+            Vercel for the frontend, Fly for the API, and Neon for Postgres.
           </li>
         </ul>
       </article>

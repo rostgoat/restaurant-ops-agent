@@ -78,7 +78,7 @@ export function ArchitectureDiagram() {
       <svg
         viewBox="0 0 760 1115"
         role="img"
-        aria-label="The request path: the owner asks, the model picks tools, code checks and runs them, the model answers, the owner approves or rejects, and code records it."
+        aria-label="Request flow: the owner asks a question, the model requests tools, the application checks and runs them, and the model answers. A person can approve a proposal to record a simulated action."
         className="min-w-[640px] w-full font-sans"
       >
         <defs>
@@ -88,56 +88,56 @@ export function ArchitectureDiagram() {
         </defs>
 
         {/* the owner asks */}
-        <Box x={full.x} y={10} w={full.w} h={56} tone="human" title="The owner asks a question" lines={["Signed in as one restaurant."]} />
+        <Box x={full.x} y={10} w={full.w} h={56} tone="human" title="The owner asks a question" lines={["The request specifies one restaurant."]} />
         <Arrow d={`M ${M.x + 145} 66 L ${M.x + 145} 108`} />
 
         {/* lane titles */}
         <text x={M.x} y={98} className="font-heading" style={{ fontSize: 13, fontWeight: 600, fill: "var(--model)", letterSpacing: 1 }}>MODEL</text>
         <text x={C.x} y={98} className="font-heading" style={{ fontSize: 13, fontWeight: 600, fill: "var(--code)", letterSpacing: 1 }}>CODE</text>
-        <text x={C.x + C.w} y={98} textAnchor="end" style={{ fontSize: 11.5, fill: "var(--muted-foreground)" }}>the model cannot cross this line</text>
+        <text x={C.x + C.w} y={98} textAnchor="end" style={{ fontSize: 11.5, fill: "var(--muted-foreground)" }}>application checks and execution</text>
         <rect x={C.x - 16} y={108} width={C.w + 32} height={664} rx={12} fill="none" style={{ stroke: "var(--code)", strokeWidth: 1, strokeDasharray: "6 5", opacity: 0.6 }} />
 
         {/* the model picks tools */}
-        <Box x={M.x} y={112} w={M.w} h={56} tone="model" title="The model picks a tool" lines={["One or more of the four below, in any order."]} />
+        <Box x={M.x} y={112} w={M.w} h={56} tone="model" title="The model chooses a tool" lines={["Up to six calls, or a direct answer."]} />
         <Arrow d={`M ${M.x + 145} 168 L ${M.x + 145} 196`} />
 
         {/* run_sql */}
-        <Box x={M.x} y={200} w={M.w} h={56} tone="model" title="tool: run_sql" lines={["Writes one SELECT."]} />
+        <Box x={M.x} y={200} w={M.w} h={56} tone="model" title="tool: run_sql" lines={["Submits a SELECT query."]} />
         <Arrow d={`M ${M.x + M.w} 218 L ${C.x} 218`} />
-        <Box x={C.x} y={200} w={C.w} h={74} tone="code" title="Guard" lines={["Eight checks. Blocks writes. Adds the", "restaurant filter to every table."]} />
+        <Box x={C.x} y={200} w={C.w} h={74} tone="code" title="SQL safety checks" lines={["Checks SQL and adds a restaurant", "filter to every table reference."]} />
         <Arrow d={`M ${C.x + 145} 274 L ${C.x + 145} 298`} />
-        <Box x={C.x} y={302} w={C.w} h={56} tone="code" title="Database" lines={["Read only. Slow queries time out."]} />
-        <Arrow d={`M ${C.x} 330 H 390 V 238 H ${M.x + M.w}`} label="rows, or the error" lx={390} ly={344} dashed />
+        <Box x={C.x} y={302} w={C.w} h={56} tone="code" title="Database" lines={["Read-only; five-second timeout."]} />
+        <Arrow d={`M ${C.x} 330 H 390 V 238 H ${M.x + M.w}`} label="rows or error" lx={390} ly={344} dashed />
 
         {/* search_policy */}
-        <Box x={M.x} y={386} w={M.w} h={56} tone="model" title="tool: search_policy" lines={["Asks for the rules on a topic."]} />
+        <Box x={M.x} y={386} w={M.w} h={56} tone="model" title="tool: search_policy" lines={["Submits a policy search."]} />
         <Arrow d={`M ${M.x + M.w} 404 L ${C.x} 404`} />
-        <Box x={C.x} y={386} w={C.w} h={74} tone="code" title="Retrieve" lines={["This restaurant's sections only, and only", "those above the score threshold."]} />
-        <Arrow d={`M ${C.x} 430 L ${M.x + M.w} 430`} label="sections, or none" lx={390} ly={444} dashed />
+        <Box x={C.x} y={386} w={C.w} h={74} tone="code" title="Policy search" lines={["This restaurant’s policies only;", "similarity and keyword matching."]} />
+        <Arrow d={`M ${C.x} 430 L ${M.x + M.w} 430`} label="matching sections" lx={390} ly={444} dashed />
 
         {/* propose */}
-        <Box x={M.x} y={490} w={M.w} h={74} tone="model" title="tool: propose" lines={["A dispute, a campaign, a comp, or a", "note to the owner."]} />
+        <Box x={M.x} y={490} w={M.w} h={74} tone="model" title="tool: propose" lines={["Drafts a dispute, text campaign, comp, or", "note for review."]} />
         <Arrow d={`M ${M.x + M.w} 510 L ${C.x} 510`} />
         <Box x={C.x} y={490} w={C.w} h={74} tone="code" title="Check the proposal" lines={["Dispute windows, discount caps, consent,", "audience count."]} />
         <Arrow d={`M ${C.x} 540 L ${M.x + M.w} 540`} label="pending or blocked" lx={390} ly={554} dashed />
 
         {/* decline */}
-        <Box x={M.x} y={594} w={M.w} h={56} tone="model" title="tool: decline" lines={["Says why. Nothing runs."]} />
+        <Box x={M.x} y={594} w={M.w} h={56} tone="model" title="tool: decline" lines={["Declines with an explanation."]} />
 
         {/* answer */}
         <Arrow d={`M ${M.x + 145} 650 L ${M.x + 145} 678`} />
         <Box x={M.x} y={682} w={M.w} h={74} tone="model" title="The model answers" lines={["Cites sections it used, like", "[House Policy §2, Comps]."]} />
         <Arrow d={`M ${M.x + M.w} 702 L ${C.x} 702`} />
-        <Box x={C.x} y={682} w={C.w} h={74} tone="code" title="Citation check" lines={["Every cited section must be one", "that was retrieved."]} />
+        <Box x={C.x} y={682} w={C.w} h={74} tone="code" title="Citation check" lines={["Compares citation labels with", "retrieved sections."]} />
 
         {/* the owner decides */}
         <Arrow d={`M ${M.x + 145} 756 L ${M.x + 145} 870`} />
-        <Box x={full.x} y={874} w={full.w} h={56} tone="human" title="The owner reads the answer" lines={["Approves or rejects a proposal. Until then nothing has happened."]} />
+        <Box x={full.x} y={874} w={full.w} h={56} tone="human" title="The owner reads the answer" lines={["Approves or rejects pending proposals through the API."]} />
         <Arrow d={`M ${C.x + 145} 930 L ${C.x + 145} 958`} />
-        <Box x={C.x} y={962} w={C.w} h={56} tone="code" title="Record the action" lines={["A simulated record, marked as such."]} />
+        <Box x={C.x} y={962} w={C.w} h={56} tone="code" title="Record the action" lines={["Records an approved action as simulated."]} />
 
         {/* the trace */}
-        <Box x={full.x} y={1046} w={full.w} h={56} tone="plain" title="The trace" lines={["Every step above is recorded: who did it, what it decided, what it cost, how long it took."]} />
+        <Box x={full.x} y={1046} w={full.w} h={56} tone="plain" title="The trace" lines={["Records actors, tool calls, checks, results, durations, and model token costs."]} />
         <circle cx={M.x + 100} cy={1069} r={4} style={{ fill: "var(--model)" }} />
         <circle cx={M.x + 112} cy={1069} r={4} style={{ fill: "var(--code)" }} />
         <circle cx={M.x + 124} cy={1069} r={4} style={{ fill: "var(--human)" }} />
