@@ -77,6 +77,7 @@ export default function ArchitecturePage() {
         </ul>
 
         <figure className="my-14">
+          <p className="mb-3 text-sm text-muted-foreground sm:hidden">Swipe sideways to see the whole diagram.</p>
           <ArchitectureDiagram />
           <figcaption className="mt-4 text-base text-muted-foreground">
             The main request steps, using the same actor colours as the trace.
