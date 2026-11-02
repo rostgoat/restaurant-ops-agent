@@ -41,8 +41,10 @@ export function RunViewer({
           <Button
             key={v.run}
             size="lg"
-            variant={v.run === run ? "default" : "outline"}
-            className="h-11 px-5 font-heading text-base"
+            variant="outline"
+            className={`h-11 min-w-[8.5rem] px-4 font-heading text-base ${
+              v.run === run ? "border-primary bg-primary/10 ring-1 ring-primary hover:bg-primary/15" : ""
+            }`}
             disabled={!v.ran}
             title={v.ran ? undefined : "This case was not in this run"}
             onClick={() => setRun(v.run)}
